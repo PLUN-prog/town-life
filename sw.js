@@ -1,6 +1,6 @@
 ﻿/* 小镇生活 · Service Worker：离线缓存 + 秒开 */
 /* 注意：每次更新文件后，把下面的版本号 +1，再部署，手机才会拉新缓存 */
-var CACHE='town-v13';
+var CACHE='town-v14';
 var ASSETS=[
   './',
   './index.html',
@@ -38,31 +38,20 @@ self.addEventListener('fetch',function(e){
   if(e.request.method!=='GET'||url.origin!==location.origin)return;
   /* 天气接口走网络，不缓存 */
   if(url.hostname==='wttr.in'||url.pathname.indexOf('wttr')>=0)return;
-  /* 页面导航：网络优先，离线才用缓存 → 保证每次打开都是最新版 */
-  if(e.request.mode==='navigate'){
-    e.respondWith(
-      fetch(e.request).then(function(res){
-        if(res&&res.ok){
-          var copy=res.clone();
-          caches.open(CACHE).then(function(c){c.put(e.request,copy);});
-        }
-        return res;
-      }).catch(function(){
-        return caches.match(e.request).then(function(h){return h||caches.match('./index.html');});
-      })
-    );
-    return;
-  }
-  /* 静态资源：缓存优先，回源并更新缓存 */
+  /* 全部资源网络优先（强制拉最新）：每次打开都是最新版；断网才用缓存兜底 */
   e.respondWith(
-    caches.match(e.request).then(function(hit){
-      return hit||fetch(e.request).then(function(res){
-        if(res&&res.ok){
-          var copy=res.clone();
-          caches.open(CACHE).then(function(c){c.put(e.request,copy);});
-        }
-        return res;
-      }).catch(function(){return caches.match('./index.html');});
+    fetch(e.request,{cache:'reload'}).then(function(res){
+      if(res&&res.ok){
+        var copy=res.clone();
+        caches.open(CACHE).then(function(c){c.put(e.request,copy);});
+      }
+      return res;
+    }).catch(function(){
+      return caches.match(e.request).then(function(h){
+        if(h)return h;
+        if(e.request.mode==='navigate')return caches.match('./index.html');
+        return Response.error();
+      });
     })
   );
 });
