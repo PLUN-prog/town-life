@@ -119,12 +119,19 @@ body.night .bar{background:rgba(255,255,255,.1);}
 body.night .pop{background:#1D2B40;border-color:rgba(111,190,158,.6);}
 body.night .pop .ph{color:var(--t1);}
 body.night .foot{color:var(--t3);}
-/* 模式切换浮动按钮 */
-.mode-fab{position:fixed;right:18px;bottom:22px;z-index:90;width:46px;height:46px;border-radius:50%;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;font-size:21px;border:1.5px solid var(--line);
-  background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.22);transition:transform .15s,box-shadow .15s;}
-.mode-fab:hover{transform:translateY(-3px) scale(1.05);}
-.mode-fab:active{transform:scale(.92);}
+  /* 模式切换按钮：桌面端放侧边栏底部居民卡旁，移动端右下角浮动 */
+  .mode-btn{flex:0 0 auto;width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;
+    font-size:20px;border:1.5px solid var(--line);border-radius:11px;background:#fff;cursor:pointer;
+    transition:all .15s;box-shadow:0 2px 0 var(--line-soft);}
+  .mode-btn:hover{border-color:var(--primary);transform:translateY(-2px);}
+  .mode-btn:active{transform:scale(.93);}
+  body.night .mode-btn{background:rgba(255,255,255,.06);color:var(--t1);}
+  .mode-fab{position:fixed;right:18px;bottom:22px;z-index:90;width:50px;height:50px;border-radius:50%;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:23px;border:1.5px solid var(--line);
+    background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.22);transition:transform .15s,box-shadow .15s;}
+  .mode-fab:hover{transform:translateY(-3px) scale(1.05);}
+  .mode-fab:active{transform:scale(.92);}
+  @media (min-width:941px){.mode-fab{display:none;}}
 /* —— 装饰 —— */
 .sky{position:fixed;inset:0 0 auto 0;height:160px;background:linear-gradient(180deg,#DDEEDF 0%,#E7F3ED 55%,var(--bg) 100%);z-index:-3;}
 .grass{position:fixed;left:0;right:0;bottom:0;height:70px;z-index:-2;

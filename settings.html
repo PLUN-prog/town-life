@@ -399,7 +399,7 @@ var AVS=['🐰','🦊','🐻','🐱','🐶','🐼','🐨','🦁','🐯','🐸','
       ls.set('settings-v1-config',cfg);
       document.body.classList.toggle('night',cfg.mode==='night');
       mark();
-      var fab=document.querySelector('.mode-fab');
+      var fab=document.querySelector('.mode-fab,.mode-btn');
       if(fab)fab.textContent=cfg.mode==='night'?'☀️':'🌙';
       townToast(cfg.mode==='night'?'已切换到黑夜模式 🌙':'已切换到白天模式 ☀️');
     };

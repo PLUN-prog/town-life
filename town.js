@@ -41,20 +41,28 @@
   document.body.classList.add('theme-'+cfg.theme);
   /* 夜间 / 白天模式（全站统一） */
   if(cfg.mode==='night')document.body.classList.add('night');
-  /* 模式切换浮动按钮（右下角，手机电脑通用） */
+  /* 模式切换按钮：桌面端进侧边栏居民卡，移动端右下角浮动 */
   (function(){
     var b=document.createElement('button');
-    b.className='mode-fab';
     b.title='切换白天 / 黑夜';
-    b.textContent=document.body.classList.contains('night')?'☀️':'🌙';
+    var isNight=document.body.classList.contains('night');
+    b.textContent=isNight?'☀️':'🌙';
     b.onclick=function(){
-      var isNight=document.body.classList.toggle('night');
-      cfg.mode=isNight?'night':'day';
+      var n=document.body.classList.toggle('night');
+      cfg.mode=n?'night':'day';
       ls.set('settings-v1-config',cfg);
-      b.textContent=isNight?'☀️':'🌙';
-      if(window.townToast)townToast(isNight?'已切换到黑夜模式 🌙':'已切换到白天模式 ☀️');
+      b.textContent=n?'☀️':'🌙';
+      if(window.townToast)townToast(n?'已切换到黑夜模式 🌙':'已切换到白天模式 ☀️');
     };
-    document.body.appendChild(b);
+    if(window.innerWidth>940){
+      b.className='mode-btn';
+      var host=document.querySelector('.side-user');
+      if(host)host.appendChild(b);
+      else document.body.appendChild(b);
+    }else{
+      b.className='mode-fab';
+      document.body.appendChild(b);
+    }
   })();
   /* 侧边栏底部用户卡 */
   var u=document.querySelector('.side-user');
