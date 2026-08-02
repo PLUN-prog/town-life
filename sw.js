@@ -1,6 +1,6 @@
 /* 小镇生活 · Service Worker：离线缓存 + 秒开 */
 /* 注意：每次更新文件后，把下面的版本号 +1，再部署，手机才会拉新缓存 */
-var CACHE='town-v1';
+var CACHE='town-v2';
 var ASSETS=[
   './',
   './index.html',
