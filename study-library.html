@@ -102,7 +102,8 @@
       <div class="scan-bar">
         <button class="btn ghost" id="fileBtn" style="padding:8px 14px;font-size:12.5px;">📎 导入文件</button>
         <button class="btn ghost" id="scanBtn" style="padding:8px 14px;font-size:12.5px;">🔍 扫描识别</button>
-        <span class="note" id="scanNote">课件可导入文件；扫描可识别图片里的文字（首次需下载识别包，约 15MB）</span>
+        <select id="ocrLang" style="font-family:inherit;font-size:12px;padding:7px 8px;border:1.5px solid var(--line);border-radius:8px;background:#fff;outline:none;color:var(--t1);"><option value="chi_sim">简体中文</option><option value="eng">English</option><option value="chi_sim+eng">中英混合</option></select>
+        <span class="note" id="scanNote">课件可导入文件；扫描可识别图片文字（首次需下载识别包）。小贴士：正对拍、光线均匀、字大清晰识别率更高 📷</span>
         <input type="file" id="impFile" class="filehide">
         <input type="file" id="scanFile" class="filehide" accept="image/*">
       </div>
@@ -342,7 +343,7 @@ document.getElementById('impFile').onchange=function(){
   rd.readAsDataURL(f);
 };
 
-/* 扫描识别（tesseract.js OCR，图片 → 文字） */
+/* 扫描识别（tesseract.js OCR：预处理灰度+对比度 → 识别 → 文字） */
 function loadTesseract(cb){
   if(window.Tesseract){cb();return;}
   var s=document.createElement('script');
@@ -351,18 +352,54 @@ function loadTesseract(cb){
   s.onerror=function(){townToast('识别组件下载失败，检查网络后再试');};
   document.head.appendChild(s);
 }
+/* 图片预处理：缩放至 1800px 内 + 灰度 + 对比度增强，显著提升识别率 */
+function preprocess(file){
+  return new Promise(function(resolve,reject){
+    var img=new Image();
+    var url=URL.createObjectURL(file);
+    img.onload=function(){
+      try{
+        var scale=Math.min(1,1800/Math.max(img.width,img.height));
+        var w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));
+        var cv=document.createElement('canvas');cv.width=w;cv.height=h;
+        var ctx=cv.getContext('2d');
+        ctx.drawImage(img,0,0,w,h);
+        var id=ctx.getImageData(0,0,w,h),d=id.data;
+        for(var i=0;i<d.length;i+=4){
+          var g=Math.round(d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114);
+          g=Math.round((g-128)*1.6+128);
+          d[i]=d[i+1]=d[i+2]=Math.max(0,Math.min(255,g));
+        }
+        ctx.putImageData(id,0,0);
+        URL.revokeObjectURL(url);
+        cv.toBlob(function(b){resolve(b);},'image/png');
+      }catch(e){URL.revokeObjectURL(url);reject(e);}
+    };
+    img.onerror=function(){URL.revokeObjectURL(url);reject(new Error('图片读取失败'));};
+    img.src=url;
+  });
+}
+var ocrLang=document.getElementById('ocrLang');
+var savedLang=ls.get('study-v1-ocr-lang');
+if(savedLang)ocrLang.value=savedLang;
+ocrLang.onchange=function(){ls.set('study-v1-ocr-lang',this.value);};
 document.getElementById('scanBtn').onclick=function(){document.getElementById('scanFile').click();};
 document.getElementById('scanFile').onchange=function(){
   var f=this.files[0];this.value='';
   if(!f)return;
   if(!/^image\//.test(f.type)){townToast('请选择图片文件 🖼');return;}
   var btn=document.getElementById('scanBtn'),note=document.getElementById('scanNote');
-  btn.textContent='⏳ 识别中…';
-  note.textContent='首次使用需下载中文识别包（约 15MB），耐心等一会儿…';
+  var lang=ocrLang.value;
+  btn.textContent='⏳ 处理中…';
+  note.textContent='正在预处理图片（灰度+增强对比度）…';
   loadTesseract(function(){
-    Tesseract.recognize(f,'chi_sim',{logger:function(m){
-      if(m.status==='recognizing text')note.textContent='识别中… '+Math.round((m.progress||0)*100)+'%';
-    }}).then(function(res){
+    preprocess(f).then(function(blob){
+      btn.textContent='⏳ 识别中…';
+      note.textContent=lang.indexOf('+')>=0?'首次需下载中英两个识别包（约 16MB），耐心等…':'首次需下载识别包（约 12MB），耐心等…';
+      return Tesseract.recognize(blob,lang,{logger:function(m){
+        if(m.status==='recognizing text')note.textContent='识别中… '+Math.round((m.progress||0)*100)+'%';
+      }});
+    }).then(function(res){
       var txt=(res&&res.data&&res.data.text)||'';
       document.getElementById('addBody').value=txt.trim();
       btn.textContent='🔍 扫描识别';
@@ -370,7 +407,7 @@ document.getElementById('scanFile').onchange=function(){
       townToast('扫描完成，可编辑后保存 🔍');
     }).catch(function(e){
       btn.textContent='🔍 扫描识别';
-      note.textContent='课件可导入文件；扫描可识别图片里的文字（首次需下载识别包，约 15MB）';
+      note.textContent='课件可导入文件；扫描可识别图片文字（首次需下载识别包）。小贴士：正对拍、光线均匀、字大清晰识别率更高 📷';
       townToast('识别失败：'+(e&&e.message?e.message:e));
     });
   });
