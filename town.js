@@ -337,11 +337,22 @@
   function syncSave(s){ls.set('settings-v1-sync',s);}
   function gistApi(token,path,method,body){
     return fetch('https://api.github.com'+path,{
-      method:method||'GET',
-      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github+json'},
-      body:body?JSON.stringify(body):undefined
+      method:typeof method==='string'?(method||'GET'):'GET',
+      headers:{
+        'Authorization':'token '+token,
+        'Accept':'application/vnd.github+json',
+        'Content-Type':'application/json'
+      },
+      body:body!==undefined?JSON.stringify(body):undefined
     }).then(function(r){
-      if(!r.ok){return r.json().then(function(e){throw new Error((e&&e.message)||('HTTP '+r.status));});}
+      if(!r.ok){
+        return r.json().then(function(e){
+          throw new Error((e&&e.message)||('HTTP '+r.status));
+        }).catch(function(er){
+          if(er&&er.message&&String(er.message).indexOf('HTTP')>=0)throw er;
+          throw new Error('HTTP '+r.status);
+        });
+      }
       return r.status===204?null:r.json();
     });
   }
@@ -367,7 +378,7 @@
         return null;
       }).then(function(id){
         if(id)return id;
-        return gistApi(s.token,'/gists',{method:'POST'},{description:GIST_DESC,public:false,files:{'town-data.json':{content:JSON.stringify({app:'town-life',updatedAt:0,data:{}})}}}).then(function(g){return g.id;});
+        return gistApi(s.token,'/gists','POST',{description:GIST_DESC,public:false,files:{'town-data.json':{content:JSON.stringify({app:'town-life',updatedAt:0,data:{}})}}}).then(function(g){return g.id;});
       }).then(function(id){s.gistId=id;syncSave(s);return id;});
     },
     pack:function(){

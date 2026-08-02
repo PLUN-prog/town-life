@@ -708,6 +708,15 @@ renderOv();
   var acts=document.getElementById('syncActions'),guide=document.getElementById('syncGuide');
   var connBtn=document.getElementById('syncConn');
   function cur(){return ls.get('settings-v1-sync')||{};}
+  function syncErr(e){
+    var m=e&&e.message?String(e.message):String(e);
+    if(/failed to fetch|networkerror|load failed|network request failed/i.test(m))return '网络连接失败（访问不了 GitHub，检查网络）';
+    if(/401|bad credentials|invalid username/i.test(m))return '密钥无效或已失效，请重新获取密钥';
+    if(/403|rate limit|abuse/i.test(m))return '请求太频繁被限流，等一会儿再试';
+    if(/404|not found/i.test(m))return '同步空间不存在（可能被删除），断开重连试试';
+    if(/valid http method/i.test(m))return '接口调用参数错误，请刷新页面后再试';
+    return m;
+  }
   function refresh(){
     var s=cur();
     if(s.token&&s.login){
@@ -736,21 +745,21 @@ renderOv();
       townToast(r&&r.action==='pulled'?'已连接并拉取了云端数据 🌐':(r&&r.action==='pushed'?'已连接并上传了本地数据 🌐':'已连接，两边数据一致 🌐'));
       refresh();
     }).catch(function(e){
-      townToast('连接失败：'+(e&&e.message?e.message:e)+'，检查密钥是否正确');
+      townToast('连接失败：'+syncErr(e)+'，检查密钥是否正确');
       refresh();
     });
   };
   document.getElementById('syncUp').onclick=function(){
     window.townSync.upload().then(function(){
       townToast('已上传到云端 📤');refresh();
-    }).catch(function(e){townToast('上传失败：'+(e&&e.message?e.message:e));});
+    }).catch(function(e){townToast('上传失败：'+syncErr(e));});
   };
   document.getElementById('syncDown').onclick=function(){
     if(!confirm('拉取会用云端数据覆盖本机，确定？建议先备份。'))return;
     window.townSync.pull().then(function(){
       townToast('已拉取云端数据，正在刷新…');
       setTimeout(function(){location.reload();},800);
-    }).catch(function(e){townToast('拉取失败：'+(e&&e.message?e.message:e));});
+    }).catch(function(e){townToast('拉取失败：'+syncErr(e));});
   };
   document.getElementById('syncAuto').onchange=function(){
     var s=cur();
