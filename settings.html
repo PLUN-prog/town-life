@@ -259,6 +259,39 @@
     <p class="muted" style="margin-top:12px;">重置会删除对应模块在本地浏览器里的全部记录，且不可恢复，操作前请先备份。</p>
   </section>
 
+  <!-- 云端同步 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">SYNC</span>云端同步</div>
+    <p class="muted" style="letter-spacing:1px;line-height:2;margin-bottom:12px;">
+      把小镇数据存到你的 GitHub（私有 Gist）。<b style="color:var(--primary-deep);">手机 / 电脑 / 朋友输入同一把密钥</b>，就能互通同一份数据。
+    </p>
+    <div class="frow">
+      <label>密钥</label>
+      <input type="password" id="syncToken" placeholder="粘贴 GitHub 密钥（ghp_…）" style="flex:1;font-family:inherit;font-size:13px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;outline:none;">
+      <button class="btn primary" id="syncConn" style="padding:10px 16px;font-size:13px;">🔌 连接</button>
+    </div>
+    <div class="nbar" style="margin-bottom:10px;">
+      <span class="note" id="syncStatus" style="flex:1;">未连接。密钥在哪拿？点下方「如何获取密钥」。</span>
+      <button class="btn ghost" id="syncHow" style="padding:8px 14px;font-size:12px;">❓ 如何获取密钥</button>
+    </div>
+    <div class="nopts show" id="syncActions" style="gap:10px;">
+      <button class="btn ghost" id="syncUp" style="padding:9px 16px;font-size:12.5px;">📤 立即上传（覆盖云端）</button>
+      <button class="btn ghost" id="syncDown" style="padding:9px 16px;font-size:12.5px;">📥 拉取云端（覆盖本地）</button>
+      <label class="switch" style="align-self:center;"><input type="checkbox" id="syncAuto"><span class="tr"></span></label>
+      <span class="note" style="flex:1;">自动同步（页面打开时每 2 分钟）</span>
+      <button class="btn ghost danger" id="syncClear" style="padding:9px 14px;font-size:12px;">断开</button>
+    </div>
+    <div class="nopts" id="syncGuide" style="flex-direction:column;gap:6px;background:#FBF9F2;border:1.5px solid var(--line-soft);border-radius:10px;padding:12px 14px;margin-top:4px;">
+      <div style="font-size:12px;color:var(--t2);line-height:2;letter-spacing:.5px;">
+        1. 浏览器打开 <b>github.com → 头像 → Settings → Developer settings → Personal access tokens → Tokens (classic)</b><br>
+        2. 点 <b>Generate new token (classic)</b>，勾选 <b>gist</b> 一项即可<br>
+        3. 点最下方 <b>Generate token</b>，复制 <b>ghp_</b> 开头的密钥，粘贴到上方<br>
+        4. 点「连接」；其他设备（手机/朋友）<b>输入同一把密钥</b>即可互通同一份数据
+      </div>
+      <div style="font-size:11.5px;color:var(--rose);line-height:1.9;letter-spacing:.5px;">⚠️ 密钥 = 小镇钥匙：拿到它的人能读写你的小镇数据，只发给信任的人。</div>
+    </div>
+  </section>
+
   <footer class="foot">
     小镇生活 · 十六个模块，一个家 🌱<br>
     <span class="muted">日子是一格一格慢慢拼出来的。</span>
@@ -390,22 +423,7 @@ var AVS=['🐰','🦊','🐻','🐱','🐶','🐼','🐨','🦁','🐯','🐸','
 })();
 
 /* ============ 数据管理 ============ */
-var MODULES=[
-  {k:'home',n:'首页待办',keys:['home-v1-todos','home-v1-countdown','home-v1-courses','home-v1-water','home-v1-expense']},
-  {k:'study',n:'学习计划',keys:['studyplan-v1-states','study-v1-sessions','study-v1-checkins','study-v1-daily','study-v1-library']},
-  {k:'contest',n:'竞赛备考',keys:['contest-v1-mocks','contest-v1-papers','contest-v1-schedule']},
-  {k:'speech',n:'话术练习',keys:['speech-v1-items','speech-v1-cats','speech-v1-practice','speech-v1-practiced','speech-v1-favs']},
-  {k:'money',n:'收支账本',keys:['money-v1-records','money-v1-budgets']},
-  {k:'notes',n:'便签笔记',keys:['notes-v1-notes','notes-v1-pwd']},
-  {k:'blog',n:'博客精选',keys:['blog-v1-favs','blog-v1-read','blog-v1-hist','blog-v1-quotes','blog-v1-articles']},
-  {k:'podcast',n:'播客精选',keys:['podcast-v1-hist','podcast-v1-checkin','podcast-v1-favs','listen-v1-log']},
-  {k:'habit',n:'习惯打卡',keys:['habitwall-v1-habits','habitwall-v1-log']},
-  {k:'weather',n:'今日天气',keys:['townweather-v1-city','townweather-v1-cache']},
-  {k:'bgm',n:'小镇BGM',keys:['bgmplayer-v1-vol']},
-  {k:'journal',n:'睡前小记',keys:['nightjournal-v1-entries']},
-  {k:'shop',n:'小镇商店',keys:['townshop-v1-state']},
-  {k:'settings',n:'小镇设置',keys:['settings-v1-config','settings-v1-notify','settings-v1-notified']}
-];
+var MODULES=window.townModules||[];
 function arrLen(v){return Array.isArray(v)?v.length:(v&&typeof v==='object'?Object.keys(v).length:0);}
 
 /* —— 概览 —— */
@@ -651,6 +669,72 @@ function doRestore(file){
 
 renderMe();
 renderOv();
+
+/* ============ 云端同步 ============ */
+(function(){
+  var inp=document.getElementById('syncToken'),status=document.getElementById('syncStatus');
+  var acts=document.getElementById('syncActions'),guide=document.getElementById('syncGuide');
+  var connBtn=document.getElementById('syncConn');
+  function cur(){return ls.get('settings-v1-sync')||{};}
+  function refresh(){
+    var s=cur();
+    if(s.token&&s.login){
+      inp.value=s.token;
+      status.innerHTML='已连接：<b style="color:var(--primary-deep);">'+s.login+'</b> · '+(s.lastUp?('最近同步 '+new Date(s.lastUp).toLocaleString()):'还没同步过，点「立即上传」把数据传上去');
+      document.getElementById('syncAuto').checked=!!s.auto;
+      acts.classList.add('show');
+      connBtn.textContent='✓ 已连接';
+    }else{
+      acts.classList.remove('show');
+      connBtn.textContent='🔌 连接';
+      status.textContent='未连接。密钥在哪拿？点「如何获取密钥」。';
+    }
+  }
+  refresh();
+  connBtn.onclick=function(){
+    var t=inp.value.trim();
+    if(!t){townToast('先粘贴密钥呀 🔑');return;}
+    connBtn.textContent='⏳ 连接中…';
+    window.townSync.test(t).then(function(login){
+      var s=cur();
+      s.token=t;s.login=login;s.gistId=s.gistId||'';
+      ls.set('settings-v1-sync',s);
+      return window.townSync.sync();
+    }).then(function(r){
+      townToast(r&&r.action==='pulled'?'已连接并拉取了云端数据 🌐':(r&&r.action==='pushed'?'已连接并上传了本地数据 🌐':'已连接，两边数据一致 🌐'));
+      refresh();
+    }).catch(function(e){
+      townToast('连接失败：'+(e&&e.message?e.message:e)+'，检查密钥是否正确');
+      refresh();
+    });
+  };
+  document.getElementById('syncUp').onclick=function(){
+    window.townSync.upload().then(function(){
+      townToast('已上传到云端 📤');refresh();
+    }).catch(function(e){townToast('上传失败：'+(e&&e.message?e.message:e));});
+  };
+  document.getElementById('syncDown').onclick=function(){
+    if(!confirm('拉取会用云端数据覆盖本机，确定？建议先备份。'))return;
+    window.townSync.pull().then(function(){
+      townToast('已拉取云端数据，正在刷新…');
+      setTimeout(function(){location.reload();},800);
+    }).catch(function(e){townToast('拉取失败：'+(e&&e.message?e.message:e));});
+  };
+  document.getElementById('syncAuto').onchange=function(){
+    var s=cur();
+    s.auto=this.checked;
+    ls.set('settings-v1-sync',s);
+    townToast(this.checked?'已开启自动同步（每 2 分钟）':'已关闭自动同步');
+  };
+  document.getElementById('syncClear').onclick=function(){
+    if(!confirm('断开后本机不再同步（云端数据保留）。确定？'))return;
+    window.townSync.clear();
+    inp.value='';
+    refresh();
+    townToast('已断开云端同步');
+  };
+  document.getElementById('syncHow').onclick=function(){guide.classList.toggle('show');};
+})();
 </script>
 </body>
 </html>

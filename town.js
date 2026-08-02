@@ -282,6 +282,126 @@
     }
   };
 
+  /* ============ 数据模块清单（导出/重置/云同步共用） ============ */
+  window.townModules=[
+    {k:'home',n:'首页待办',keys:['home-v1-todos','home-v1-countdown','home-v1-courses','home-v1-water','home-v1-expense']},
+    {k:'study',n:'学习计划',keys:['studyplan-v1-states','study-v1-sessions','study-v1-checkins','study-v1-daily','study-v1-library']},
+    {k:'contest',n:'竞赛备考',keys:['contest-v1-mocks','contest-v1-papers','contest-v1-schedule']},
+    {k:'speech',n:'话术练习',keys:['speech-v1-items','speech-v1-cats','speech-v1-practice','speech-v1-practiced','speech-v1-favs']},
+    {k:'money',n:'收支账本',keys:['money-v1-records','money-v1-budgets']},
+    {k:'notes',n:'便签笔记',keys:['notes-v1-notes','notes-v1-pwd']},
+    {k:'blog',n:'博客精选',keys:['blog-v1-favs','blog-v1-read','blog-v1-hist','blog-v1-quotes','blog-v1-articles']},
+    {k:'podcast',n:'播客精选',keys:['podcast-v1-hist','podcast-v1-checkin','podcast-v1-favs','listen-v1-log']},
+    {k:'habit',n:'习惯打卡',keys:['habitwall-v1-habits','habitwall-v1-log']},
+    {k:'weather',n:'今日天气',keys:['townweather-v1-city','townweather-v1-cache']},
+    {k:'bgm',n:'小镇BGM',keys:['bgmplayer-v1-vol']},
+    {k:'journal',n:'睡前小记',keys:['nightjournal-v1-entries']},
+    {k:'shop',n:'小镇商店',keys:['townshop-v1-state']},
+    {k:'settings',n:'小镇设置',keys:['settings-v1-config','settings-v1-notify','settings-v1-notified']}
+  ];
+  window.townSyncKeys=function(){
+    var out=[];
+    window.townModules.forEach(function(m){m.keys.forEach(function(k){out.push(k);});});
+    return out;
+  };
+
+  /* ============ 云端同步（GitHub Gist 存储，同密钥互通） ============ */
+  var GIST_DESC='town-life-sync';
+  function syncCfg(){var s=ls.get('settings-v1-sync')||{};return s;}
+  function syncSave(s){ls.set('settings-v1-sync',s);}
+  function gistApi(token,path,method,body){
+    return fetch('https://api.github.com'+path,{
+      method:method||'GET',
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github+json'},
+      body:body?JSON.stringify(body):undefined
+    }).then(function(r){
+      if(!r.ok){return r.json().then(function(e){throw new Error((e&&e.message)||('HTTP '+r.status));});}
+      return r.status===204?null:r.json();
+    });
+  }
+  function collectData(){
+    var data={};
+    window.townSyncKeys().forEach(function(k){var v=ls.get(k);if(v!==null&&v!==undefined)data[k]=v;});
+    return data;
+  }
+  function applyData(data){
+    Object.keys(data).forEach(function(k){localStorage.setItem(k,JSON.stringify(data[k]));});
+  }
+  window.townSync={
+    /* 验证 token 并取账号名 */
+    test:function(token){
+      return gistApi(token,'/user').then(function(u){return u.login;});
+    },
+    /* 找到或创建同步 Gist，返回 gistId */
+    ensure:function(){
+      var s=syncCfg();
+      if(s.gistId)return Promise.resolve(s.gistId);
+      return gistApi(s.token,'/users/'+encodeURIComponent(s.login)+'/gists?per_page=100').then(function(list){
+        for(var i=0;i<list.length;i++){if(list[i].description===GIST_DESC)return list[i].id;}
+        return null;
+      }).then(function(id){
+        if(id)return id;
+        return gistApi(s.token,'/gists',{method:'POST'},{description:GIST_DESC,public:false,files:{'town-data.json':{content:JSON.stringify({app:'town-life',updatedAt:0,data:{}})}}}).then(function(g){return g.id;});
+      }).then(function(id){s.gistId=id;syncSave(s);return id;});
+    },
+    pack:function(){
+      return {app:'town-life',v:1,updatedAt:Date.now(),data:collectData()};
+    },
+    fetchRemote:function(){
+      return this.ensure().then(function(id){return gistApi(syncCfg().token,'/gists/'+id);}).then(function(g){
+        var f=g.files&&g.files['town-data.json'];
+        if(!f)return {updatedAt:0,data:{}};
+        try{return JSON.parse(f.content||'{}');}catch(e){return {updatedAt:0,data:{}};}
+      });
+    },
+    /* 上传本地（覆盖云端） */
+    upload:function(){
+      var s=syncCfg(),payload=this.pack();
+      return this.ensure().then(function(id){
+        return gistApi(s.token,'/gists/'+id,'PATCH',{files:{'town-data.json':{content:JSON.stringify(payload)}}});
+      }).then(function(){s.lastUp=payload.updatedAt;s.lastErr='';syncSave(s);return payload.updatedAt;});
+    },
+    /* 拉取云端（覆盖本地） */
+    pull:function(){
+      var s=syncCfg();
+      return this.fetchRemote().then(function(p){
+        if(p.data)applyData(p.data);
+        s.lastUp=p.updatedAt||Date.now();s.lastDown=p.updatedAt||Date.now();s.lastErr='';syncSave(s);
+        return p;
+      });
+    },
+    /* 智能同步：内容一致则不动；云端新则拉；本地新则推 */
+    sync:function(){
+      var s=syncCfg(),self=this;
+      return this.fetchRemote().then(function(remote){
+        var localData=collectData();
+        var localStr=JSON.stringify(localData);
+        var remoteStr=JSON.stringify(remote.data||{});
+        if(localStr===remoteStr)return {action:'none'};
+        if((remote.updatedAt||0)>(s.lastUp||0)){
+          if(remote.data)applyData(remote.data);
+          s.lastUp=remote.updatedAt||Date.now();s.lastDown=remote.updatedAt||Date.now();s.lastErr='';syncSave(s);
+          return {action:'pulled'};
+        }
+        return self.upload().then(function(){return {action:'pushed'};});
+      });
+    },
+    /* 断开：清掉本机同步配置（云端数据保留） */
+    clear:function(){
+      localStorage.removeItem('settings-v1-sync');
+    }
+  };
+  /* 自动同步：页面打开时每 2 分钟静默执行（需已开启自动开关且已连接） */
+  (function(){
+    var started=false;
+    function autoTick(){
+      var s=syncCfg();
+      if(!s.token||!s.auto)return;
+      window.townSync.sync().catch(function(){});
+    }
+    setInterval(autoTick,120000);
+  })();
+
   /* ============ PWA：注册 Service Worker（需 HTTPS 部署后生效） ============ */
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('sw.js').catch(function(){});
