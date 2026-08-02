@@ -119,13 +119,15 @@ body.night .bar{background:rgba(255,255,255,.1);}
 body.night .pop{background:#1D2B40;border-color:rgba(111,190,158,.6);}
 body.night .pop .ph{color:var(--t1);}
 body.night .foot{color:var(--t3);}
-  /* 模式切换按钮：桌面端放侧边栏底部居民卡旁，移动端右下角浮动 */
-  .mode-btn{flex:0 0 auto;width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;
-    font-size:20px;border:1.5px solid var(--line);border-radius:11px;background:#fff;cursor:pointer;
-    transition:all .15s;box-shadow:0 2px 0 var(--line-soft);}
-  .mode-btn:hover{border-color:var(--primary);transform:translateY(-2px);}
-  .mode-btn:active{transform:scale(.93);}
-  body.night .mode-btn{background:rgba(255,255,255,.06);color:var(--t1);}
+  /* 模式切换按钮：桌面端为侧边栏顶部按钮条，移动端右下角浮动 */
+  .mode-bar{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+    font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:2px;color:var(--t2);
+    background:var(--primary-soft);border:1.5px dashed rgba(111,190,158,.5);border-radius:10px;
+    padding:10px 0;cursor:pointer;margin-bottom:8px;transition:all .15s;}
+  .mode-bar:hover{border-color:var(--primary);color:var(--primary-deep);transform:translateX(2px);}
+  .mode-bar:active{transform:scale(.98);}
+  body.night .mode-bar{background:rgba(111,190,158,.16);color:var(--primary);border-color:rgba(111,190,158,.55);}
+  @media (max-width:940px){.mode-bar{display:none;}}
   .mode-fab{position:fixed;right:18px;bottom:22px;z-index:90;width:50px;height:50px;border-radius:50%;cursor:pointer;
     display:flex;align-items:center;justify-content:center;font-size:23px;border:1.5px solid var(--line);
     background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.22);transition:transform .15s,box-shadow .15s;}
