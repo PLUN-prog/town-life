@@ -38,6 +38,9 @@
   .task.done .name{color:var(--t3);text-decoration:line-through;text-decoration-color:var(--accent);}
   .task .time{flex:0 0 auto;font-family:var(--pixel);font-size:10.5px;color:var(--accent-deep);
     background:#FDF1E4;border:1.5px solid #F3D6B6;border-radius:8px;padding:7px 9px;white-space:nowrap;}
+  .task .task-del{flex:0 0 auto;border:none;background:none;color:var(--t3);cursor:pointer;font-size:12.5px;padding:6px 7px;border-radius:7px;transition:all .12s;}
+  .task .task-del:hover{color:var(--rose);background:var(--rose-soft);}
+  .task .task-del:active{transform:scale(.9);}
   .progress-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
   .progress-head .label{font-size:13.5px;letter-spacing:1px;color:var(--t2);}
   .progress-head .num{font-family:var(--pixel);font-size:14px;color:var(--primary-deep);}
@@ -113,7 +116,7 @@
 
   <!-- 学习方向卡片 -->
   <section class="card rise">
-    <div class="card-title"><span class="pix">DIR</span>学习方向</div>
+    <div class="card-title"><span class="pix">DIR</span>学习方向<button class="btn ghost" id="dirMgmt" style="margin-left:auto;padding:8px 14px;font-size:12.5px;">🧭 管理方向</button></div>
     <div class="dir-scroll" id="dirRow"></div>
   </section>
 
@@ -129,7 +132,7 @@
   </section>
 
   <section class="card rise">
-    <div class="card-title"><span class="pix">TODO</span>分条学习任务</div>
+    <div class="card-title"><span class="pix">TODO</span>分条学习任务<button class="btn ghost" id="addTaskBtn" style="margin-left:auto;padding:8px 14px;font-size:12.5px;">＋ 添加任务</button></div>
     <div id="taskList"></div>
   </section>
 
@@ -182,6 +185,31 @@
   </footer>
 </main>
 
+<!-- 添加任务弹窗 -->
+<div class="modal" id="taskModal">
+  <div class="modal-box" style="max-width:400px;">
+    <h3><span class="mico">➕</span>添加学习任务</h3>
+    <div style="margin-bottom:12px;"><label style="font-size:12px;color:var(--t3);display:block;margin-bottom:6px;letter-spacing:1px;">任务内容</label><input id="tmName" style="width:100%;font-family:inherit;font-size:13.5px;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;outline:none;" maxlength="18" placeholder="如：做完第三章习题"></div>
+    <div style="margin-bottom:12px;"><label style="font-size:12px;color:var(--t3);display:block;margin-bottom:6px;letter-spacing:1px;">学习方向</label><select id="tmDir" style="width:100%;font-family:inherit;font-size:13.5px;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;outline:none;"></select></div>
+    <div style="margin-bottom:12px;"><label style="font-size:12px;color:var(--t3);display:block;margin-bottom:6px;letter-spacing:1px;">预计时长</label><select id="tmDur" style="width:100%;font-family:inherit;font-size:13.5px;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;outline:none;"><option value="15">15 分钟</option><option value="25" selected>25 分钟</option><option value="30">30 分钟</option><option value="40">40 分钟</option><option value="45">45 分钟</option><option value="50">50 分钟</option></select></div>
+    <div class="modal-foot"><button class="btn ghost" id="tmCancel">取消</button><button class="btn primary" id="tmOk">加入清单</button></div>
+  </div>
+</div>
+
+<!-- 管理方向弹窗 -->
+<div class="modal" id="dirModal">
+  <div class="modal-box" style="max-width:400px;">
+    <h3><span class="mico">🧭</span>管理学习方向</h3>
+    <div id="dirList" style="max-height:280px;overflow-y:auto;"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <input id="dnIco" style="flex:0 0 56px;text-align:center;font-family:inherit;font-size:15px;padding:9px 4px;border:1.5px solid var(--line);border-radius:9px;outline:none;" maxlength="2" value="📌" title="图标">
+      <input id="dnName" style="flex:1;font-family:inherit;font-size:13.5px;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;outline:none;" maxlength="6" placeholder="新方向名，如：物理">
+      <button class="btn primary" id="dnAdd" style="padding:9px 16px;font-size:13px;">添加</button>
+    </div>
+    <div class="modal-foot"><button class="btn ghost" id="dnClose">完成</button></div>
+  </div>
+</div>
+
 <script src="town.js"></script>
 <script>
 /* ================= 每日清单生成 ================= */
@@ -211,7 +239,7 @@ var POOL=[
   {icon:"🏃",name:"学习间隙出门散步 10 分钟",cat:"小憩",dir:"通用",base:10,var:0},
   {icon:"📖",name:"朗读一页喜欢的文字",cat:"阅读",dir:"通用",base:15,var:5}
 ];
-var DIRS=[['🧮','数学'],['🔤','英语'],['📜','语文'],['💻','编程'],['🌿','通用']];
+var DIRS=null;
 var SLOGANS=[
   "今天也要像小镇的早晨一样，慢慢亮起来 ☀️",
   "不急不赶，把今天的小任务一个个点亮 ✨",
@@ -242,6 +270,15 @@ function fmtTime(min){return min>=60?(Math.floor(min/60)+'小时'+(min%60?min%60
 function fmtH(min){var h=Math.floor(min/60);return h>0?(h+'h'+(min%60?min%60+'m':'')):(min+'m');}
 var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 
+/* 学习方向：内置 5 个 + 可自定义增删（存 study-v1-dirs） */
+function loadDirs(){
+  var d=ls.get('study-v1-dirs');
+  if(!Array.isArray(d)||!d.length)d=[['🧮','数学'],['🔤','英语'],['📜','语文'],['💻','编程'],['🌿','通用']];
+  return d;
+}
+function saveDirs(){ls.set('study-v1-dirs',DIRS);}
+DIRS=loadDirs();
+
 function buildToday(){
   var rnd=mulberry32(daySeed()*9301+49297);
   var pool=POOL.slice();
@@ -252,6 +289,11 @@ function buildToday(){
   });
 }
 var T=buildToday();
+/* 合并今日自定义任务（study-v1-customtasks） */
+(function(){
+  var ct=ls.get('study-v1-customtasks')||{};
+  (ct[todayStr()]||[]).forEach(function(t){T.push(t);});
+})();
 var TOTAL=T.reduce(function(s,t){return s+t.dur;},0);
 
 document.getElementById('slogan').textContent=SLOGANS[daySeed()%SLOGANS.length];
@@ -339,17 +381,37 @@ function renderDirs(){
   });
 }
 
-/* ================= 任务列表 ================= */
+/* ================= 任务列表（可添加/删除） ================= */
 var listEl=document.getElementById('taskList');
-T.forEach(function(t,i){
-  var row=document.createElement('div');
-  row.className='task';
-  row.innerHTML='<div class="check" role="checkbox" tabindex="0" aria-checked="false">'+
-    '<svg width="13" height="13" viewBox="0 0 10 10" shape-rendering="crispEdges"><path d="M1 5 L4 8 L9 2" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="square"/></svg></div>'+
-    '<div class="txt"><div class="name">'+t.icon+' '+t.name+'</div><div class="tag">'+t.cat+' · '+t.dir+' · 打卡后给自己一朵小云彩 ☁️</div></div>'+
-    '<div class="time">'+t.dur+'min</div>';
-  listEl.appendChild(row);
-});
+function renderTasks(){
+  listEl.innerHTML='';
+  T.forEach(function(t,i){
+    var row=document.createElement('div');
+    row.className='task';
+    row.innerHTML='<div class="check" role="checkbox" tabindex="0" aria-checked="false">'+
+      '<svg width="13" height="13" viewBox="0 0 10 10" shape-rendering="crispEdges"><path d="M1 5 L4 8 L9 2" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="square"/></svg></div>'+
+      '<div class="txt"><div class="name">'+t.icon+' '+t.name+'</div><div class="tag">'+t.cat+' · '+t.dir+' · 打卡后给自己一朵小云彩 ☁️</div></div>'+
+      '<div class="time">'+t.dur+'min</div>'+
+      '<button class="task-del" title="删除任务">✕</button>';
+    row.querySelector('.task-del').onclick=function(){
+      if(!confirm('删除任务「'+t.name+'」？'))return;
+      removeTask(i);
+    };
+    listEl.appendChild(row);
+  });
+}
+function removeTask(i){
+  var t=T[i];
+  T.splice(i,1);
+  todayStates.splice(i,1);
+  if(t&&t.cid){
+    var ct=ls.get('study-v1-customtasks')||{};
+    ct[todayStr()]=(ct[todayStr()]||[]).filter(function(x){return x.cid!==t.cid;});
+    ls.set('study-v1-customtasks',ct);
+  }
+  refresh();renderTasks();renderDirs();
+  townToast('任务已删除');
+}
 
 /* 打卡（按天存储） */
 var states=ls.get('studyplan-v1-states')||{};
@@ -391,7 +453,7 @@ listEl.addEventListener('keydown',function(e){
     if(ck){e.preventDefault();ck.click();}
   }
 });
-refresh();renderDirs();
+renderTasks();refresh();renderDirs();
 
 /* ================= 打卡记录（14 天） ================= */
 function streak(){
@@ -601,6 +663,75 @@ function saveWallpaper(){
   document.body.appendChild(a);a.click();a.remove();
   townToast('壁纸已保存到下载文件夹 📱✨');
 }
+
+/* ================= 添加任务弹窗 ================= */
+var taskModal=document.getElementById('taskModal');
+document.getElementById('addTaskBtn').onclick=function(){
+  var sel=document.getElementById('tmDir');
+  sel.innerHTML='';
+  DIRS.forEach(function(d){
+    var o=document.createElement('option');o.value=d[1];o.textContent=d[0]+' '+d[1];
+    sel.appendChild(o);
+  });
+  document.getElementById('tmName').value='';
+  taskModal.classList.add('show');
+  document.getElementById('tmName').focus();
+};
+document.getElementById('tmCancel').onclick=function(){taskModal.classList.remove('show');};
+document.getElementById('tmOk').onclick=function(){
+  var n=document.getElementById('tmName').value.trim();
+  if(!n){townToast('写一下任务内容呀 ✏️');return;}
+  var dir=document.getElementById('tmDir').value;
+  var dur=+document.getElementById('tmDur').value;
+  var d0=DIRS.filter(function(d){return d[1]===dir;})[0];
+  var task={cid:'c'+Date.now(),icon:d0?d0[0]:'📌',name:n,cat:dir,dir:dir,dur:dur};
+  var ct=ls.get('study-v1-customtasks')||{};
+  ct[todayStr()]=ct[todayStr()]||[];
+  ct[todayStr()].push(task);
+  ls.set('study-v1-customtasks',ct);
+  T.push(task);
+  todayStates.push(false);
+  taskModal.classList.remove('show');
+  refresh();renderTasks();renderDirs();
+  townToast('已加入今日清单 📌');
+};
+document.getElementById('tmName').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('tmOk').click();});
+
+/* ================= 管理方向弹窗 ================= */
+var dirModal=document.getElementById('dirModal');
+document.getElementById('dirMgmt').onclick=function(){renderDirList();dirModal.classList.add('show');};
+document.getElementById('dnClose').onclick=function(){dirModal.classList.remove('show');};
+function renderDirList(){
+  var el=document.getElementById('dirList');
+  el.innerHTML='';
+  DIRS.forEach(function(d,i){
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:9px;padding:9px 2px;border-bottom:1.5px dashed var(--line-soft);';
+    row.innerHTML='<span style="font-size:16px;">'+d[0]+'</span><span style="flex:1;font-size:13.5px;color:var(--t2);letter-spacing:1px;">'+d[1]+'</span>'+
+      '<button class="dn-del" data-i="'+i+'" style="border:none;background:none;color:var(--t3);cursor:pointer;font-size:12.5px;padding:5px 8px;border-radius:7px;">✕ 删除</button>';
+    row.querySelector('.dn-del').onclick=function(){
+      if(DIRS.length<=1){townToast('至少保留一个方向');return;}
+      if(!confirm('删除方向「'+d[1]+'」？已有任务不受影响。'))return;
+      DIRS.splice(i,1);saveDirs();
+      renderDirList();renderDirs();
+      if(typeof renderDirChips==='function')renderDirChips();
+      townToast('已删除方向');
+    };
+    el.appendChild(row);
+  });
+}
+document.getElementById('dnAdd').onclick=function(){
+  var n=document.getElementById('dnName').value.trim();
+  var ic=document.getElementById('dnIco').value.trim()||'📌';
+  if(!n){townToast('填个方向名呀 🧭');return;}
+  if(DIRS.length>=12){townToast('方向够多啦，先专注现有的吧');return;}
+  DIRS.push([ic,n]);saveDirs();
+  document.getElementById('dnName').value='';
+  renderDirList();renderDirs();
+  if(typeof renderDirChips==='function')renderDirChips();
+  townToast('已添加方向「'+n+'」');
+};
+document.getElementById('dnName').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('dnAdd').click();});
 </script>
 </body>
 </html>

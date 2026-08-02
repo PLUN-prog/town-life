@@ -310,7 +310,7 @@
   /* ============ 数据模块清单（导出/重置/云同步共用） ============ */
   window.townModules=[
     {k:'home',n:'首页待办',keys:['home-v1-todos','home-v1-countdown','home-v1-courses','home-v1-water','home-v1-expense']},
-    {k:'study',n:'学习计划',keys:['studyplan-v1-states','study-v1-sessions','study-v1-checkins','study-v1-daily','study-v1-library']},
+    {k:'study',n:'学习计划',keys:['studyplan-v1-states','study-v1-sessions','study-v1-checkins','study-v1-daily','study-v1-library','study-v1-dirs','study-v1-customtasks','study-v1-cats']},
     {k:'contest',n:'竞赛备考',keys:['contest-v1-mocks','contest-v1-papers','contest-v1-schedule']},
     {k:'speech',n:'话术练习',keys:['speech-v1-items','speech-v1-cats','speech-v1-practice','speech-v1-practiced','speech-v1-favs']},
     {k:'money',n:'收支账本',keys:['money-v1-records','money-v1-budgets']},
