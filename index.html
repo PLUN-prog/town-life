@@ -1,0 +1,545 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小镇生活 · 首页</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  /* 问候区 */
+  .greet-row{display:flex;align-items:center;gap:14px;}
+  .greet-row .wico{flex:0 0 auto;width:64px;height:64px;background:var(--primary-soft);
+    border:1.5px solid rgba(111,190,158,.4);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:36px;}
+  .greet-row .gtx{flex:1;min-width:0;}
+  .greet-row .g1{font-size:17px;font-weight:800;color:var(--t1);letter-spacing:1px;}
+  .greet-row .g2{font-size:12.5px;color:var(--t3);margin-top:5px;line-height:1.8;}
+  .pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;}
+  .pill{font-size:11.5px;color:var(--t2);background:var(--primary-soft);border:1.5px solid rgba(111,190,158,.4);
+    border-radius:999px;padding:3px 11px;letter-spacing:1px;}
+  .pill b{color:var(--primary-deep);}
+  /* 时钟 + 倒计时 */
+  .clk{font-family:var(--pixel);font-size:36px;color:var(--t1);text-align:center;letter-spacing:3px;margin:2px 0 2px;}
+  .clk-sub{text-align:center;font-size:11px;color:var(--t3);letter-spacing:2px;}
+  .cd-add{display:flex;gap:8px;margin-top:14px;}
+  .cd-add input{font-family:inherit;font-size:13px;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:#fff;outline:none;transition:border-color .15s;}
+  .cd-add input:focus{border-color:var(--primary);}
+  .cd-add .nm{flex:1.4;}
+  .cd-add .dt{flex:1;}
+  .cd-add .btn{padding:9px 14px;}
+  .cd-list{margin-top:12px;}
+  .cd{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1.5px dashed var(--line-soft);}
+  .cd:last-child{border-bottom:none;}
+  .cd .nm{flex:1;font-size:13.5px;font-weight:700;color:var(--t1);letter-spacing:.5px;}
+  .cd .dt{font-size:11.5px;color:var(--t3);white-space:nowrap;}
+  .cd .days{font-family:var(--pixel);font-size:11px;color:var(--primary-deep);white-space:nowrap;}
+  .cd .days.hot{color:var(--rose);}
+  .cd .days.today{color:var(--accent-deep);}
+  .cd .x{border:none;background:none;color:var(--t3);cursor:pointer;font-size:12px;padding:4px 6px;border-radius:6px;}
+  .cd .x:hover{color:var(--rose);background:var(--rose-soft);}
+  /* 四格数据卡 */
+  .dgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  @media (max-width:520px){.dgrid{grid-template-columns:1fr;}}
+  .dcard{position:relative;background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:14px;transition:transform .2s,border-color .2s,box-shadow .2s;}
+  .dcard:hover{transform:translateY(-3px);border-color:var(--primary);box-shadow:var(--shadow-hover);}
+  .dcard .dh{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--t1);letter-spacing:1px;margin-bottom:10px;cursor:pointer;}
+  .dcard .dh .em{font-size:17px;}
+  .dcard .dh .hint{margin-left:auto;font-size:10.5px;color:var(--t3);font-weight:400;letter-spacing:0;}
+  .dcard .dv{font-family:var(--pixel);font-size:15px;color:var(--primary-deep);margin-bottom:9px;}
+  .dcard .dv small{font-family:var(--font);font-size:11px;color:var(--t3);letter-spacing:1px;}
+  .dcard .bar{height:12px;margin-bottom:11px;}
+  .dcard .bar .fill.warn{background:repeating-linear-gradient(90deg,var(--rose) 0 16px,#E19A84 16px 24px);}
+  .dcard .act{display:flex;gap:6px;}
+  .dcard .act input{flex:1;min-width:0;font-family:inherit;font-size:12px;padding:7px 9px;border:1.5px solid var(--line);border-radius:8px;background:#fff;outline:none;}
+  .dcard .act input:focus{border-color:var(--primary);}
+  .mini-btn{flex:0 0 auto;font-family:inherit;font-size:12px;font-weight:700;letter-spacing:1px;border:1.5px solid var(--line);
+    background:#fff;color:var(--t2);border-radius:8px;padding:7px 10px;cursor:pointer;transition:all .12s;}
+  .mini-btn:active{transform:scale(.93);}
+  .mini-btn.primary{background:var(--primary);border-color:var(--primary-deep);color:#fff;box-shadow:0 2px 0 var(--primary-deep);}
+  .todo-row{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1.5px dashed var(--line-soft);}
+  .todo-row:last-child{border-bottom:none;}
+  .todo-row .tk{flex:0 0 auto;width:19px;height:19px;border-radius:6px;border:1.5px solid var(--t2);background:#fff;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .12s;}
+  .todo-row .tk:active{transform:scale(.9);}
+  .todo-row .tk.on{background:var(--primary);border-color:var(--primary-deep);}
+  .todo-row .tt{flex:1;font-size:13px;color:var(--t2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .todo-row .tt.done{color:var(--t3);text-decoration:line-through;}
+  .todo-row .tm{flex:0 0 auto;font-size:11px;color:var(--t3);}
+  .todo-row .td{flex:0 0 auto;border:none;background:none;color:var(--t3);cursor:pointer;font-size:12px;padding:2px 5px;border-radius:6px;}
+  .todo-row .td:hover{color:var(--rose);background:var(--rose-soft);}
+  /* 悬浮明细弹窗 */
+  .pop{position:absolute;right:8px;top:calc(100% + 8px);width:252px;background:#fff;border:2px solid var(--primary);
+    border-radius:12px;box-shadow:0 4px 0 rgba(111,190,158,.16),0 12px 26px rgba(70,70,80,.18);padding:12px 14px;z-index:60;display:none;text-align:left;}
+  .pop.show{display:block;animation:popin .18s ease;}
+  @keyframes popin{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+  .pop .ph{font-size:12px;font-weight:800;color:var(--t1);margin-bottom:8px;letter-spacing:1px;}
+  .pop .pl{font-size:12px;color:var(--t2);line-height:2;}
+  .pop .pl .x{color:var(--t3);}
+  .pop .pl b{color:var(--primary-deep);}
+  .pop .pl .hot{color:var(--rose);}
+  .empty-mini{text-align:center;color:var(--t3);font-size:12px;padding:8px 0;letter-spacing:1px;}
+</style>
+</head>
+<body data-page="index">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user"><span class="uico">🐰</span><span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span><a class="ugear" href="settings.html" title="小镇设置">⚙️</a></div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1 id="welcome">🏡 欢迎回到小镇</h1>
+    <p class="slogan">慢慢来，比较快。今天也把日子过成喜欢的样子。</p>
+  </header>
+
+  <!-- 问候区：时段文案 + 像素天气图标 + 跨模块速览 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">HELLO</span><span id="greetTitle">早上好呀</span></div>
+    <div class="greet-row">
+      <div class="wico" id="wico">☀️</div>
+      <div class="gtx">
+        <div class="g1" id="greetLine">早安，今天也加油 🌱</div>
+        <div class="g2" id="greetSub">小镇的天气：晴 · 适合出门走走</div>
+      </div>
+    </div>
+    <div class="pills">
+      <span class="pill">📋 学习 <b id="sStudy">—</b></span>
+      <span class="pill">🎧 播客 <b id="sPod">—</b></span>
+      <span class="pill">✅ 习惯 <b id="sHabit">—</b></span>
+      <span class="pill">🌙 小记 <b id="sJournal">—</b></span>
+      <span class="pill">⏱ 学习 <b id="sTime">—</b></span>
+    </div>
+  </section>
+
+  <!-- 实时时钟 + 考试/截止日倒计时 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">CLOCK</span>小镇时间</div>
+    <div class="clk" id="clock">00:00:00</div>
+    <div class="clk-sub" id="clockDate"></div>
+    <div class="card-title" style="margin-top:16px"><span class="pix">COUNT</span>重要日子倒计时</div>
+    <div class="cd-add">
+      <input class="nm" id="cdName" placeholder="如：期末考 / 交论文" maxlength="14">
+      <input class="dt" type="date" id="cdDate">
+      <button class="btn primary" id="cdAdd" style="padding:9px 14px;font-size:13px;">添加</button>
+    </div>
+    <div class="cd-list" id="cdList"></div>
+    <div id="cdEmpty" style="display:none"></div>
+  </section>
+
+  <!-- 四格数据卡片 -->
+  <section class="card rise" style="padding-bottom:6px;">
+    <div class="card-title" style="margin-bottom:14px"><span class="pix">DATA</span>今日四格</div>
+    <div class="dgrid">
+
+      <!-- 喝水 -->
+      <div class="dcard" id="cardWater">
+        <div class="dh"><span class="em">💧</span>喝水 <span class="hint">点标题看明细</span></div>
+        <div class="dv" id="waterNum">0<small> / 2000 ml</small></div>
+        <div class="bar"><div class="fill" id="waterBar"></div></div>
+        <div class="act">
+          <button class="mini-btn primary" id="waterAdd">+1杯 (250ml)</button>
+          <button class="mini-btn" id="waterSub">-1杯</button>
+        </div>
+        <div class="pop" id="waterPop">
+          <div class="ph">💧 今日饮水明细</div>
+          <div class="pl" id="waterPopBody"></div>
+        </div>
+      </div>
+
+      <!-- 待办 -->
+      <div class="dcard" id="cardTodo">
+        <div class="dh"><span class="em">📝</span>待办 <span class="hint">点标题看明细</span></div>
+        <div class="dv" id="todoNum">0<small> / 0 项完成</small></div>
+        <div class="bar"><div class="fill" id="todoBar"></div></div>
+        <div class="act">
+          <input id="todoInput" placeholder="加一件小事…" maxlength="20">
+          <button class="mini-btn primary" id="todoAdd">＋</button>
+        </div>
+        <div class="pop" id="todoPop">
+          <div class="ph">📝 未完成清单预览</div>
+          <div class="pl" id="todoPopBody"></div>
+        </div>
+      </div>
+
+      <!-- 课程 -->
+      <div class="dcard" id="cardCourse">
+        <div class="dh"><span class="em">📚</span>课程 <span class="hint">点标题看明细</span></div>
+        <div class="dv" id="courseNum">0<small> / 4 节完成</small></div>
+        <div class="bar"><div class="fill" id="courseBar"></div></div>
+        <div class="act" id="courseList" style="flex-direction:column;gap:4px;"></div>
+        <div class="pop" id="coursePop">
+          <div class="ph">📚 今日课程</div>
+          <div class="pl" id="coursePopBody"></div>
+        </div>
+      </div>
+
+      <!-- 支出 -->
+      <div class="dcard" id="cardExp">
+        <div class="dh"><span class="em">💰</span>支出 <span class="hint">点标题看明细</span></div>
+        <div class="dv" id="expNum">¥0<small> / 预算 ¥50</small></div>
+        <div class="bar"><div class="fill" id="expBar"></div></div>
+        <div class="act">
+          <input id="expAmt" type="number" placeholder="金额" min="0" step="0.01" style="flex:0 0 62px;">
+          <input id="expNote" placeholder="买了啥？" maxlength="10">
+          <button class="mini-btn primary" id="expAdd">记</button>
+          <a class="mini-btn" href="money-tracker.html" title="去收支账本" style="text-decoration:none;">📒</a>
+        </div>
+        <div class="pop" id="expPop">
+          <div class="ph">💰 今日支出明细</div>
+          <div class="pl" id="expPopBody"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 小镇地图 -->
+  <div class="card-title" style="margin-bottom:12px"><span class="pix">MAP</span>小镇地图</div>
+  <div class="mod-grid">
+    <a class="mod rise" href="study-plan.html"><div class="ic">📋</div><div class="nm">学习计划</div><div class="ds">每日全新清单 · 番茄钟专注 · 手机壁纸</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="study-stats.html"><div class="ic">📊</div><div class="nm">学习统计</div><div class="ds">总时长 · 科目占比 · 连续打卡</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="study-library.html"><div class="ic">📚</div><div class="nm">学习资料</div><div class="ds">笔记课件刷题 · 备忘录互通</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="contest-zone.html"><div class="ic">🏆</div><div class="nm">竞赛备考</div><div class="ds">赛程真题 · 模拟训练倒计时</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="speech-practice.html"><div class="ic">💬</div><div class="nm">话术练习</div><div class="ds">跟读录音 · 场景话术库 · 收藏夹</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="money-tracker.html"><div class="ic">📒</div><div class="nm">收支账本</div><div class="ds">预算 · 饼图 · 月报 · 一键记账</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="notes.html"><div class="ic">📝</div><div class="nm">便签笔记</div><div class="ds">标签颜色置顶加密 · 素材分区 · 待办联动</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="blog.html"><div class="ic">📰</div><div class="nm">博客精选</div><div class="ds">每日文章 · 写作工具箱 · 阅读记录</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="podcast-picks.html"><div class="ic">🎧</div><div class="nm">播客精选</div><div class="ds">每天 4~5 期好播客 · 按场景挑选</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="habit-wall.html"><div class="ic">✅</div><div class="nm">习惯打卡</div><div class="ds">喝水早睡运动 · 连续天数慢慢攒</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="town-weather.html"><div class="ic">🌤</div><div class="nm">今日天气</div><div class="ds">温度穿搭提醒 · 出门前看一眼</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="bgm-player.html"><div class="ic">🎵</div><div class="nm">小镇BGM</div><div class="ds">雨声篝火八音盒 · 实时合成氛围音</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="night-journal.html"><div class="ic">🌙</div><div class="nm">睡前小记</div><div class="ds">心情手账 · 把今天轻轻放下</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="town-shop.html"><div class="ic">🏪</div><div class="nm">小镇商店</div><div class="ds">签到攒金币 · 装饰你的小镇</div><span class="go">进入 →</span></a>
+    <a class="mod rise" href="settings.html"><div class="ic">⚙️</div><div class="nm">小镇设置</div><div class="ds">昵称头像 · 换季画风 · 提醒与数据</div><span class="go">进入 →</span></a>
+  </div>
+
+  <footer class="foot">
+    小镇生活 · 十六个模块，一个家 🌱<br>
+    <span class="muted">日子是一格一格慢慢拼出来的。</span>
+  </footer>
+</main>
+
+<script src="town.js"></script>
+<script>
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function pad(n){return String(n).padStart(2,'0');}
+
+/* ============ ① 问候区：时段文案 + 天气图标 ============ */
+(function(){
+  var h=new Date().getHours();
+  var nick=(ls.get('settings-v1-config')||{}).nick||'零';
+  var greet,line,sub;
+  if(h>=5&&h<11){greet='早安';line='早安，'+nick+'，今天也加油 🌱';}
+  else if(h>=11&&h<17){greet='午安';line='午安，'+nick+'，歇口气再继续呀 ☕';}
+  else if(h>=17&&h<23){greet='晚安';line='晚上好，'+nick+'，今天辛苦啦 🌙';}
+  else{greet='夜深了';line='夜深了，'+nick+'，早点休息，明天见 💤';}
+  var w=weatherNow();
+  document.getElementById('greetTitle').textContent=greet;
+  document.getElementById('welcome').textContent='🏡 欢迎回到小镇，'+nick;
+  document.getElementById('greetLine').textContent=line;
+  document.getElementById('wico').textContent=w[0];
+  document.getElementById('greetSub').textContent='小镇的天气：'+w[1]+' · '+w[2];
+  /* 跨模块速览 */
+  function read(k){return ls.get(k);}
+  function statStudy(){var o=read('studyplan-v1-states');if(!o)return '—';var a=o[todayStr()];if(!Array.isArray(a))return '0/0';return a.filter(Boolean).length+'/'+a.length;}
+  function statPod(){var o=read('podcast-v1-checkin');if(!o)return '—';var a=o[todayStr()];if(!a)return '0/0';var ks=Object.keys(a);return ks.filter(function(k){return a[k]}).length+'/'+ks.length;}
+  function statHabit(){var hs=read('habitwall-v1-habits'),lg=read('habitwall-v1-log');if(!Array.isArray(hs)||!lg)return '—';var ids=lg[todayStr()]||[];return ids.length+'/'+hs.length;}
+  function statJournal(){var o=read('nightjournal-v1-entries');if(!o)return '—';var e=o[todayStr()];return (e&&e.mood)?'✓':'—';}
+  function statTime(){
+    var s=read('study-v1-sessions');if(!s)return '0m';
+    var a=s[todayStr()]||[];var m=0;a.forEach(function(x){m+=x.min||0;});
+    return m>=60?(Math.floor(m/60)+'h'+(m%60?m%60+'m':'')):m+'m';
+  }
+  document.getElementById('sStudy').textContent=statStudy();
+  document.getElementById('sPod').textContent=statPod();
+  document.getElementById('sHabit').textContent=statHabit();
+  document.getElementById('sJournal').textContent=statJournal();
+  document.getElementById('sTime').textContent=statTime();
+})();
+function weatherNow(){
+  var c=ls.get('townweather-v1-cache');
+  if(c&&c.data&&c.data.current_condition&&c.data.current_condition[0]){
+    var d=c.data.current_condition[0].weatherDesc[0].value.toLowerCase();
+    if(/sunny/.test(d))return ['☀️','晴','适合出门走走'];
+    if(/rain|drizzle|shower/.test(d))return ['🌧','雨','记得带伞，听点雨声也不错'];
+    if(/snow|blizzard/.test(d))return ['❄️','雪','多穿一点，路滑慢慢走'];
+    if(/thunder/.test(d))return ['⛈','雷雨','少出门，窝着听书正好'];
+    if(/cloud|overcast/.test(d))return ['⛅','多云','不晒也不闷，刚刚好'];
+    if(/mist|fog|haze/.test(d))return ['🌫','有雾','出门注意看路呀'];
+    return ['🌤','晴间多云','刚刚好的一天'];
+  }
+  var h=new Date().getHours();
+  return (h>=6&&h<18)?['☀️','晴','适合出门走走']:['🌙','晴夜','月亮陪你收工'];
+}
+
+/* ============ ② 实时时钟 + 倒计时 ============ */
+(function(){
+  function tick(){
+    var d=new Date();
+    document.getElementById('clock').textContent=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+    document.getElementById('clockDate').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 · 星期'+['日','一','二','三','四','五','六'][d.getDay()];
+  }
+  tick();setInterval(tick,250);
+  var cds=ls.get('home-v1-countdown');
+  if(!Array.isArray(cds))cds=[];
+  function daysLeft(ds){
+    var p=ds.split('-'),target=new Date(+p[0],+p[1]-1,+p[2]);
+    var now=new Date();now.setHours(0,0,0,0);
+    return Math.round((target-now)/86400000);
+  }
+  function renderCd(){
+    var el=document.getElementById('cdList');
+    var e0=document.getElementById('cdEmpty');
+    if(cds.length){
+      e0.style.display='none';e0.innerHTML='';
+    }else{
+      e0.style.display='block';
+      townEmpty(e0,{art:'cal',title:'还没有重要日子',desc:'加一个考试或截止日期，让小镇帮你倒数',btn:'＋ 添加一个日子',onBtn:function(){document.getElementById('cdName').focus();}});
+    }
+    cds.sort(function(a,b){return daysLeft(a.d)-daysLeft(b.d);});
+    ls.set('home-v1-countdown',cds);
+    el.innerHTML='';
+    cds.forEach(function(cd,i){
+      var dl=daysLeft(cd.d);
+      var cls=dl<0?'':dl===0?'today':dl<=3?'hot':'';
+      var label=dl<0?'已过 '+(-dl)+' 天':dl===0?'就是今天 🎉':'还有 '+dl+' 天';
+      var row=document.createElement('div');
+      row.className='cd';
+      row.innerHTML='<span class="nm">'+cd.n+'</span><span class="dt">'+cd.d+'</span><span class="days '+cls+'">'+label+'</span><button class="x" data-i="'+i+'">✕</button>';
+      el.appendChild(row);
+    });
+    el.querySelectorAll('.x').forEach(function(x){
+      x.onclick=function(){
+        cds.splice(+x.dataset.i,1);
+        renderCd();
+        townToast('已移除倒计时');
+      };
+    });
+  }
+  document.getElementById('cdAdd').onclick=function(){
+    var n=document.getElementById('cdName').value.trim();
+    var d=document.getElementById('cdDate').value;
+    if(!n){townToast('给这个日子起个名字吧 📌');return;}
+    if(!d){townToast('选一个日期呀 📅');return;}
+    cds.push({n:n,d:d});
+    document.getElementById('cdName').value='';
+    renderCd();
+    var dl=daysLeft(d);
+    townToast(dl===0?'就是今天，加油！🎉':'已记下，还有 '+dl+' 天');
+  };
+  renderCd();
+})();
+
+/* ============ ③ 四格数据卡 ============ */
+function setFill(id,pct,warn){var f=document.getElementById(id);f.style.width=Math.min(100,pct)+'%';f.classList.toggle('warn',!!warn);}
+
+/* 喝水 */
+(function(){
+  var W=ls.get('home-v1-water')||{};
+  var goal=2000;
+  function cur(){return W[todayStr()]||0;}
+  function save(){W[todayStr()]=cur();ls.set('home-v1-water',W);}
+  function render(){
+    var ml=cur();
+    document.getElementById('waterNum').innerHTML=ml+'<small> / '+goal+' ml</small>';
+    setFill('waterBar',ml/goal*100,ml>goal);
+    var cups=Math.floor(ml/250);
+    document.getElementById('waterPopBody').innerHTML=
+      '今日已喝 <b>'+ml+'ml</b>（'+cups+' 杯）<br>'+
+      (ml>=goal?'🎉 达标啦，夸夸自己！':'还差 <b>'+(goal-ml)+'ml</b>，慢慢喝，别急')+
+      '<br><span class="x">建议一天 8 杯左右</span>'+
+      '<div class="chart-box" style="margin-top:10px;"><div class="ch-t">💧 近 7 天杯数</div><canvas id="wc7" height="80"></canvas></div>';
+    /* 近 7 天喝水柱状图 */
+    var wl=['日','一','二','三','四','五','六'],wv=[],i,d;
+    for(i=6;i>=0;i--){d=new Date();d.setDate(d.getDate()-i);var k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');wv.push(Math.round((W[k]||0)/250));}
+    var wc=document.getElementById('wc7');
+    if(wc&&window.townChart)townChart.bar(wc,wv.map(function(v,j){return {label:wl[(new Date().getDay()-6+j+7)%7],value:v};}),{w:206,h:80,labels:true});
+  }
+  document.getElementById('waterAdd').onclick=function(){W[todayStr()]=(cur()||0)+250;save();render();};
+  document.getElementById('waterSub').onclick=function(){W[todayStr()]=Math.max(0,(cur()||0)-250);save();render();};
+  render();
+})();
+
+/* 待办 */
+(function(){
+  var T=ls.get('home-v1-todos')||{};
+  function list(){return T[todayStr()]||[];}
+  function save(){ls.set('home-v1-todos',T);}
+  function render(){
+    var a=list(),done=a.filter(function(t){return t.done;}).length;
+    document.getElementById('todoNum').innerHTML=done+'<small> / '+a.length+' 项完成</small>';
+    setFill('todoBar',a.length?done/a.length*100:0);
+    var left=a.filter(function(t){return !t.done;});
+    var html;
+    if(!left.length)html=townEmptyHTML({art:'flower',title:'今天的待办都清完啦',desc:'好棒，给自己一颗小星星 ✨',spark:'★',mini:true});
+    else{
+      html=left.slice(0,6).map(function(t){return '<div class="pl">• '+t.t+'</div>';}).join('');
+      if(left.length>6)html+='<div class="x">还有 '+(left.length-6)+' 件…</div>';
+    }
+    document.getElementById('todoPopBody').innerHTML=html;
+  }
+  function renderRows(){
+    var a=list();
+    var box=document.getElementById('courseList');
+    /* 待办行放卡片内简洁列表 */
+    var wrap=document.createElement('div');wrap.style.cssText='width:100%;max-height:120px;overflow-y:auto;';
+    if(!a.length){townEmpty(wrap,{art:'list',title:'还没有待办',desc:'加一件小事，记下来就不会忘',btn:'＋ 添加',mini:true,onBtn:function(){document.getElementById('todoInput').focus();}});}
+    a.forEach(function(t,i){
+      var r=document.createElement('div');
+      r.className='todo-row';
+      r.innerHTML='<span class="tk'+(t.done?' on':'')+'">'+(t.done?'✓':'')+'</span><span class="tt'+(t.done?' done':'')+'">'+t.t+'</span><button class="td">✕</button>';
+      r.querySelector('.tk').onclick=function(){t.done=!t.done;save();renderRows();render();};
+      r.querySelector('.td').onclick=function(){a.splice(i,1);save();renderRows();render();};
+      wrap.appendChild(r);
+    });
+    box.innerHTML='';box.appendChild(wrap);
+  }
+  document.getElementById('todoAdd').onclick=function(){
+    var inp=document.getElementById('todoInput'),v=inp.value.trim();
+    if(!v){townToast('写一件想做的事吧 ✏️');return;}
+    var a=list();
+    if(a.length>=20){townToast('待办太多啦，先完成几件吧');return;}
+    a.push({t:v,done:false});
+    T[todayStr()]=a;save();
+    inp.value='';renderRows();render();
+  };
+  document.getElementById('todoInput').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('todoAdd').click();});
+  renderRows();render();
+})();
+
+/* 课程 */
+(function(){
+  var C=ls.get('home-v1-courses')||{};
+  var DEFAULTS=[['高数','08:00'],['英语','10:00'],['专业课','14:00'],['自由学习','19:30']];
+  function list(){
+    var a=C[todayStr()];
+    if(!Array.isArray(a)||!a.length){
+      a=DEFAULTS.map(function(d){return {name:d[0],time:d[1],done:false};});
+      C[todayStr()]=a;ls.set('home-v1-courses',C);
+    }
+    return a;
+  }
+  function save(){ls.set('home-v1-courses',C);}
+  function render(){
+    var a=list(),done=a.filter(function(c){return c.done;}).length;
+    document.getElementById('courseNum').innerHTML=done+'<small> / '+a.length+' 节完成</small>';
+    setFill('courseBar',a.length?done/a.length*100:0);
+    var next=a.filter(function(c){return !c.done;})[0];
+    document.getElementById('coursePopBody').innerHTML=
+      a.map(function(c){return '<div class="pl">'+(c.done?'✅':'○ ')+' <b>'+c.time+'</b> '+c.name+'</div>';}).join('')+
+      '<div class="x">'+(next?'下一节：'+next.time+' '+next.name:'今天的课上完啦，休息吧 🎉')+'</div>';
+  }
+  function renderRows(){
+    var a=list();
+    var box=document.getElementById('courseList');
+    box.innerHTML='';
+    a.forEach(function(c,i){
+      var r=document.createElement('div');
+      r.className='todo-row';
+      r.innerHTML='<span class="tk'+(c.done?' on':'')+'">'+(c.done?'✓':'')+'</span><span class="tt'+(c.done?' done':'')+'">'+c.time+' '+c.name+'</span><span class="tm">'+(c.done?'上完啦':'未上')+'</span>';
+      r.querySelector('.tk').onclick=function(){c.done=!c.done;save();renderRows();render();};
+      box.appendChild(r);
+    });
+  }
+  renderRows();render();
+})();
+
+/* 支出 */
+(function(){
+  var E=ls.get('home-v1-expense')||{};
+  var budget=50;
+  function monthKey(off){var d=new Date();d.setDate(1);d.setMonth(d.getMonth()+(off||0));return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+  function monthMom(){
+    var recs=ls.get('money-v1-records');
+    if(!Array.isArray(recs)||!recs.length)return '';
+    function sumOf(key){var s=0;recs.forEach(function(r){var d=new Date(r.ts);var k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');if(k===key&&r.type==='out')s+=r.amt;});return Math.round(s*100)/100;}
+    var m0=sumOf(monthKey(0)),m1=sumOf(monthKey(-1));
+    if(!m0&&!m1)return '';
+    var base='本月支出 <b>¥'+m0.toFixed(1)+'</b>';
+    var diff=Math.round((m0-m1)*100)/100;
+    if(diff>0)return base+' · 比上月多 <span class="hot">¥'+diff.toFixed(1)+'</span>';
+    if(diff<0)return base+' · 比上月少 <b>¥'+(-diff).toFixed(1)+'</b>';
+    return base+' · 与上月持平';
+  }
+  function cur(){var o=E[todayStr()];return o||{total:0,items:[]};}
+  function save(){ls.set('home-v1-expense',E);}
+  function render(){
+    var o=cur();
+    document.getElementById('expNum').innerHTML='¥'+o.total.toFixed(1)+'<small> / 预算 ¥'+budget+'</small>';
+    setFill('expBar',o.total/budget*100,o.total>budget);
+    var left=budget-o.total;
+    var body=o.items.length
+      ? o.items.map(function(it){return '<div class="pl">• '+it.l+' <b>¥'+it.a.toFixed(1)+'</b></div>';}).join('')
+      : townEmptyHTML({art:'money',title:'今天还没花钱',desc:'钱包稳稳的，存住啦 💪',mini:true});
+    body+='<div class="'+(left<0?'hot':'')+'">'+(left>=0?'剩余预算 <b>¥'+left.toFixed(1)+'</b>':'超支 <b>¥'+(-left).toFixed(1)+'</b>，明天省一点')+'</div>';
+    var mom=monthMom();
+    if(mom)body+='<div class="x" style="margin-top:7px;border-top:1.5px dashed var(--line-soft);padding-top:7px;">'+mom+'</div>';
+    document.getElementById('expPopBody').innerHTML=body;
+  }
+  document.getElementById('expAdd').onclick=function(){
+    var a=parseFloat(document.getElementById('expAmt').value);
+    var n=document.getElementById('expNote').value.trim()||'其他';
+    if(isNaN(a)||a<=0){townToast('填个金额呀 💸');return;}
+    var o=cur();
+    o.items.push({l:n,a:a});
+    o.total=Math.round((o.total+a)*100)/100;
+    E[todayStr()]=o;save();
+    document.getElementById('expAmt').value='';
+    document.getElementById('expNote').value='';
+    render();
+    townToast('已记一笔 ¥'+a.toFixed(1)+'（'+n+'）');
+  };
+  document.getElementById('expAmt').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('expAdd').click();});
+  render();
+})();
+
+/* ============ 悬浮/点击 明细弹窗 ============ */
+['Water','Todo','Course','Exp'].forEach(function(k){
+  var card=document.getElementById('card'+k);
+  var pop=document.getElementById(k.toLowerCase()+'Pop');
+  card.addEventListener('mouseenter',function(){pop.classList.add('show');});
+  card.addEventListener('mouseleave',function(){pop.classList.remove('show');});
+  card.querySelector('.dh').addEventListener('click',function(e){
+    e.stopPropagation();
+    pop.classList.toggle('show');
+  });
+});
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.dcard')){
+    document.querySelectorAll('.pop').forEach(function(p){p.classList.remove('show');});
+  }
+});
+</script>
+</body>
+</html>

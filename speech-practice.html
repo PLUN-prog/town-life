@@ -1,0 +1,472 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>话术练习 · 小镇生活</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  .bgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .bstat{background:var(--primary-soft);border:1.5px solid rgba(111,190,158,.4);border-radius:12px;padding:13px 8px;text-align:center;}
+  .bstat .v{font-family:var(--pixel);font-size:18px;color:var(--primary-deep);display:block;margin-bottom:5px;}
+  .bstat .k{font-size:11px;color:var(--t3);letter-spacing:1px;}
+  .cat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .cat-row .chip{font-size:12.5px;}
+  .cat-row .chip.on{background:var(--primary);border-color:var(--primary-deep);color:#fff;box-shadow:0 2px 0 var(--primary-deep);}
+  .cat-row .chip.fav.on{background:var(--accent);border-color:var(--accent-deep);color:#fff;box-shadow:0 2px 0 var(--accent-deep);}
+  .cat-add{display:flex;gap:6px;align-items:center;}
+  .cat-add input{flex:1;min-width:0;font-family:inherit;font-size:12.5px;padding:7px 10px;border:1.5px solid var(--line);border-radius:8px;background:#fff;outline:none;}
+  .cat-add input:focus{border-color:var(--primary);}
+  .cat-add .mini-btn{padding:7px 12px;font-size:12px;}
+  .s-card{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 13px;margin-bottom:10px;transition:all .18s;}
+  .s-card:hover{transform:translateY(-2px);border-color:var(--primary);box-shadow:var(--shadow-hover);}
+  .s-card.practiced{background:#E9F6EE;border-color:#BBDCCB;}
+  .s-card .s-txt{font-size:13.5px;color:var(--t1);line-height:1.9;letter-spacing:.3px;}
+  .s-card .s-meta{font-size:10.5px;color:var(--t3);margin-top:6px;letter-spacing:1px;}
+  .s-card .s-meta .ok{color:var(--primary-deep);font-weight:700;}
+  .s-btns{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;}
+  .s-btn{flex:1;min-width:64px;font-family:inherit;font-size:11.5px;font-weight:700;letter-spacing:1px;
+    padding:7px 4px;border-radius:9px;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--t2);transition:all .12s;}
+  .s-btn:active{transform:scale(.93);}
+  .s-btn.play{background:var(--primary);border-color:var(--primary-deep);color:#fff;}
+  .s-btn.fav.on{background:var(--accent);border-color:var(--accent-deep);color:#fff;}
+  .s-btn.copy:hover{border-color:var(--primary);color:var(--primary-deep);}
+  .s-btn.exp:hover{border-color:var(--accent-deep);color:var(--accent-deep);}
+  .empty{text-align:center;color:var(--t3);padding:14px 0;font-size:12.5px;letter-spacing:1px;}
+  /* 跟读练习区 */
+  .rec-area{background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:14px;}
+  .rec-area textarea{width:100%;font-family:inherit;font-size:13.5px;line-height:1.9;padding:10px 12px;
+    border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--t1);resize:vertical;outline:none;min-height:72px;}
+  .rec-area textarea:focus{border-color:var(--primary);}
+  .rec-ctrl{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  .rec-btn{flex:0 0 auto;font-family:inherit;font-size:14px;font-weight:700;letter-spacing:2px;padding:12px 22px;border-radius:12px;cursor:pointer;border:1.5px solid transparent;transition:all .12s;}
+  .rec-btn:active{transform:scale(.95);}
+  .rec-btn.rec{background:var(--rose);border-color:#A85F4B;color:#fff;box-shadow:0 3px 0 #A85F4B;}
+  .rec-btn.rec.on{background:#F7E6E0;color:var(--rose);border-color:var(--rose);animation:blink 1s infinite;}
+  @keyframes blink{50%{opacity:.55;}}
+  .rec-btn.play2{background:var(--primary);border-color:var(--primary-deep);color:#fff;box-shadow:0 3px 0 var(--primary-deep);}
+  .meter{flex:1;min-width:120px;height:14px;background:#F0EEE4;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;}
+  .meter i{display:block;height:100%;width:0%;background:repeating-linear-gradient(90deg,var(--accent) 0 10px,#F6C29A 10px 16px);border-radius:999px;transition:width .08s;}
+  .rec-hint{width:100%;font-size:11.5px;color:var(--t3);letter-spacing:1px;line-height:1.8;}
+  audio{width:100%;margin-top:10px;height:34px;}
+  .xp-line{text-align:center;font-size:12.5px;color:var(--t2);margin-top:10px;letter-spacing:1px;}
+  .xp-line b{color:var(--accent-deep);font-family:var(--pixel);font-size:12px;}
+  .transcript{font-size:12px;color:var(--t2);background:#fff;border:1.5px dashed var(--line);border-radius:9px;padding:8px 11px;margin-top:10px;min-height:20px;line-height:1.8;display:none;}
+</style>
+</head>
+<body data-page="speech">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user"><span class="uico">🐰</span><span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span><a class="ugear" href="settings.html" title="小镇设置">⚙️</a></div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1>💬 话术练习</h1>
+    <p class="slogan">把想说的话，先在小镇里练顺了。</p>
+  </header>
+
+  <!-- 今日话术统计 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">STAT</span>今日话术统计<button class="mini-btn" id="spExcel" style="margin-left:auto;padding:6px 12px;font-size:12px;">📤 导出话术合集</button></div>
+    <div class="bgrid">
+      <div class="bstat"><span class="v" id="stTotal">0</span><span class="k">🎯 累计练习总次数</span></div>
+      <div class="bstat"><span class="v" id="stToday">0</span><span class="k">🌞 今日练习</span></div>
+      <div class="bstat"><span class="v" id="stStreak">0</span><span class="k">🔥 连续打卡</span></div>
+      <div class="bstat"><span class="v" id="stXp">0</span><span class="k">✨ 累计 XP</span></div>
+    </div>
+    <p class="muted" style="text-align:center;margin-top:11px;letter-spacing:1px;">每完成一次跟读 +10 XP · 录音或默读都可点亮</p>
+  </section>
+
+  <!-- 语音跟读练习 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">REC</span>语音跟读练习</div>
+    <div class="rec-area">
+      <textarea id="recText" placeholder="粘贴或输入想练的话术，也可以点下方卡片「练习」自动带入…"></textarea>
+      <div class="rec-ctrl">
+        <button class="rec-btn rec" id="recBtn">🎙 开始录音</button>
+        <button class="rec-btn play2" id="playBtn">▶ 回放</button>
+        <div class="meter"><i id="meterBar"></i></div>
+      </div>
+      <div class="transcript" id="transcript"></div>
+      <audio id="audio" controls style="display:none"></audio>
+      <div class="rec-hint" id="recHint">点「开始录音」说出这句话，录完自动回放对比语气和节奏；浏览器不支持麦克风时可点下方「标记练习」完成。</div>
+      <div class="xp-line" id="xpLine"></div>
+    </div>
+  </section>
+
+  <!-- 场景库 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">LIB</span>场景话术库</div>
+    <div class="cat-row" id="catRow"></div>
+    <div class="cat-row cat-add">
+      <input id="catInput" placeholder="新增自定义场景，如：汇报工作" maxlength="10">
+      <button class="mini-btn primary" id="catAdd">＋ 添加场景</button>
+    </div>
+    <div id="itemList"></div>
+    <div class="cat-row cat-add" style="margin-top:12px;">
+      <textarea id="newText" placeholder="往当前场景加一条话术，如：老师您好，这个问题我想请教一下…" style="flex:1;min-width:0;font-family:inherit;font-size:12.5px;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:#fff;outline:none;resize:vertical;min-height:42px;line-height:1.7;"></textarea>
+      <button class="mini-btn primary" id="textAdd">保存话术</button>
+    </div>
+    <p class="muted" style="text-align:center;margin-top:12px;letter-spacing:1px;">已练习的条目会变成浅绿色 ✓ · 收藏的条目会进「⭐ 收藏夹」</p>
+  </section>
+
+  <footer class="foot">
+    话术练熟了，开口就不慌 💪<br>
+    <span class="muted">小镇话术铺 · 练习、收藏、导出，随你。</span>
+  </footer>
+</main>
+
+<script src="town.js"></script>
+<script>
+var BUILT_IN={
+  '面试':['您好，我是来面试的应届生，很开心能有机会跟您交流。','我的优势是学习能力强，遇到问题喜欢拆解着解决。','这个岗位最吸引我的地方，是能把想法真正落地成结果。'],
+  '日常':['在吗？有件小事想跟你商量一下～','谢谢你的帮忙，改天请你喝奶茶！','不好意思，刚才在忙，现在方便了，你说。'],
+  '校园':['老师您好，关于刚才那道题我有个疑问，方便请教一下吗？','同学，我们小组作业的分工，你看这样安排可以吗？','学姐好，想问下这门课的资料在哪里能领呀？'],
+  '竞赛答辩':['各位评委老师好，我们团队带来的项目是……','感谢评委的提问，关于这个问题，我们的考虑是……','我们方案的核心创新点在于，把流程从……提升到了……'],
+  '线上沟通':['你好，我是……，关于之前聊的事，我整理了一个方案发你。','收到，我确认一下细节，今天内给你回复。','文字容易误会，方便的话我们语音聊几分钟？']
+};
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function dateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* 用户数据 */
+var userItems=ls.get('speech-v1-items');
+if(!Array.isArray(userItems))userItems=[];
+var userCats=ls.get('speech-v1-cats');
+if(!Array.isArray(userCats))userCats=[];
+var practice=ls.get('speech-v1-practice')||{xp:0,total:0,days:{},checkins:{}};
+if(typeof practice.xp!=='number')practice.xp=0;
+if(!practice.days||typeof practice.days!=='object')practice.days={};
+if(!practice.checkins||typeof practice.checkins!=='object')practice.checkins={};
+var practiced=ls.get('speech-v1-practiced')||{};
+var favs=ls.get('speech-v1-favs')||{};
+function save(){ls.set('speech-v1-items',userItems);ls.set('speech-v1-cats',userCats);ls.set('speech-v1-practice',practice);ls.set('speech-v1-practiced',practiced);ls.set('speech-v1-favs',favs);}
+
+/* 全部条目（内置 + 用户） */
+function allItems(){
+  var arr=[];
+  Object.keys(BUILT_IN).forEach(function(cat){
+    BUILT_IN[cat].forEach(function(t,i){arr.push({id:'b'+cat+i,cat:cat,text:t,built:true});});
+  });
+  userItems.forEach(function(it){arr.push({id:it.id,cat:it.cat,text:it.text,built:false});});
+  return arr;
+}
+var allCats=Object.keys(BUILT_IN).concat(userCats);
+
+var curCat='面试',favOnly=false;
+
+/* 统计 */
+function renderStats(){
+  document.getElementById('stTotal').textContent=practice.total||0;
+  document.getElementById('stToday').textContent=(practice.days[todayStr()])||0;
+  document.getElementById('stXp').textContent=practice.xp||0;
+  var n=0,d=new Date();
+  if(!practice.checkins[dateStr(d)])d.setDate(d.getDate()-1);
+  while(practice.checkins[dateStr(d)]){n++;d.setDate(d.getDate()-1);}
+  document.getElementById('stStreak').textContent=n;
+}
+
+/* 场景 chips */
+var catRow=document.getElementById('catRow');
+function renderCats(){
+  catRow.innerHTML='';
+  var favChip=document.createElement('div');
+  favChip.className='chip fav'+(favOnly?' on':'');
+  favChip.textContent='⭐ 收藏夹';
+  favChip.onclick=function(){
+    favOnly=!favOnly;
+    if(favOnly)curCat='';
+    renderCats();renderItems();
+    townToast(favOnly?'只看收藏的话术，导出按钮在下方 📤':'回到场景浏览');
+  };
+  catRow.appendChild(favChip);
+  allCats.forEach(function(c){
+    var chip=document.createElement('div');
+    chip.className='chip'+(c===curCat&&!favOnly?' on':'');
+    chip.textContent=c;
+    chip.onclick=function(){
+      if(favOnly){favOnly=false;}
+      curCat=c;
+      renderCats();renderItems();
+    };
+    catRow.appendChild(chip);
+  });
+}
+document.getElementById('catAdd').onclick=function(){
+  var v=document.getElementById('catInput').value.trim();
+  if(!v){townToast('给场景起个名字呀 🏷');return;}
+  if(allCats.indexOf(v)>=0){townToast('这个场景已经有了');return;}
+  if(allCats.length>=12){townToast('场景够多啦，先练起来吧');return;}
+  userCats.push(v);
+  save();allCats.push(v);curCat=v;favOnly=false;
+  document.getElementById('catInput').value='';
+  renderCats();renderItems();
+  townToast('场景「'+v+'」创建好了，去加话术吧 🎉');
+};
+
+/* 条目渲染 */
+function visibleItems(){
+  var arr=allItems();
+  if(favOnly)return arr.filter(function(it){return favs[it.id];});
+  return arr.filter(function(it){return it.cat===curCat;});
+}
+function renderItems(){
+  var el=document.getElementById('itemList');
+  var arr=visibleItems();
+  if(!arr.length){
+    if(favOnly){
+      townEmpty(el,{art:'star',title:'收藏夹还空着',desc:'看到喜欢的话术点「☆ 收藏」，随时回来练',btn:'去场景里逛逛',onBtn:function(){favOnly=false;renderCats();renderItems();}});
+    }else{
+      townEmpty(el,{art:'ear',title:'这个场景还没有话术',desc:'在下面粘贴一句想练的，点「开始录音」跟读',btn:'＋ 添加话术',onBtn:function(){var r=document.getElementById('recText');if(r){r.scrollIntoView({behavior:'smooth',block:'center'});r.focus();}}});
+    }
+    return;
+  }
+  el.innerHTML='';
+  arr.forEach(function(it){
+    var card=document.createElement('div');
+    card.className='s-card'+(practiced[it.id]?' practiced':'');
+    card.innerHTML='<div class="s-txt">'+esc(it.text)+'</div>'+
+      '<div class="s-meta">'+it.cat+(practiced[it.id]?' · <span class="ok">✓ 已练习</span>':'')+'</div>'+
+      '<div class="s-btns">'+
+      '<button class="s-btn play">🎙 练习</button>'+
+      '<button class="s-btn fav'+(favs[it.id]?' on':'')+'">'+(favs[it.id]?'★ 已收藏':'☆ 收藏')+'</button>'+
+      '<button class="s-btn copy">📋 复制</button>'+
+      '<button class="s-btn exp">📤 导出</button></div>';
+    card.querySelector('.play').onclick=function(){
+      document.getElementById('recText').value=it.text;
+      document.getElementById('recText').scrollIntoView({behavior:'smooth',block:'center'});
+      document.getElementById('recText').focus();
+      townToast('话术已带入，点「开始录音」跟读 🎙');
+    };
+    card.querySelector('.fav').onclick=function(){
+      favs[it.id]=!favs[it.id];
+      save();renderItems();
+      townToast(favs[it.id]?'已收藏到收藏夹 ⭐':'已取消收藏');
+    };
+    card.querySelector('.copy').onclick=function(){
+      copyText(it.text);
+    };
+    card.querySelector('.exp').onclick=function(){
+      download(it.cat+'-话术.txt',it.text);
+      townToast('已导出单条话术 📤');
+    };
+    el.appendChild(card);
+  });
+  if(favOnly){
+    var row=document.createElement('div');
+    row.style.textAlign='center';
+    row.innerHTML='<button class="s-btn exp" id="favExportAll2" style="flex:0 0 auto;padding:9px 22px;">📤 导出全部收藏 (.txt)</button>';
+    el.appendChild(row);
+    document.getElementById('favExportAll2').onclick=exportFavs;
+  }
+}
+function copyText(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(function(){townToast('已复制到剪贴板 📋');},function(){fallbackCopy(t);});
+  }else fallbackCopy(t);
+}
+function fallbackCopy(t){
+  var ta=document.createElement('textarea');
+  ta.value=t;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');townToast('已复制到剪贴板 📋');}catch(e){townToast('复制失败，请手动长按复制');}
+  ta.remove();
+}
+function download(name,content){
+  var blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a');
+  a.download=name;
+  a.href=URL.createObjectURL(blob);
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},3000);
+}
+function exportFavs(){
+  var favItems=allItems().filter(function(it){return favs[it.id];});
+  if(!favItems.length){townToast('收藏夹是空的，先收藏几条吧 ⭐');return;}
+  var cats={};
+  favItems.forEach(function(it){(cats[it.cat]=cats[it.cat]||[]).push(it.text);});
+  var txt='⭐ 小镇话术收藏夹\n\n';
+  Object.keys(cats).forEach(function(c){
+    txt+='【'+c+'】\n';
+    cats[c].forEach(function(t){txt+='· '+t+'\n';});
+    txt+='\n';
+  });
+  download('话术收藏夹.txt',txt);
+  townToast('已导出 '+favItems.length+' 条收藏 📤');
+}
+
+/* 新增话术 */
+document.getElementById('textAdd').onclick=function(){
+  var v=document.getElementById('newText').value.trim();
+  if(!v){townToast('写一条话术再保存 ✏️');return;}
+  var targetCat=favOnly?'通用':curCat;
+  userItems.push({id:'u'+Date.now(),cat:targetCat,text:v});
+  save();renderItems();
+  document.getElementById('newText').value='';
+  townToast('已存进「'+targetCat+'」场景 ✅');
+};
+
+/* 跟读练习（录音对比） */
+var recState=false,rec=null,chunks=[],stream=null,ana=null,raf=null,audioCtx=null,recog=null,recogOn=false;
+var recBtn=document.getElementById('recBtn'),playBtn=document.getElementById('playBtn'),
+    audioEl=document.getElementById('audio'),meterBar=document.getElementById('meterBar'),
+    transcript=document.getElementById('transcript'),recHint=document.getElementById('recHint'),
+    xpLine=document.getElementById('xpLine');
+
+var recSupported=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
+if(!recSupported){
+  recBtn.disabled=true;
+  recBtn.textContent='🎙 浏览器不支持录音';
+  recHint.textContent='当前浏览器不支持录音，可用下方「标记练习」按钮完成打卡（+10 XP）。建议用 Chrome / Edge 打开。';
+}
+recBtn.onclick=function(){
+  if(recState){stopRec();return;}
+  var text=document.getElementById('recText').value.trim();
+  if(!text){townToast('先输入或选一条话术再录音 🎙');return;}
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(s){
+    stream=s;
+    rec=new MediaRecorder(s);
+    chunks=[];
+    rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data);};
+    rec.onstop=function(){
+      var blob=new Blob(chunks,{type:rec.mimeType||'audio/webm'});
+      var url=URL.createObjectURL(blob);
+      audioEl.src=url;
+      audioEl.style.display='block';
+      stopMeter();
+      stream.getTracks().forEach(function(t){t.stop();});
+      finishPractice(text);
+    };
+    rec.start();
+    recState=true;
+    recBtn.textContent='⏹ 停止录音';
+    recBtn.classList.add('on');
+    startMeter(s);
+    startRecog();
+    townToast('录音中…说完点「停止录音」');
+  }).catch(function(){
+    townToast('麦克风被拒绝或不可用，试试「标记练习」🎙');
+  });
+};
+function stopRec(){
+  if(rec&&rec.state!=='inactive')rec.stop();
+  recState=false;
+  recBtn.textContent='🎙 开始录音';
+  recBtn.classList.remove('on');
+}
+function startMeter(s){
+  try{
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    var src=audioCtx.createMediaStreamSource(s);
+    ana=audioCtx.createAnalyser();ana.fftSize=256;
+    src.connect(ana);
+    var arr=new Uint8Array(ana.frequencyBinCount);
+    (function loop(){
+      ana.getByteFrequencyData(arr);
+      var sum=0;for(var i=0;i<arr.length;i++)sum+=arr[i];
+      var v=sum/arr.length/255;
+      meterBar.style.width=Math.min(100,Math.round(v*320))+'%';
+      raf=requestAnimationFrame(loop);
+    })();
+  }catch(e){}
+}
+function stopMeter(){
+  if(raf)cancelAnimationFrame(raf);
+  if(audioCtx){try{audioCtx.close();}catch(e){}}
+  meterBar.style.width='0%';
+}
+function startRecog(){
+  transcript.style.display='none';
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){return;}
+  try{
+    recog=new SR();
+    recog.lang='zh-CN';
+    recog.interimResults=true;
+    var out='';
+    recog.onresult=function(e){
+      out='';
+      for(var i=0;i<e.results.length;i++)out+=e.results[i][0].transcript;
+      transcript.style.display='block';
+      transcript.textContent='👂 识别到：'+out;
+    };
+    recog.onend=function(){recogOn=false;};
+    recog.start();
+    recogOn=true;
+  }catch(e){}
+}
+playBtn.onclick=function(){
+  if(audioEl.src)audioEl.play().catch(function(){});
+};
+function finishPractice(text){
+  practice.total=(practice.total||0)+1;
+  practice.xp=(practice.xp||0)+10;
+  practice.days[todayStr()]=(practice.days[todayStr()]||0)+1;
+  practice.checkins[todayStr()]=true;
+  /* 匹配卡片条目并标记 */
+  var match=allItems().filter(function(it){return it.text===text;})[0];
+  if(match)practiced[match.id]=true;
+  save();renderStats();renderItems();
+  xpLine.innerHTML='本次练习 <b>+10 XP</b> · 累计 <b>'+(practice.xp)+' XP</b>，打卡成功，连续练习中 🔥';
+  townToast('跟读完成 +10 XP 🎉');
+}
+/* 手动标记（无麦克风兜底） */
+var markBtn=document.createElement('button');
+markBtn.className='s-btn exp';
+markBtn.textContent='✅ 标记练习 +10XP';
+markBtn.style.flex='0 0 auto';
+markBtn.onclick=function(){
+  var text=document.getElementById('recText').value.trim();
+  if(!text){townToast('先输入要练的话术 📝');return;}
+  finishPractice(text);
+};
+xpLine.appendChild(markBtn);
+
+renderStats();renderCats();renderItems();
+
+/* 导出话术合集（表格） */
+document.getElementById('spExcel').onclick=function(){
+  var rows=allItems().map(function(it){
+    return [townExport.esc(it.cat),townExport.esc(it.text),it.built?'内置':'自加',practiced[it.id]?'已练习':'未练习',favs[it.id]?'★':'—'];
+  });
+  var pr=ls.get('speech-v1-practice')||{};
+  var tables=[{t:'话术合集',h:['场景','内容','来源','练习状态','收藏'],rows:rows}];
+  tables.push({t:'练习统计',h:['项目','数值'],rows:[['累计练习次数',pr.total||0],['累计 XP',pr.xp||0],['连续打卡天数',Object.keys(pr.checkins||{}).length]]});
+  townExport.xls('话术合集_'+townExport.stamp()+'.xls',tables,'小镇话术铺 · 话术合集');
+  townToast('已导出话术合集 📤');
+};
+</script>
+</body>
+</html>

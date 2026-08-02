@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小镇商店 · 小镇生活</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  .coin-line{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .coin{flex:1;font-family:var(--pixel);font-size:20px;color:var(--accent-deep);}
+  .coin small{font-family:var(--font);font-size:12px;color:var(--t3);letter-spacing:1px;}
+  .streak{font-size:12.5px;color:var(--t3);letter-spacing:1px;}
+  .streak b{color:var(--primary-deep);}
+  .inter-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .inter{display:flex;align-items:center;gap:9px;padding:11px;border-radius:12px;cursor:pointer;
+    background:var(--card);border:1.5px solid var(--line);transition:all .15s;font-family:inherit;text-align:left;}
+  .inter:hover{transform:translateY(-2px);border-color:var(--primary);}
+  .inter:active{transform:scale(.96);}
+  .inter.done{opacity:.55;cursor:default;transform:none;}
+  .inter .em{font-size:20px;}
+  .inter .tx{flex:1;}
+  .inter .tx .nm{font-size:13px;font-weight:700;color:var(--t1);}
+  .inter .tx .rw{font-size:11px;color:var(--accent-deep);margin-top:2px;}
+  .inter .st{font-size:11px;color:var(--t3);}
+  .shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .item{display:flex;align-items:center;gap:9px;padding:11px;border-radius:12px;cursor:pointer;
+    background:var(--card);border:1.5px solid var(--line);transition:all .15s;font-family:inherit;text-align:left;}
+  .item:hover{transform:translateY(-2px);border-color:var(--primary);}
+  .item:active{transform:scale(.96);}
+  .item.sel{border-color:var(--primary);background:var(--primary-soft);box-shadow:0 2px 0 var(--primary-deep);}
+  .item .em{font-size:20px;}
+  .item .tx{flex:1;}
+  .item .tx .nm{font-size:13px;font-weight:700;color:var(--t1);}
+  .item .tx .pr{font-size:11px;color:var(--accent-deep);margin-top:2px;}
+  .item .bought{font-size:11px;color:var(--primary-deep);}
+  .plot{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:12px;}
+  .cell{aspect-ratio:1;border-radius:10px;background:var(--primary-soft);border:1.5px dashed rgba(111,190,158,.5);
+    display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:all .15s;min-height:44px;}
+  .cell:hover{transform:scale(1.05);border-color:var(--primary);}
+  .cell:active{transform:scale(.94);}
+  .cell.has{background:#fff;border:1.5px solid var(--line);}
+  .collect{font-size:12.5px;color:var(--t3);letter-spacing:1px;margin-top:10px;text-align:center;}
+  .collect b{color:var(--primary-deep);}
+</style>
+</head>
+<body data-page="shop">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user"><span class="uico">🐰</span><span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span><a class="ugear" href="settings.html" title="小镇设置">⚙️</a></div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1>🏪 小镇商店</h1>
+    <p class="slogan">签到攒金币，把小镇一点点布置成喜欢的样子。</p>
+  </header>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">COIN</span>我的钱袋</div>
+    <div class="coin-line">
+      <div class="coin">🪙 <span id="coins">0</span> <small>金币</small></div>
+      <div class="streak">连签 <b id="streak">0</b> 天</div>
+    </div>
+    <button class="btn primary block" id="signBtn">每日签到 +5 🪙</button>
+    <p class="muted" style="text-align:center;margin-top:8px;" id="signMsg">每天来小镇报到，连续签到有额外奖励</p>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">PLAY</span>小镇小互动</div>
+    <div class="inter-grid" id="interGrid"></div>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">SHOP</span>商店货架</div>
+    <div class="shop-grid" id="shopGrid"></div>
+    <p class="muted" style="text-align:center;margin-top:10px;">点选一件商品，再到下面的空地上摆放</p>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">TOWN</span>我的小镇</div>
+    <div class="plot" id="plot"></div>
+    <div class="collect">小镇布置进度 <b id="collect">0/7</b> 种</div>
+  </section>
+
+  <footer class="foot">
+    小镇不催你，慢慢攒，慢慢摆 🏡<br>
+    <span class="muted">每天一点点，小镇就一点点热闹起来。</span>
+  </footer>
+</main>
+
+<script src="town.js"></script>
+<script>
+var ITEMS=[{em:'🌳',nm:'小树',pr:10},{em:'🌸',nm:'花丛',pr:8},{em:'🏠',nm:'小房子',pr:30},{em:'🐱',nm:'小猫',pr:25},{em:'🪧',nm:'路牌',pr:5},{em:'⛲',nm:'小喷泉',pr:40},{em:'🎈',nm:'气球',pr:12}];
+var ACTS=[['🚿','给大树浇水',2,'大树说：谢谢你的水呀'],['🐱','摸摸小猫',2,'小猫：呼噜呼噜～'],['🧹','扫落叶',2,'地上干净啦，心情也清爽'],['🕊','喂小鸟',2,'小鸟啄了两下，飞走了']];
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function dateStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function yestStr(){var d=new Date();d.setDate(d.getDate()-1);return dateStr(d);}
+var state=ls.get('townshop-v1-state')||{coins:0,streak:0,last:null,inter:{},grid:{},bought:{}};
+if(typeof state.coins!=='number')state.coins=0;
+if(!state.inter||typeof state.inter!=='object')state.inter={};
+if(!state.grid||typeof state.grid!=='object')state.grid={};
+if(!state.bought||typeof state.bought!=='object')state.bought={};
+var selItem=null;
+var today=dateStr();
+
+function save(){ls.set('townshop-v1-state',state);}
+function addCoin(n){state.coins+=n;save();renderMoney();}
+
+function renderMoney(){
+  document.getElementById('coins').textContent=state.coins;
+  document.getElementById('streak').textContent=state.streak;
+}
+document.getElementById('signBtn').onclick=function(){
+  if(state.last===today){townToast('今天已经签到过啦，明天见 🏡');return;}
+  state.streak=(state.last===yestStr())?(state.streak+1):1;
+  state.last=today;
+  var bonus=Math.min(state.streak-1,10);
+  var got=5+bonus;
+  addCoin(got);
+  document.getElementById('signMsg').textContent=bonus>0?('连续签到第 '+state.streak+' 天，额外奖励 +'+bonus+' 🎉'):'签到成功，明天继续来哦';
+  townToast('签到成功，+'+got+' 金币 🪙');
+  renderInter();
+};
+
+/* 小互动 */
+var interGrid=document.getElementById('interGrid');
+function renderInter(){
+  var doneToday=state.inter[today]||{};
+  interGrid.innerHTML='';
+  ACTS.forEach(function(a){
+    var d=!!doneToday[a[0]];
+    var b=document.createElement('button');
+    b.className='inter'+(d?' done':'');
+    b.innerHTML='<span class="em">'+a[0]+'</span><span class="tx"><span class="nm">'+a[1]+'</span><br><span class="rw">+'+(d?0:a[2])+' 🪙</span></span><span class="st">'+(d?'明天再来~':'今天可做')+'</span>';
+    b.onclick=function(){
+      if(doneToday[a[0]]){townToast('今天做过了，明天再来~');return;}
+      doneToday[a[0]]=true;
+      state.inter[today]=doneToday;
+      addCoin(a[2]);
+      townToast(a[3]+' · +'+a[2]+' 🪙');
+      renderInter();
+    };
+    interGrid.appendChild(b);
+  });
+}
+
+/* 商店 */
+var shopGrid=document.getElementById('shopGrid');
+function renderShop(){
+  shopGrid.innerHTML='';
+  ITEMS.forEach(function(it,i){
+    var bought=!!state.bought[it.em];
+    var b=document.createElement('button');
+    b.className='item'+(selItem===it.em?' sel':'');
+    b.innerHTML='<span class="em">'+it.em+'</span><span class="tx"><span class="nm">'+it.nm+'</span><br><span class="pr">'+(bought?'已拥有':'🪙 '+it.pr+'')+'</span></span><span class="bought">'+(selItem===it.em?'选中中':'')+'</span>';
+    b.onclick=function(){
+      if(bought){selItem=(selItem===it.em)?null:it.em;renderShop();if(selItem)townToast('已选中 '+it.nm+'，去空地摆上吧');return;}
+      if(state.coins<it.pr){townToast('还差 '+(it.pr-state.coins)+' 金币，明天再来攒呀 🌱');return;}
+      state.coins-=it.pr;
+      state.bought[it.em]=true;
+      selItem=it.em;
+      save();renderMoney();renderShop();
+      townToast('买好啦，去空地上摆上 '+it.nm+' ✨');
+    };
+    shopGrid.appendChild(b);
+  });
+}
+
+/* 空地 */
+var plotEl=document.getElementById('plot');
+function renderPlot(){
+  plotEl.innerHTML='';
+  for(var i=0;i<24;i++){
+    var cell=document.createElement('div');
+    var it=state.grid[i];
+    cell.className='cell'+(it?' has':'');
+    cell.textContent=it?it:'';
+    cell.onclick=function(){
+      var idx=i;
+      if(state.grid[idx]){
+        delete state.grid[idx];
+        save();renderPlot();renderShop();
+        townToast('收起来了，还可以再摆别的');
+        return;
+      }
+      if(!selItem){townToast('先在商店选一件装饰吧 🏪');return;}
+      state.grid[idx]=selItem;
+      save();renderPlot();
+      townToast('摆好啦，小镇更热闹了一点 🏡');
+    };
+    plotEl.appendChild(cell);
+  }
+  var n=Object.keys(state.bought).length;
+  document.getElementById('collect').textContent=n+'/7';
+  if(n>=7&&!state._ach){state._ach=true;save();townToast('收集全部 7 种！小镇大丰收 🎉');twinkle();}
+}
+
+renderMoney();renderInter();renderShop();renderPlot();
+</script>
+</body>
+</html>

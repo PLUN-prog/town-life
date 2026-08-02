@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小镇BGM · 小镇生活</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  .overlay{position:fixed;inset:0;background:rgba(246,243,234,.92);z-index:200;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px;}
+  .overlay .big{font-size:40px;}
+  .overlay .txt{font-size:14px;color:var(--t2);letter-spacing:2px;line-height:2;}
+  .presets{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  .preset{display:flex;align-items:center;gap:10px;padding:13px 12px;border-radius:12px;cursor:pointer;
+    background:var(--card);border:1.5px solid var(--line);box-shadow:var(--shadow);transition:all .18s;font-family:inherit;text-align:left;}
+  .preset:hover{transform:translateY(-2px);border-color:var(--primary);}
+  .preset:active{transform:scale(.97);}
+  .preset.on{background:var(--primary);border-color:var(--primary-deep);}
+  .preset.on .nm{color:#fff;}
+  .preset.on .sn{color:rgba(255,255,255,.85);}
+  .preset .em{font-size:24px;}
+  .preset .nm{font-size:13.5px;font-weight:700;color:var(--t1);letter-spacing:1px;}
+  .preset .sn{font-size:11px;color:var(--t3);margin-top:3px;letter-spacing:.5px;}
+  .now-line{text-align:center;padding:2px 0 8px;}
+  .now-line .cur{font-size:14px;font-weight:700;color:var(--primary-deep);letter-spacing:1px;}
+  .now-line .cp{font-size:12.5px;color:var(--t3);margin-top:5px;letter-spacing:1px;}
+  .vol-row{display:flex;align-items:center;gap:12px;margin-top:14px;}
+  .vol-row .vl{font-size:13px;color:var(--t3);letter-spacing:1px;white-space:nowrap;}
+  .vol-row input[type=range]{flex:1;accent-color:var(--primary-deep);height:26px;cursor:pointer;}
+  .eq{display:flex;align-items:flex-end;gap:5px;height:26px;justify-content:center;}
+  .eq span{width:6px;border-radius:3px;background:var(--primary);height:30%;opacity:.55;}
+  body.playing .eq span{animation:eq 1s ease-in-out infinite;}
+  body.playing .eq span:nth-child(1){animation-delay:0s}body.playing .eq span:nth-child(2){animation-delay:.15s}
+  body.playing .eq span:nth-child(3){animation-delay:.3s}body.playing .eq span:nth-child(4){animation-delay:.45s}
+  body.playing .eq span:nth-child(5){animation-delay:.6s}
+  @keyframes eq{0%,100%{height:25%;}50%{height:95%;}}
+</style>
+</head>
+<body data-page="bgm">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user"><span class="uico">🐰</span><span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span><a class="ugear" href="settings.html" title="小镇设置">⚙️</a></div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1>🎵 小镇BGM</h1>
+    <p class="slogan">声音是小镇的天气，选一种陪着你。</p>
+  </header>
+
+  <div class="overlay" id="overlay">
+    <div class="big">🎧</div>
+    <div class="txt">点击开始，听小镇的声音</div>
+    <button class="btn primary" id="startBtn">开始聆听</button>
+  </div>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">SOUND</span>氛围音</div>
+    <div class="now-line">
+      <div class="eq"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="cur" id="curName">还没开始播放</div>
+      <div class="cp" id="curCopy">点一个声音，让它轻轻陪着你</div>
+    </div>
+    <div class="presets" id="presets"></div>
+    <div class="vol-row">
+      <span class="vl">🔉 音量</span>
+      <input type="range" id="vol" min="0" max="100" value="60">
+    </div>
+  </section>
+
+  <footer class="foot">
+    小镇的声音都是现场合成的，不需要任何音频文件 🎼<br>
+    <span class="muted">听累了就关掉，安静也是好声音。</span>
+  </footer>
+</main>
+
+<script src="town.js"></script>
+<script>
+/* ================= WebAudio 实时合成 ================= */
+var AC=null,master=null,scene=null,timers=[],curKey=null;
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+function initAudio(){
+  AC=new (window.AudioContext||window.webkitAudioContext)();
+  master=AC.createGain();
+  master.gain.value=0.6;
+  master.connect(AC.destination);
+  var v=ls.get('bgmplayer-v1-vol');
+  if(typeof v==='number'){master.gain.value=v;document.getElementById('vol').value=Math.round(v*100);}
+}
+function noiseBuf(){
+  var len=AC.sampleRate*2;
+  var b=AC.createBuffer(1,len,AC.sampleRate);
+  var d=b.getChannelData(0);
+  for(var i=0;i<len;i++)d[i]=Math.random()*2-1;
+  return b;
+}
+function loopNoise(){
+  var s=AC.createBufferSource();
+  s.buffer=noiseBuf();s.loop=true;
+  return s;
+}
+function every(ms,fn){timers.push(setInterval(fn,ms));}
+function later(ms,fn){var t=setTimeout(function(){fn();clearTimeout(t);},ms);}
+
+var PRESETS=[
+  {key:'rain',em:'🌧',nm:'雨声',sn:'白噪低滤 + 淅沥雨滴',copy:'雨声陪你读书，刚刚好',start:function(g){
+    var n=loopNoise(),f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=1100;
+    var gn=AC.createGain();gn.gain.value=0.11;
+    n.connect(f);f.connect(gn);gn.connect(g);n.start();
+    every(160,function(){
+      var s=AC.createBufferSource();s.buffer=noiseBuf();
+      var bp=AC.createBiquadFilter();bp.type='highpass';bp.frequency.value=2400+Math.random()*2200;
+      var gg=AC.createGain();gg.gain.value=0.015+Math.random()*0.03;
+      s.connect(bp);bp.connect(gg);gg.connect(g);
+      gg.gain.setValueAtTime(gg.gain.value,AC.currentTime);
+      gg.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+0.07);
+      s.start();s.stop(AC.currentTime+0.09);
+    });
+  }},
+  {key:'fire',em:'🔥',nm:'篝火',sn:'低频暖噪 + 噼啪火星',copy:'篝火噼啪，把心事烤一烤',start:function(g){
+    var n=loopNoise(),f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=360;
+    var gn=AC.createGain();gn.gain.value=0.2;
+    n.connect(f);f.connect(gn);gn.connect(g);n.start();
+    every(140,function(){
+      var s=AC.createBufferSource();s.buffer=noiseBuf();
+      var bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1300+Math.random()*1800;bp.Q.value=1.2;
+      var gg=AC.createGain();gg.gain.value=0.025+Math.random()*0.05;
+      s.connect(bp);bp.connect(gg);gg.connect(g);
+      gg.gain.setValueAtTime(gg.gain.value,AC.currentTime);
+      gg.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+0.03);
+      s.start();s.stop(AC.currentTime+0.05);
+    });
+  }},
+  {key:'birds',em:'🐦',nm:'清晨鸟鸣',sn:'随机啾啾，高频轻颤',copy:'小鸟叫了，该起床晒晒太阳了',start:function(g){
+    every(650,function(){
+      var o=AC.createOscillator(),g2=AC.createGain();
+      var f0=2100+Math.random()*1000;
+      o.type='sine';o.frequency.setValueAtTime(f0,AC.currentTime);
+      o.frequency.exponentialRampToValueAtTime(f0*0.6,AC.currentTime+0.09);
+      g2.gain.setValueAtTime(0.0001,AC.currentTime);
+      g2.gain.exponentialRampToValueAtTime(0.05,AC.currentTime+0.015);
+      g2.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+0.1);
+      o.connect(g2);g2.connect(g);o.start();o.stop(AC.currentTime+0.12);
+      later(140+Math.random()*300,function(){
+        var o2=AC.createOscillator(),g3=AC.createGain();
+        o2.type='sine';o2.frequency.setValueAtTime(f0*1.1,AC.currentTime);
+        g3.gain.setValueAtTime(0.0001,AC.currentTime);
+        g3.gain.exponentialRampToValueAtTime(0.04,AC.currentTime+0.015);
+        g3.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+0.08);
+        o2.connect(g3);g3.connect(g);o2.start();o2.stop(AC.currentTime+0.1);
+      });
+    });
+  }},
+  {key:'stream',em:'🌊',nm:'溪流',sn:'中频流水 + 缓波荡漾',copy:'溪水哗哗，心事也跟着流走',start:function(g){
+    var n=loopNoise(),f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=850;f.Q.value=0.9;
+    var lfo=AC.createOscillator(),lg=AC.createGain();
+    lfo.frequency.value=0.25;lg.gain.value=280;
+    lfo.connect(lg);lg.connect(f.frequency);
+    var gn=AC.createGain();gn.gain.value=0.12;
+    n.connect(f);f.connect(gn);gn.connect(g);n.start();lfo.start();
+  }},
+  {key:'box',em:'🎹',nm:'八音盒',sn:'五声音阶，随机温柔单音',copy:'叮叮咚咚，像小镇在说晚安',start:function(g){
+    var notes=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.51];
+    every(720,function(){
+      var f0=notes[Math.floor(Math.random()*notes.length)];
+      var o=AC.createOscillator(),o2=AC.createOscillator(),gg=AC.createGain();
+      o.type='triangle';o.frequency.value=f0;
+      o2.type='sine';o2.frequency.value=f0*2;
+      var gg2=AC.createGain();gg2.gain.value=0.25;
+      gg.gain.setValueAtTime(0.0001,AC.currentTime);
+      gg.gain.exponentialRampToValueAtTime(0.06,AC.currentTime+0.02);
+      gg.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+1.5);
+      o.connect(gg);o2.connect(gg2);gg2.connect(gg);gg.connect(g);
+      o.start();o2.start();o.stop(AC.currentTime+1.6);o2.stop(AC.currentTime+1.6);
+    });
+  }},
+  {key:'cafe',em:'☕',nm:'咖啡馆',sn:'低语底噪 + 杯碟轻响',copy:'咖啡店的低语，做什么都合适',start:function(g){
+    var n=loopNoise(),f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=280;
+    var gn=AC.createGain();gn.gain.value=0.05;
+    n.connect(f);f.connect(gn);gn.connect(g);n.start();
+    every(3200,function(){
+      var o=AC.createOscillator(),gg=AC.createGain();
+      o.type='sine';o.frequency.value=1300+Math.random()*400;
+      gg.gain.setValueAtTime(0.0001,AC.currentTime);
+      gg.gain.exponentialRampToValueAtTime(0.012,AC.currentTime+0.01);
+      gg.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+0.15);
+      o.connect(gg);gg.connect(g);o.start();o.stop(AC.currentTime+0.18);
+    });
+  }}
+];
+
+function stopScene(){
+  if(!scene)return;
+  var g=scene;
+  try{
+    g.gain.cancelScheduledValues(AC.currentTime);
+    g.gain.setValueAtTime(g.gain.value,AC.currentTime);
+    g.gain.linearRampToValueAtTime(0,AC.currentTime+0.6);
+  }catch(e){}
+  timers.forEach(clearInterval);timers=[];
+  scene=null;
+  setTimeout(function(){try{g.disconnect();}catch(e){}},750);
+}
+function playPreset(key){
+  stopScene();
+  var p=PRESETS.filter(function(x){return x.key===key;})[0];
+  if(!p)return;
+  var g=AC.createGain();
+  g.gain.setValueAtTime(0,AC.currentTime);
+  g.gain.linearRampToValueAtTime(1,AC.currentTime+0.8);
+  g.connect(master);
+  scene=g;curKey=key;
+  p.start(g);
+  document.getElementById('curName').textContent=p.em+' '+p.nm;
+  document.getElementById('curCopy').textContent=p.copy;
+  document.querySelectorAll('.preset').forEach(function(b){
+    b.classList.toggle('on',b.dataset.key===key);
+  });
+  document.body.classList.add('playing');
+}
+function stopAll(){
+  stopScene();curKey=null;
+  document.getElementById('curName').textContent='已暂停';
+  document.getElementById('curCopy').textContent='点一个声音，让它轻轻陪着你';
+  document.querySelectorAll('.preset').forEach(function(b){b.classList.remove('on');});
+  document.body.classList.remove('playing');
+}
+
+/* 遮罩启动 */
+document.getElementById('startBtn').onclick=function(){
+  try{
+    initAudio();
+    if(AC.state==='suspended')AC.resume();
+  }catch(e){}
+  document.getElementById('overlay').style.display='none';
+  townToast('小镇的声音准备好了 🎵');
+};
+
+/* 预设按钮 */
+var presetBox=document.getElementById('presets');
+PRESETS.forEach(function(p){
+  var b=document.createElement('button');
+  b.className='preset';b.dataset.key=p.key;
+  b.innerHTML='<span class="em">'+p.em+'</span><span><span class="nm">'+p.nm+'</span><br><span class="sn">'+p.sn+'</span></span>';
+  b.onclick=function(){
+    if(!AC){initAudio();}
+    if(AC.state==='suspended')AC.resume();
+    if(curKey===p.key){stopAll();return;}
+    playPreset(p.key);
+  };
+  presetBox.appendChild(b);
+});
+
+/* 音量 */
+document.getElementById('vol').addEventListener('input',function(e){
+  var v=e.target.value/100;
+  if(master){master.gain.setTargetAtTime(v,AC.currentTime,0.05);}
+  ls.set('bgmplayer-v1-vol',v);
+});
+</script>
+</body>
+</html>

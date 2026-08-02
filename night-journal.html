@@ -1,0 +1,260 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>睡前小记 · 小镇生活</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  .moods{display:flex;justify-content:space-between;gap:8px;margin-bottom:4px;}
+  .mood{flex:1;text-align:center;padding:12px 4px;border-radius:12px;cursor:pointer;background:var(--card);
+    border:1.5px solid var(--line);transition:all .15s;}
+  .mood:active{transform:scale(.94);}
+  .mood .f{font-size:26px;display:block;margin-bottom:5px;filter:grayscale(.7);opacity:.75;}
+  .mood .l{font-size:11.5px;color:var(--t3);letter-spacing:1px;}
+  .mood.on{border-color:var(--primary);background:var(--primary-soft);box-shadow:0 2px 0 var(--primary-deep);}
+  .mood.on .f{filter:none;opacity:1;}
+  .mood.on .l{color:var(--primary-deep);font-weight:700;}
+  .qrow{margin-bottom:12px;}
+  .qrow .ql{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:1px;margin-bottom:6px;}
+  .qrow textarea{width:100%;font-family:inherit;font-size:13.5px;line-height:1.8;padding:10px 12px;
+    border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--t1);resize:vertical;outline:none;
+    transition:border-color .15s;min-height:56px;}
+  .qrow textarea:focus{border-color:var(--primary);}
+  .stars{display:flex;gap:6px;font-size:26px;cursor:pointer;user-select:none;}
+  .stars span{transition:transform .12s;color:#D9D6CC;}
+  .stars span.on{color:var(--accent);}
+  .stars span:active{transform:scale(1.2);}
+  .stars-label{font-size:12px;color:var(--t3);margin-top:6px;letter-spacing:1px;}
+  .save-row{display:flex;gap:10px;margin-top:16px;}
+  .save-row .btn{flex:1;}
+  .entry{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1.5px dashed var(--line-soft);}
+  .entry:last-child{border-bottom:none;}
+  .entry .d{flex:0 0 auto;text-align:center;}
+  .entry .d .dd{font-size:14px;font-weight:800;color:var(--t1);}
+  .entry .d .dm{font-size:11px;color:var(--t3);}
+  .entry .body{flex:1;min-width:0;}
+  .entry .body .line1{font-size:13px;color:var(--t2);}
+  .entry .body .line2{font-size:12px;color:var(--t3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .entry .x{flex:0 0 auto;border:none;background:none;color:var(--t3);font-size:14px;cursor:pointer;padding:6px;border-radius:8px;}
+  .entry .x:hover{color:var(--rose);background:var(--rose-soft);}
+  .empty{text-align:center;color:var(--t3);padding:14px 0;font-size:13px;letter-spacing:1px;}
+  .stat-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;color:var(--t2);}
+  .stat-row .lab{flex:0 0 92px;text-align:right;}
+  .stat-row .track{flex:1;height:14px;background:#F0EEE4;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;}
+  .stat-row .track i{display:block;height:100%;background:var(--primary);border-radius:999px;transition:width .4s;}
+  .stat-row .cnt{flex:0 0 40px;font-family:var(--pixel);font-size:11px;color:var(--primary-deep);}
+  .avg{text-align:center;font-size:13px;color:var(--t3);margin-top:10px;letter-spacing:1px;}
+  .avg b{color:var(--accent-deep);}
+</style>
+</head>
+<body data-page="journal">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user"><span class="uico">🐰</span><span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span><a class="ugear" href="settings.html" title="小镇设置">⚙️</a></div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1>🌙 睡前小记</h1>
+    <p class="slogan">把今天轻轻放下，明天见。</p>
+  </header>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">MOOD</span>今天的心情</div>
+    <div class="moods" id="moods"></div>
+    <div style="margin-top:14px;">
+      <div class="qrow">
+        <div class="ql">✨ 今天最开心的一件事</div>
+        <textarea id="q1" placeholder="再小的事也值得记下来，比如：晚霞特别好看…"></textarea>
+      </div>
+      <div class="qrow">
+        <div class="ql">🌱 今天学到了什么</div>
+        <textarea id="q2" placeholder="一句话就够，学到的都是赚到的…"></textarea>
+      </div>
+      <div class="qrow">
+        <div class="ql">🌸 明天的小期待</div>
+        <textarea id="q3" placeholder="给自己留个小盼头，起床就有理由…"></textarea>
+      </div>
+      <div class="stars" id="stars"></div>
+      <div class="stars-label" id="starsLabel">给今天打几颗星？</div>
+      <div class="save-row">
+        <button class="btn primary" id="saveBtn">轻轻放下今天 🌙</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">WEEK</span>本周心情小统计</div>
+    <div id="weekStats"></div>
+    <div class="avg" id="avgLine"></div>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">HIST</span>最近 14 天</div>
+    <div id="histList"></div>
+  </section>
+
+  <footer class="foot">
+    睡前写几行字，梦也会做得安稳些 💤<br>
+    <span class="muted">日记只给自己看，很安全。</span>
+  </footer>
+</main>
+
+<script src="town.js"></script>
+<script>
+var MOODS=[['😄','超棒'],['🙂','不错'],['😐','一般'],['🙁','低落'],['😴','累了']];
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function dateStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+var entries=ls.get('nightjournal-v1-entries')||{};
+var moodSel=-1,starSel=0;
+
+/* 心情选择 */
+var moodsEl=document.getElementById('moods');
+MOODS.forEach(function(m,i){
+  var b=document.createElement('div');
+  b.className='mood';
+  b.innerHTML='<span class="f">'+m[0]+'</span><span class="l">'+m[1]+'</span>';
+  b.onclick=function(){
+    moodSel=i;
+    Array.prototype.forEach.call(moodsEl.children,function(c,j){c.classList.toggle('on',j===i);});
+  };
+  moodsEl.appendChild(b);
+});
+/* 星星 */
+var starsEl=document.getElementById('stars'),starsLabel=document.getElementById('starsLabel');
+for(var s=1;s<=5;s++){
+  (function(n){
+    var sp=document.createElement('span');
+    sp.textContent='★';
+    sp.onclick=function(){
+      starSel=n;
+      renderStars();
+    };
+    starsEl.appendChild(sp);
+  })(s);
+}
+function renderStars(){
+  Array.prototype.forEach.call(starsEl.children,function(sp,i){sp.classList.toggle('on',i<starSel);});
+  starsLabel.textContent=starSel?('给今天 '+starSel+' 颗星 '+(starSel>=4?'今天真不错 ✨':starSel>=3?'平平淡淡也是福 🌿':'抱抱你 🫂')):'给今天打几颗星？';
+}
+
+/* 加载今天的记录（可覆盖） */
+var today=todayStr();
+function todayStr(){return dateStr();}
+function loadToday(){
+  var e=entries[today];
+  if(!e)return;
+  moodSel=MOODS.findIndex(function(m){return m[0]===e.mood;});
+  starSel=e.stars||0;
+  if(moodSel>=0)Array.prototype.forEach.call(moodsEl.children,function(c,j){c.classList.toggle('on',j===moodSel);});
+  renderStars();
+  document.getElementById('q1').value=e.q1||'';
+  document.getElementById('q2').value=e.q2||'';
+  document.getElementById('q3').value=e.q3||'';
+}
+document.getElementById('saveBtn').onclick=function(){
+  if(moodSel<0){townToast('先选一个今天的心情小脸吧 😐');return;}
+  entries[today]={mood:MOODS[moodSel][0],stars:starSel,q1:document.getElementById('q1').value.trim(),
+    q2:document.getElementById('q2').value.trim(),q3:document.getElementById('q3').value.trim(),ts:Date.now()};
+  ls.set('nightjournal-v1-entries',entries);
+  renderHist();renderWeek();
+  townToast('已轻轻放下今天 🌙');
+};
+
+/* 历史 */
+function renderHist(){
+  var el=document.getElementById('histList');
+  var days=[];
+  for(var i=13;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);days.push(d);}
+  var html='';
+  var hasAny=false;
+  days.forEach(function(d){
+    var k=dateStr(d),e=entries[k];
+    if(!e)return;
+    hasAny=true;
+    var m=(e.mood||'😐'),st=(e.stars?('★'.repeat(e.stars)+'☆'.repeat(5-e.stars)):'—');
+    var brief=e.q1||e.q2||e.q3||'（只记了心情）';
+    html+='<div class="entry"><div class="d"><div class="dd">'+(d.getMonth()+1)+'/'+d.getDate()+'</div><div class="dm">'+m+'</div></div>'+
+      '<div class="body"><div class="line1">'+m+' '+st+'</div><div class="line2">'+brief+'</div></div>'+
+      '<button class="x" data-date="'+k+'">✕</button></div>';
+  });
+  if(!hasAny){
+    townEmpty(el,{art:'moon',title:'还没有小记',desc:'睡前写下今天的一件小事，攒成星星',btn:'✏️ 写第一篇',onBtn:function(){var q=document.getElementById('q1');if(q){q.scrollIntoView({behavior:'smooth',block:'center'});q.focus();}}});
+  }else{
+    el.innerHTML=html;
+  }
+  el.querySelectorAll('.x').forEach(function(x){
+    x.onclick=function(){
+      delete entries[x.dataset.date];
+      ls.set('nightjournal-v1-entries',entries);
+      renderHist();renderWeek();
+      townToast('已删除那天的记录');
+    };
+  });
+}
+/* 周统计 */
+function renderWeek(){
+  var el=document.getElementById('weekStats');
+  var counts={};
+  var totalStars=0,days=0;
+  for(var i=6;i>=0;i--){
+    var d=new Date();d.setDate(d.getDate()-i);
+    var e=entries[dateStr(d)];
+    if(e){
+      counts[e.mood]=(counts[e.mood]||0)+1;
+      if(e.stars){totalStars+=e.stars;days++;}
+    }
+  }
+  var max=0;
+  Object.keys(counts).forEach(function(k){if(counts[k]>max)max=counts[k];});
+  var html='';
+  if(days===0&&Object.keys(counts).length===0){
+    el.innerHTML=townEmptyHTML({art:'star',title:'这周还没记录',desc:'从今天开始，攒一颗小星星',mini:true});
+  }else{
+    MOODS.forEach(function(m){
+      var n=counts[m[0]]||0;
+      var w=max?Math.round(n/max*100):0;
+      if(n||w){
+        html+='<div class="stat-row"><span class="lab">'+m[0]+' '+m[1]+'</span><span class="track"><i style="width:'+w+'%"></i></span><span class="cnt">'+n+'</span></div>';
+      }
+    });
+  }
+  el.innerHTML=html;
+  document.getElementById('avgLine').innerHTML=days?('最近 7 天平均 <b>'+(totalStars/days).toFixed(1)+'</b> 颗星'):'';
+}
+
+renderHist();renderWeek();loadToday();
+</script>
+</body>
+</html>

@@ -1,0 +1,456 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>播客精选 · 小镇生活</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+  .bstat{background:var(--primary-soft);border:1.5px solid rgba(111,190,158,.4);border-radius:12px;padding:12px 6px;text-align:center;}
+  .bstat .v{font-family:var(--pixel);font-size:15px;color:var(--primary-deep);display:block;margin-bottom:5px;}
+  .bstat .k{font-size:10.5px;color:var(--t3);letter-spacing:1px;}
+  .plants{display:flex;gap:8px;justify-content:space-between;margin-top:6px;}
+  .plant{flex:1;text-align:center;padding:9px 2px;border-radius:11px;border:1.5px solid var(--line);background:#fff;transition:all .2s;}
+  .plant .p{font-size:22px;display:block;margin-bottom:4px;filter:grayscale(1);opacity:.4;}
+  .plant .pn{font-size:10px;color:var(--t3);letter-spacing:.5px;}
+  .plant.unlocked{border-color:var(--primary);background:var(--primary-soft);}
+  .plant.unlocked .p{filter:none;opacity:1;}
+  .plant.unlocked .pn{color:var(--primary-deep);font-weight:700;}
+  .plant-next{text-align:center;font-size:12px;color:var(--t3);margin-top:10px;letter-spacing:1px;}
+  .plant-next b{color:var(--primary-deep);}
+  .overview{display:flex;align-items:center;gap:12px;}
+  .overview .bar{flex:1;}
+  .overview .num{font-family:var(--pixel);font-size:13px;color:var(--accent-deep);white-space:nowrap;}
+  .pod{padding:0;margin-bottom:16px;}
+  .pod .top{display:flex;align-items:center;gap:12px;padding:14px 14px 0;}
+  .cover{flex:0 0 auto;width:64px;height:64px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:28px;
+    border:1.5px solid var(--line);box-shadow:0 3px 0 rgba(70,70,80,.1);position:relative;overflow:hidden;}
+  .cover .cvem{position:relative;z-index:2;}
+  .cover::after{content:"";position:absolute;right:-8px;top:-8px;width:22px;height:22px;background:rgba(255,255,255,.35);transform:rotate(45deg);}
+  .pod .name{flex:1;font-size:15px;font-weight:800;color:var(--t1);letter-spacing:.5px;line-height:1.4;}
+  .pod .no{font-family:var(--pixel);font-size:8.5px;color:var(--t3);letter-spacing:1px;margin-top:3px;}
+  .pod .plat{flex:0 0 auto;font-size:11px;letter-spacing:1px;color:#fff;
+    padding:4px 10px;border-radius:8px;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.15);}
+  .pod .plat.fanshu{background:var(--primary-deep);}
+  .pod .plat.apple{background:#3B3B45;}
+  .pod .tags{display:flex;flex-wrap:wrap;gap:7px;padding:11px 14px 0;}
+  .pod .tag{font-size:11.5px;letter-spacing:1px;color:var(--t2);
+    background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:3px 10px;}
+  .pod .tag.scene{color:var(--accent-deep);border-color:#F3D6B6;background:#FDF1E4;}
+  .pod .tag.min{color:var(--primary-deep);border-color:rgba(111,190,158,.4);background:var(--primary-soft);}
+  .pod .intro{padding:10px 14px 0;font-size:13px;line-height:1.8;color:var(--t2);}
+  .pod .btns{display:flex;gap:10px;padding:13px 14px 14px;}
+  .pod .btns .btn{flex:1;}
+  .pod.hidden{display:none;}
+  .pod:nth-child(1){animation-delay:.02s}.pod:nth-child(2){animation-delay:.06s}
+  .pod:nth-child(3){animation-delay:.1s}.pod:nth-child(4){animation-delay:.14s}
+  .pod:nth-child(5){animation-delay:.18s}
+  /* 收藏库 */
+  .fav-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1.5px dashed var(--line-soft);}
+  .fav-row:last-child{border-bottom:none;}
+  .fav-row .fcov{flex:0 0 auto;width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;border:1.5px solid var(--line);}
+  .fav-row .tx{flex:1;min-width:0;}
+  .fav-row .tx .nm{font-size:13.5px;font-weight:700;color:var(--t1);}
+  .fav-row .tx .ds{font-size:11px;color:var(--t3);margin-top:2px;}
+  .fav-row .mini-btn{padding:7px 11px;font-size:11.5px;}
+  /* 收听统计 */
+  .d7{display:flex;align-items:flex-end;gap:9px;height:120px;padding:6px 4px 0;}
+  .d7 .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;}
+  .d7 .col .bb{width:70%;max-width:28px;background:repeating-linear-gradient(180deg,var(--accent) 0 9px,#F6C29A 9px 14px);border-radius:6px 6px 2px 2px;min-height:2px;transition:height .5s;}
+  .d7 .col .m{font-size:9.5px;color:var(--t2);}
+  .d7 .col .l{font-size:10px;color:var(--t3);}
+  .scene-row{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:12.5px;color:var(--t2);}
+  .scene-row .nm{flex:0 0 52px;font-weight:700;color:var(--t1);}
+  .scene-row .track{flex:1;height:13px;background:#F0EEE4;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;}
+  .scene-row .track i{display:block;height:100%;background:repeating-linear-gradient(90deg,var(--primary) 0 12px,#8FD0B4 12px 18px);border-radius:999px;transition:width .4s;}
+  .scene-row .cnt{flex:0 0 56px;text-align:right;color:var(--t3);font-size:11px;}
+</style>
+</head>
+<body data-page="podcast">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user"><span class="uico">🐰</span><span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span><a class="ugear" href="settings.html" title="小镇设置">⚙️</a></div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1>🎧 小镇电台 · 播客精选</h1>
+    <p class="slogan" id="slogan"></p>
+  </header>
+
+  <!-- 收听总览 + 植物解锁 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">EARN</span>收听成就</div>
+    <div class="stats-grid">
+      <div class="bstat"><span class="v" id="wkMin">0m</span><span class="k">📅 本周收听</span></div>
+      <div class="bstat"><span class="v" id="totalCk">0</span><span class="k">🎧 累计打卡</span></div>
+      <div class="bstat"><span class="v" id="unlockN">0/5</span><span class="k">🌿 植物解锁</span></div>
+    </div>
+    <div class="plants" id="plants"></div>
+    <div class="plant-next" id="plantNext"></div>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">TODAY</span>今日电台清单</div>
+    <div class="overview">
+      <span class="muted" style="white-space:nowrap;">今日已听</span>
+      <div class="bar"><div class="fill" id="ovFill"></div></div>
+      <span class="num" id="ovNum">0/0</span>
+    </div>
+  </section>
+
+  <div class="chips" id="chips"></div>
+  <div class="chips" id="chipsPlat"></div>
+
+  <div id="list"></div>
+
+  <!-- 收藏播客库 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">FAV</span>收藏播客库</div>
+    <p class="muted" style="margin-bottom:6px;letter-spacing:1px;">收藏的节目不受每日刷新影响，随时回来听 ⭐</p>
+    <div id="favList"></div>
+    <div id="favEmpty" style="display:none"></div>
+  </section>
+
+  <!-- 收听时长统计 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">STAT</span>每周收听时长<button class="mini-btn" id="podExcel" style="margin-left:auto;padding:6px 12px;font-size:12px;">📤 导出收听记录</button></div>
+    <div class="chart-box"><div class="ch-t">📈 近 7 天收听分钟（折线）</div><canvas id="d7cv" height="120"></canvas></div>
+    <div style="margin-top:14px;" id="sceneBox"></div>
+  </section>
+
+  <footer class="foot">
+    小镇电台 · 每天凌晨更新 4~5 期全新节目，自动避开往期 📻<br>
+    <span class="muted">听满 30 期，向日葵就会在小镇里开花 🌻</span>
+  </footer>
+</main>
+
+<script src="town.js"></script>
+<script>
+var POOL=[
+  {icon:"📻",name:"文化有限",plat:"apple",cat:"文化",scene:"通勤",min:50,tip:"单集 40~60 分钟，像和朋友唠嗑，通勤路上听刚刚好。",intro:"三个人围绕一个文化话题轻松对谈，从书影音聊到生活方式。"},
+  {icon:"🗺",name:"忽左忽右",plat:"apple",cat:"历史",scene:"通勤",min:50,tip:"信息密度高但讲得有趣，适合戴耳机沉浸听。",intro:"记者与学者的历史人文漫谈，把复杂讲成故事。"},
+  {icon:"🎙",name:"日谈公园",plat:"apple",cat:"闲聊",scene:"下饭",min:60,tip:"轻松闲聊向，当吃饭背景音最合适。",intro:"老牌文化脱口秀，天南海北什么都聊，笑声不断。"},
+  {icon:"📖",name:"故事FM",plat:"apple",cat:"故事",scene:"睡前",min:20,tip:"每集约 20 分钟，睡前听一个真实故事刚刚好。",intro:"用声音记录普通人的真实经历，温暖又真实。"},
+  {icon:"☕️",name:"声动早咖啡",plat:"apple",cat:"商业",scene:"早餐",min:8,tip:"每天早晨 8 分钟，配一杯咖啡听完今日商业新鲜事。",intro:"工作日清晨的短资讯，节奏轻快不费脑。"},
+  {icon:"🧾",name:"商业就是这样",plat:"apple",cat:"商业",scene:"通勤",min:30,tip:"用大白话拆商业，单集约 30 分钟，通勤一趟刚好。",intro:"两位主播把复杂的商业讲得明明白白。"},
+  {icon:"🥛",name:"半拿铁·商业沉浮录",plat:"apple",cat:"商业",scene:"下饭",min:40,tip:"商业故事像听评书，单集约 40 分钟，下饭神器。",intro:"公司与人物的商业叙事，跌宕起伏很上头。"},
+  {icon:"🚀",name:"硅谷101",plat:"apple",cat:"科技",scene:"通勤",min:40,tip:"深度访谈向，单集约 40 分钟，适合通勤细听。",intro:"一线记者对话科技圈，把硅谷讲得接地气。"},
+  {icon:"🌱",name:"无人知晓",plat:"apple",cat:"投资",scene:"睡前",min:45,tip:"语气平和治愈，适合晚上安静独处时听。",intro:"孟岩聊投资更聊人生，温柔又有力量。"},
+  {icon:"🏦",name:"知行小酒馆",plat:"apple",cat:"理财",scene:"通勤",min:30,tip:"把理财讲得像朋友喝酒聊天，单集约 30 分钟。",intro:"普通人聊钱的事，轻松不焦虑。"},
+  {icon:"🎭",name:"纵横四海",plat:"apple",cat:"读书",scene:"通勤",min:120,tip:"一本书拆成深度解读，适合想「读完一本书」的你。",intro:"深度读书节目，听完像真的读完了那本书。"},
+  {icon:"🧘",name:"得意忘形",plat:"apple",cat:"思考",scene:"睡前",min:60,tip:"慢谈话向，适合睡前或独处时慢慢听。",intro:"张潇雨关于自我、自由与选择的哲思对谈。"},
+  {icon:"🌊",name:"随机波动",plat:"apple",cat:"文化",scene:"通勤",min:40,tip:"对谈密度高，单集约 40 分钟，通勤路上刚好。",intro:"三位媒体人的深度对谈，有温度不煽情。"},
+  {icon:"🔩",name:"螺丝在拧紧",plat:"apple",cat:"文化",scene:"通勤",min:50,tip:"诚恳的深度访谈，适合想认真听点什么的时候。",intro:"吴琦与嘉宾的对话，真诚、不端着。"},
+  {icon:"🎤",name:"放学以后",plat:"apple",cat:"成长",scene:"通勤",min:60,tip:"关于学习与生活的可能性，通勤路上给自己打气。",intro:"鼓励普通人看见人生更多选项，热气腾腾。"},
+  {icon:"😂",name:"谐星聊天会",plat:"apple",cat:"喜剧",scene:"下饭",min:60,tip:"现场即兴喜剧，吃饭时听小心笑喷饭。",intro:"脱口秀演员现场聊天，快乐源泉本泉。"},
+  {icon:"🍚",name:"无聊斋",plat:"apple",cat:"喜剧",scene:"下饭",min:50,tip:"奇人异事访谈，轻松好笑，适合放空听。",intro:"单口演员教主聊各种职业与人生，开眼界又好笑。"},
+  {icon:"🎬",name:"展开讲讲",plat:"apple",cat:"影视",scene:"放松",min:45,tip:"像朋友安利最近看的好东西，放松时听最舒服。",intro:"三个人真诚分享最近喜欢的影视和书。"},
+  {icon:"🎸",name:"大内密谈",plat:"apple",cat:"音乐",scene:"放松",min:60,tip:"文艺浓度高，适合做家务或放空时当背景音。",intro:"音乐与亚文化漫谈，中国最老牌播客之一。"},
+  {icon:"🌍",name:"声东击西",plat:"apple",cat:"国际",scene:"通勤",min:40,tip:"国际话题冷静观察，单集约 40 分钟。",intro:"中美记者视角看世界，不煽动只讲清楚。"},
+  {icon:"🧳",name:"禁止携带",plat:"apple",cat:"旅行",scene:"放松",min:30,tip:"像跟着主播去旅行，放松或睡前听都合适。",intro:"一对夫妇的旅行见闻，细碎又浪漫。"},
+  {icon:"🎨",name:"温柔人类",plat:"apple",cat:"艺术",scene:"睡前",min:25,tip:"艺术故事讲得温柔，睡前听很治愈。",intro:"艺术科普但不掉书袋，像被轻轻拥抱了一下。"},
+  {icon:"📉",name:"起朱楼宴宾客",plat:"apple",cat:"投资",scene:"通勤",min:30,tip:"宏观观察冷静克制，听完不容易焦虑。",intro:"聊经济周期与资产配置，理性又清醒。"},
+  {icon:"💭",name:"自我进化论",plat:"apple",cat:"心理",scene:"睡前",min:30,tip:"自我探索向，适合睡前和自己待一会儿。",intro:"从心理学角度聊聊如何安顿自己。"},
+  {icon:"📕",name:"樊登讲书《被讨厌的勇气》",plat:"fanshu",cat:"心理",scene:"通勤",min:45,tip:"45 分钟讲透一本书，通勤路上听完一本。",intro:"阿德勒心理学入门，帮你卸下讨好别人的包袱。"},
+  {icon:"📗",name:"樊登讲书《刻意练习》",plat:"fanshu",cat:"成长",scene:"通勤",min:45,tip:"45 分钟讲透一本书，听完就能用起来。",intro:"天才不是天生的，练习方法才是关键。"},
+  {icon:"📘",name:"樊登讲书《终身成长》",plat:"fanshu",cat:"成长",scene:"早餐",min:45,tip:"晨间听一本，给今天定个成长小基调。",intro:"两种思维模式，决定你能走多远。"},
+  {icon:"📙",name:"樊登讲书《非暴力沟通》",plat:"fanshu",cat:"沟通",scene:"通勤",min:45,tip:"沟通类常听常新，通勤路上学一句是一句。",intro:"好好说话的实用指南，和家人朋友都适用。"},
+  {icon:"📕",name:"樊登讲书《心流》",plat:"fanshu",cat:"心理",scene:"睡前",min:45,tip:"睡前听，找回专注带来的幸福感。",intro:"全神贯注的时候，幸福会自己找上门。"},
+  {icon:"📗",name:"樊登讲书《正面管教》",plat:"fanshu",cat:"育儿",scene:"早餐",min:45,tip:"晨间听一段，今天对孩子温柔一点。",intro:"不吼不叫，也能教出自信的孩子。"},
+  {icon:"📘",name:"樊登讲书《人生海海》",plat:"fanshu",cat:"文学",scene:"睡前",min:45,tip:"文学解读适合睡前，听完带一点余味入睡。",intro:"麦家笔下的人生沉浮与英雄主义。"},
+  {icon:"📙",name:"李蕾讲经典《小王子》",plat:"fanshu",cat:"文学",scene:"睡前",min:40,tip:"经典文学温柔解读，睡前听很安心。",intro:"长大后再读小王子，眼眶会悄悄发热。"},
+  {icon:"📕",name:"非凡精读《纳瓦尔宝典》",plat:"fanshu",cat:"商业",scene:"通勤",min:30,tip:"财富与幸福的现代智慧，通勤路上慢慢品。",intro:"关于财富、健康与幸福的底层心法。"},
+  {icon:"📗",name:"非凡精读《认知觉醒》",plat:"fanshu",cat:"成长",scene:"早餐",min:30,tip:"晨间听，开启自我改变的一天。",intro:"开启自我改变的原动力，越听越清醒。"},
+  {icon:"📘",name:"非凡精读《原子习惯》",plat:"fanshu",cat:"习惯",scene:"早餐",min:30,tip:"习惯养成向，早餐时听两分钟就能记住要点。",intro:"每天进步 1%，一年后强大 37 倍。"},
+  {icon:"📙",name:"非凡精读《精力管理》",plat:"fanshu",cat:"效率",scene:"通勤",min:30,tip:"比时间管理更重要的精力管理，通勤路上补一课。",intro:"管理精力而不是管理时间，做事的顺序该换换。"},
+  {icon:"📕",name:"樊登讲书《断舍离》",plat:"fanshu",cat:"生活",scene:"放松",min:45,tip:"放松时听，听完想收拾一下房间。",intro:"丢掉多余的，生活自然清爽起来。"},
+  {icon:"📗",name:"樊登讲书《逆商》",plat:"fanshu",cat:"心理",scene:"通勤",min:45,tip:"低谷期必听，通勤路上给自己充充电。",intro:"在逆境中反弹的能力，人人可以练。"},
+  {icon:"📘",name:"樊登讲书《清单革命》",plat:"fanshu",cat:"效率",scene:"早餐",min:45,tip:"效率类短小精悍，早餐时听正合适。",intro:"一张清单，能避免大部分低级错误。"},
+  {icon:"📙",name:"李蕾讲经典《红楼梦》系列",plat:"fanshu",cat:"文学",scene:"下饭",min:45,tip:"慢慢听，像在茶楼听书，下饭又下酒。",intro:"李蕾带你细读大观园，人物都活了起来。"}
+];
+var PLANTS=[['🌱','小芽',1],['🌿','嫩叶',3],['🌳','小树',7],['🌸','开花',14],['🌻','向日葵',30]];
+var COVER_COLORS={'文化':'#DFF0E6','历史':'#E8E0F0','闲聊':'#FDF1E4','故事':'#F7E6E0','商业':'#E8F2FA','科技':'#DFEFF4','投资':'#EAF2E4','理财':'#EAF2E4','读书':'#F4EEE0','思考':'#EFEBF8','成长':'#E4F4EE','喜剧':'#FDF1E4','影视':'#F1E8F4','音乐':'#EFEBF8','国际':'#E8F2FA','旅行':'#E4F4EE','艺术':'#F7E6E0','心理':'#E4F4EE','育儿':'#FDF1E4','文学':'#F4EEE0','沟通':'#E8F2FA','习惯':'#E4F4EE','效率':'#DFEFF4','生活':'#FBF6E8'};
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function dateStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function daySeed(){var d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();}
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+var SLOGANS=[
+  "耳朵也要吃点好的，今天的节目都给你挑好啦 🎧",
+  "通勤、早餐、睡前，都有声音陪着你 🚇",
+  "好播客像老朋友，今天介绍几位新的给你 ☁️",
+  "听点什么，日子就悄悄有了滋味 🌿"
+];
+document.getElementById('slogan').textContent=SLOGANS[daySeed()%SLOGANS.length];
+
+/* 数据 */
+var favs=ls.get('podcast-v1-favs')||{};
+var listenLog=ls.get('listen-v1-log')||{};
+function saveFavs(){ls.set('podcast-v1-favs',favs);}
+function saveLog(){ls.set('listen-v1-log',listenLog);}
+function totalCk(){
+  var n=0;
+  Object.keys(listenLog).forEach(function(k){n+=(listenLog[k]||[]).length;});
+  return n;
+}
+function weekMin(){
+  var m=0;
+  for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);(listenLog[dateStr(d)]||[]).forEach(function(e){m+=e.min||0;});}
+  return m;
+}
+function fmtH(min){var h=Math.floor(min/60);return h>0?(h+'h'+(min%60?min%60+'m':'')):(min+'m');}
+
+/* 每日精选 */
+function pickDaily(){
+  var today=dateStr();
+  var hist=ls.get('podcast-v1-hist')||{};
+  if(Array.isArray(hist[today])){
+    var picks=hist[today].map(function(n){return POOL.filter(function(p){return p.name===n;})[0];}).filter(Boolean);
+    if(picks.length)return picks;
+  }
+  var recent={};
+  for(var i=1;i<=30;i++){var d=new Date();d.setDate(d.getDate()-i);var k=dateStr(d);(hist[k]||[]).forEach(function(n){recent[n]=1;});}
+  var avail=POOL.filter(function(p){return !recent[p.name];});
+  if(avail.length<4)avail=POOL;
+  var rnd=mulberry32(daySeed()*9301+49297);
+  for(var j=avail.length-1;j>0;j--){var q=Math.floor(rnd()*(j+1));var t=avail[j];avail[j]=avail[q];avail[q]=t;}
+  var count=4+Math.floor(rnd()*2);
+  var res=avail.slice(0,count);
+  hist[today]=res.map(function(p){return p.name;});
+  var keys=Object.keys(hist).sort();
+  while(keys.length>45)delete hist[keys.shift()];
+  ls.set('podcast-v1-hist',hist);
+  return res;
+}
+var picks=pickDaily();
+var checkin=ls.get('podcast-v1-checkin')||{};
+var todayCk=checkin[dateStr()]||{};
+checkin[dateStr()]=todayCk;
+function sceneIcon(s){return {通勤:'🚇',早餐:'🍞',下饭:'🍚',放松:'🛋',睡前:'🌙'}[s]||'🎧';}
+function coverColor(p){return COVER_COLORS[p.cat]||'#E4F4EE';}
+
+/* 卡片渲染 */
+var listEl=document.getElementById('list');
+picks.forEach(function(p,i){
+  var card=document.createElement('div');
+  card.className='card pod rise';
+  card.dataset.scene=p.scene;
+  card.dataset.plat=p.plat;
+  var platName=p.plat==='fanshu'?'帆书APP':'Apple播客';
+  var platCls=p.plat==='fanshu'?'fanshu':'apple';
+  var platShort=p.plat==='fanshu'?'帆书':'Apple';
+  var lenLabel=p.min>=60?fmtH(p.min):p.min+'min';
+  var url=p.plat==='fanshu'?'https://www.fanshu.com/':'https://podcasts.apple.com/cn/search?term='+encodeURIComponent(p.name);
+  card.innerHTML='<div class="top"><div class="cover" style="background:'+coverColor(p)+'"><span class="cvem">'+p.icon+'</span></div>'+
+    '<div class="name">'+p.name+'<div class="no">NO.'+String(i+1).padStart(2,'0')+' · '+platShort+' · '+lenLabel+'</div></div>'+
+    '<span class="plat '+platCls+'">'+platName+'</span></div>'+
+    '<div class="tags"><span class="tag scene">'+sceneIcon(p.scene)+' '+p.scene+'</span><span class="tag">'+p.cat+'</span><span class="tag min">⏱ '+(p.min>=60?fmtH(p.min):p.min+'分钟')+'</span></div>'+
+    '<div class="intro">'+p.intro+'</div>'+
+    '<div class="btns"><a class="btn primary" href="'+url+'" target="_blank" rel="noopener">去收听</a>'+
+    '<button class="btn ghost fav">'+(favs[p.name]?'★ 已收藏':'☆ 收藏')+'</button>'+
+    '<button class="btn ghost checkin" data-name="'+p.name+'" data-min="'+p.min+'" data-scene="'+p.scene+'">今日打卡</button></div>';
+  card.querySelector('.fav').onclick=function(){
+    favs[p.name]=!favs[p.name];
+    saveFavs();renderFavs();
+    townToast(favs[p.name]?'已加入收藏播客库 ⭐':'已取消收藏');
+    card.querySelector('.fav').textContent=favs[p.name]?'★ 已收藏':'☆ 收藏';
+  };
+  listEl.appendChild(card);
+});
+
+/* 打卡：自动记入收听记录表 */
+function refresh(){
+  var names=picks.map(function(p){return p.name;});
+  var done=names.filter(function(n){return todayCk[n];}).length;
+  document.getElementById('ovNum').textContent=done+'/'+names.length;
+  document.getElementById('ovFill').style.width=(names.length?Math.round(done/names.length*100):0)+'%';
+  document.querySelectorAll('.btn.checkin').forEach(function(btn){
+    var on=!!todayCk[btn.dataset.name];
+    btn.classList.toggle('done',on);
+    btn.textContent=on?'✓ 已收听':'今日打卡';
+  });
+  ls.set('podcast-v1-checkin',checkin);
+}
+listEl.addEventListener('click',function(e){
+  var btn=e.target.closest('.btn.checkin');
+  if(!btn)return;
+  var n=btn.dataset.name;
+  todayCk[n]=!todayCk[n];
+  var t=dateStr();
+  listenLog[t]=listenLog[t]||[];
+  if(todayCk[n]){
+    listenLog[t].push({name:n,min:+btn.dataset.min,scene:btn.dataset.scene,ts:Date.now()});
+    townToast('已记入收听记录 +'+btn.dataset.min+'min 🎧');
+  }else{
+    var idx=-1;
+    for(var i=0;i<listenLog[t].length;i++){if(listenLog[t][i].name===n){idx=i;break;}}
+    if(idx>=0)listenLog[t].splice(idx,1);
+  }
+  saveLog();refresh();renderStats();renderWeek();
+  if(picks.every(function(p){return todayCk[p.name];}))twinkle();
+});
+refresh();
+
+/* 成就 + 植物解锁 */
+function renderStats(){
+  var ck=totalCk();
+  document.getElementById('wkMin').textContent=fmtH(weekMin());
+  document.getElementById('totalCk').textContent=ck;
+  var unlocked=PLANTS.filter(function(p){return ck>=p[2];}).length;
+  document.getElementById('unlockN').textContent=unlocked+'/'+PLANTS.length;
+  var box=document.getElementById('plants');
+  box.innerHTML='';
+  PLANTS.forEach(function(p){
+    var on=ck>=p[2];
+    var d=document.createElement('div');
+    d.className='plant'+(on?' unlocked':'');
+    d.innerHTML='<span class="p">'+p[0]+'</span><span class="pn">'+(on?'已解锁':'听 '+p[2]+' 期')+'</span>';
+    box.appendChild(d);
+  });
+  var next=PLANTS.filter(function(p){return ck<p[2];})[0];
+  document.getElementById('plantNext').innerHTML=next
+    ?('再听 <b>'+(next[2]-ck)+'</b> 期，解锁 <b>'+next[0]+' '+next[1]+'</b>')
+    :('🌻 全部植物都开花啦，小镇电台感谢你的耳朵！');
+}
+
+/* 收藏播客库 */
+function renderFavs(){
+  var el=document.getElementById('favList');
+  var favItems=POOL.filter(function(p){return favs[p.name];});
+  var fe=document.getElementById('favEmpty');
+  if(favItems.length){fe.style.display='none';fe.innerHTML='';}
+  else{
+    fe.style.display='block';
+    townEmpty(fe,{art:'ear',title:'收藏库还空着',desc:'遇到喜欢的节目点「☆ 收藏」，随时回来听',btn:'去今日清单看看',onBtn:function(){document.getElementById('list').scrollIntoView({behavior:'smooth',block:'start'});}});
+  }
+  el.innerHTML='';
+  favItems.forEach(function(p){
+    var url=p.plat==='fanshu'?'https://www.fanshu.com/':'https://podcasts.apple.com/cn/search?term='+encodeURIComponent(p.name);
+    var row=document.createElement('div');
+    row.className='fav-row';
+    row.innerHTML='<div class="fcov" style="background:'+coverColor(p)+'">'+p.icon+'</div>'+
+      '<div class="tx"><div class="nm">'+p.name+'</div><div class="ds">'+sceneIcon(p.scene)+' '+p.scene+' · '+p.cat+' · '+(p.min>=60?fmtH(p.min):p.min+'分钟')+'</div></div>'+
+      '<a class="mini-btn" href="'+url+'" target="_blank" rel="noopener" style="text-decoration:none;">去收听</a>'+
+      '<button class="mini-btn" data-name="'+p.name+'">取消</button>';
+    row.querySelector('.mini-btn[data-name]').onclick=function(){
+      delete favs[p.name];
+      saveFavs();renderFavs();
+      townToast('已移出收藏库');
+    };
+    el.appendChild(row);
+  });
+}
+
+/* 每周收听时长 + 场景分布 */
+function renderWeek(){
+  var days=[];
+  for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);days.push(d);}
+  var mins=days.map(function(d){var s=0;(listenLog[dateStr(d)]||[]).forEach(function(e){s+=e.min||0;});return s;});
+  if(window.townChart){
+    townChart.line(document.getElementById('d7cv'),days.map(function(d,i){return {label:(d.getMonth()+1)+'/'+d.getDate(),value:mins[i]};}),{h:120,labels:true});
+  }
+  /* 场景分布（本周） */
+  var sceneMap={};
+  for(var j=6;j>=0;j--){var d=new Date();d.setDate(d.getDate()-j);(listenLog[dateStr(d)]||[]).forEach(function(e){sceneMap[e.scene]=(sceneMap[e.scene]||0)+(e.min||0);});}
+  var box=document.getElementById('sceneBox');
+  var scenes=Object.keys(sceneMap);
+  var maxS=1;
+  scenes.forEach(function(s){if(sceneMap[s]>maxS)maxS=sceneMap[s];});
+  /* 场景分布：环形饼图 + 图例 */
+  if(window.townChart){
+    var scData=scenes.map(function(s){return {label:s,value:sceneMap[s]};});
+    var pieHtml='<div class="chart-box"><div class="ch-t">🎧 本周场景分布（饼图）</div><canvas id="sceneCv" height="130"></canvas>';
+    pieHtml+='<div class="chart-legend">'+scenes.map(function(s,i){return '<span class="lg"><span class="dot" style="background:'+['#6FBE9E','#F0A868','#C97B63','#8FB9D8','#C9A8D8','#E8C96A'][i%6]+'"></span>'+sceneIcon(s)+' '+s+' '+fmtH(sceneMap[s])+'</span>';}).join('')+'</div></div>';
+    box.innerHTML=pieHtml;
+    townChart.pie(document.getElementById('sceneCv'),scData,{h:130,centerLabel:'分钟'});
+  }else{
+    box.innerHTML='<div class="muted" style="letter-spacing:1px;margin-bottom:6px;">本周场景分布</div>';
+    if(!scenes.length){box.innerHTML+='<p class="muted" style="text-align:center;">本周还没收听记录，打卡一期就有了 🎧</p>';return;}
+    scenes.forEach(function(s){
+      var row=document.createElement('div');
+      row.className='scene-row';
+      row.innerHTML='<span class="nm">'+sceneIcon(s)+' '+s+'</span><span class="track"><i style="width:'+Math.round(sceneMap[s]/maxS*100)+'%"></i></span><span class="cnt">'+fmtH(sceneMap[s])+'</span>';
+      box.appendChild(row);
+    });
+  }
+}
+
+/* 筛选 */
+var filters={scene:'all',plat:'all'};
+function buildChips(id,key,opts,allLabel){
+  var el=document.getElementById(id);
+  var all=document.createElement('div');
+  all.className='chip on';all.textContent=allLabel;all.dataset.val='all';
+  el.appendChild(all);
+  opts.forEach(function(o){
+    var c=document.createElement('div');
+    c.className='chip';c.textContent=o.label;c.dataset.val=o.val;
+    el.appendChild(c);
+  });
+  el.addEventListener('click',function(e){
+    var chip=e.target.closest('.chip');if(!chip)return;
+    Array.prototype.forEach.call(el.children,function(c){c.classList.remove('on');});
+    chip.classList.add('on');
+    filters[key]=chip.dataset.val;
+    applyFilter();
+  });
+}
+function applyFilter(){
+  document.querySelectorAll('.pod').forEach(function(card){
+    var okScene=filters.scene==='all'||card.dataset.scene===filters.scene;
+    var okPlat=filters.plat==='all'||card.dataset.plat===filters.plat;
+    card.classList.toggle('hidden',!(okScene&&okPlat));
+  });
+}
+var scenes=picks.map(function(p){return p.scene;}).filter(function(v,i,a){return a.indexOf(v)===i;});
+buildChips('chips','scene',scenes.map(function(s){return {val:s,label:sceneIcon(s)+' '+s};}),'全部场景');
+buildChips('chipsPlat','plat',[{val:'fanshu',label:'🌿 帆书APP'},{val:'apple',label:'🍎 Apple播客'}],'全部平台');
+
+renderStats();renderFavs();renderWeek();
+
+/* 导出收听记录 */
+document.getElementById('podExcel').onclick=function(){
+  var tables=[],rows=[];
+  Object.keys(listenLog).sort().forEach(function(d){
+    (listenLog[d]||[]).forEach(function(e){rows.push([d,townExport.esc(e.name||''),(e.min||0)+' 分钟',townExport.esc(e.scene||'')]);});
+  });
+  tables.push({t:'收听记录',h:['日期','节目','时长','场景'],rows:rows});
+  var favNames=POOL.filter(function(p){return favs[p.name];});
+  tables.push({t:'收藏播客库',h:['节目','场景','分类','时长'],rows:favNames.map(function(p){return [p.name,sceneIcon(p.scene)+' '+p.scene,p.cat,p.min>=60?fmtH(p.min):p.min+'分钟'];})});
+  townExport.xls('播客收听记录_'+townExport.stamp()+'.xls',tables,'小镇电台 · 播客清单');
+  townToast('已导出播客清单 🎧');
+};
+</script>
+</body>
+</html>

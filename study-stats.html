@@ -1,0 +1,199 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学习统计 · 小镇生活</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  .big-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  @media (max-width:520px){.big-grid{grid-template-columns:repeat(2,1fr);}}
+  .bstat{background:var(--primary-soft);border:1.5px solid rgba(111,190,158,.4);border-radius:12px;padding:13px 10px;text-align:center;}
+  .bstat .v{font-family:var(--pixel);font-size:19px;color:var(--primary-deep);display:block;margin-bottom:6px;}
+  .bstat .k{font-size:11.5px;color:var(--t3);letter-spacing:1px;}
+  .subrow{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;color:var(--t2);}
+  .subrow .ic{flex:0 0 26px;font-size:17px;text-align:center;}
+  .subrow .nm{flex:0 0 56px;font-weight:700;color:var(--t1);letter-spacing:1px;}
+  .subrow .track{flex:1;height:15px;background:#F0EEE4;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;}
+  .subrow .track i{display:block;height:100%;background:repeating-linear-gradient(90deg,var(--primary) 0 14px,#8FD0B4 14px 21px);border-radius:999px;transition:width .5s;}
+  .subrow .cnt{flex:0 0 78px;text-align:right;font-size:12px;color:var(--t3);}
+  .subrow .cnt b{font-family:var(--pixel);font-size:11px;color:var(--primary-deep);font-weight:400;}
+  .d7{display:flex;align-items:flex-end;gap:9px;height:130px;padding:6px 4px 0;}
+  .d7 .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;}
+  .d7 .col .bb{width:70%;max-width:30px;background:repeating-linear-gradient(180deg,var(--primary) 0 10px,#8FD0B4 10px 16px);border-radius:6px 6px 2px 2px;min-height:2px;transition:height .5s;}
+  .d7 .col .l{font-size:10px;color:var(--t3);}
+  .d7 .col .m{font-size:10px;color:var(--t2);}
+  .ck-strip{display:grid;grid-template-columns:repeat(14,1fr);gap:5px;margin-bottom:8px;}
+  .ck-cell{aspect-ratio:1;border-radius:8px;border:1.5px solid var(--line);background:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--t3);}
+  .ck-cell.on{background:var(--primary);border-color:var(--primary-deep);color:#fff;}
+</style>
+</head>
+<body data-page="stats">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user"><span class="uico">🐰</span><span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span><a class="ugear" href="settings.html" title="小镇设置">⚙️</a></div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1>📊 学习统计大盘</h1>
+    <p class="slogan">每一分钟的积累，都会在数据里开出花来。</p>
+  </header>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">TOTAL</span>学习大盘</div>
+    <div class="big-grid">
+      <div class="bstat"><span class="v" id="stTotal">0m</span><span class="k">⏱ 总学习时长</span></div>
+      <div class="bstat"><span class="v" id="stToday">0m</span><span class="k">🌞 今日时长</span></div>
+      <div class="bstat"><span class="v" id="stWeek">0m</span><span class="k">📅 本周时长</span></div>
+      <div class="bstat"><span class="v" id="stStreak">0</span><span class="k">🔥 连续打卡</span></div>
+    </div>
+    <p class="muted" style="text-align:center;margin-top:12px;letter-spacing:1px;">累计完成任务 <b id="stDone" style="color:var(--primary-deep)">0</b> 项 · 累计打卡 <b id="stCk" style="color:var(--primary-deep)">0</b> 天</p>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">PIE</span>各科目占比</div>
+    <div class="chart-box"><div class="ch-t">🧩 累计时长占比（环形图）</div><canvas id="subCv" height="140"></canvas><div class="chart-legend" id="subLeg"></div></div>
+    <div id="subBox"></div>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">DAY7</span>最近 7 天学习时长</div>
+    <div class="chart-box"><div class="ch-t">📈 每日专注分钟（折线）</div><canvas id="d7cv" height="140"></canvas></div>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">LOG</span>最近 14 天打卡</div>
+    <div class="ck-strip" id="ckStrip"></div>
+    <p class="muted" style="text-align:center;letter-spacing:1px;">有学习记录的日子会点亮 ✓，数据来自学习计划页的番茄钟与打卡</p>
+  </section>
+
+  <footer class="foot">
+    数字只是提醒，不是压力 🌿<br>
+    <span class="muted">学习统计 · 慢慢积累，水到渠成。</span>
+  </footer>
+</main>
+
+<script src="town.js"></script>
+<script>
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function dateStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtH(min){var h=Math.floor(min/60);return h>0?(h+'h'+(min%60?min%60+'m':'')):(min+'m');}
+var DIRS=[['🧮','数学'],['🔤','英语'],['📜','语文'],['💻','编程'],['🌿','通用']];
+var sessions=ls.get('study-v1-sessions')||{};
+var checkins=ls.get('study-v1-checkins')||{};
+var daily=ls.get('study-v1-daily')||{};
+
+function minOf(ds,dir){
+  var a=sessions[ds]||[],m=0;
+  a.forEach(function(x){if(!dir||x.dir===dir)m+=x.min||0;});
+  return m;
+}
+function totalMin(dir){
+  var m=0;
+  Object.keys(sessions).forEach(function(k){m+=minOf(k,dir);});
+  return m;
+}
+function weekMin(){
+  var m=0;
+  for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);m+=minOf(dateStr(d));}
+  return m;
+}
+/* 大盘 */
+document.getElementById('stTotal').textContent=fmtH(totalMin());
+document.getElementById('stToday').textContent=fmtH(minOf(dateStr()));
+document.getElementById('stWeek').textContent=fmtH(weekMin());
+/* 连续打卡 */
+function streak(){
+  var n=0,d=new Date();
+  if(!checkins[dateStr(d)])d.setDate(d.getDate()-1);
+  while(checkins[dateStr(d)]){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+document.getElementById('stStreak').textContent=streak();
+document.getElementById('stCk').textContent=Object.keys(checkins).length;
+var doneTotal=0;
+Object.keys(daily).forEach(function(k){doneTotal+=(daily[k]&&daily[k].done)||0;});
+document.getElementById('stDone').textContent=doneTotal;
+
+/* 科目占比：环形饼图 + 明细条 */
+var subBox=document.getElementById('subBox');
+var sumAll=totalMin();
+var DIR_COLORS=['#6FBE9E','#F0A868','#C97B63','#8FB9D8','#C9A8D8'];
+if(window.townChart){
+  var subCv=document.getElementById('subCv');
+  townChart.pie(subCv,DIRS.map(function(d,i){return {label:d[1],value:totalMin(d[1]),color:DIR_COLORS[i]};}),{h:140,centerLabel:'总时长'});
+  document.getElementById('subLeg').innerHTML=DIRS.map(function(d,i){
+    var m=totalMin(d[1]);
+    return '<span class="lg"><span class="dot" style="background:'+DIR_COLORS[i]+'"></span>'+d[0]+' '+d[1]+' '+fmtH(m)+'</span>';
+  }).join('');
+}
+DIRS.forEach(function(d){
+  var m=totalMin(d[1]);
+  var pct=sumAll?Math.round(m/sumAll*100):0;
+  var row=document.createElement('div');
+  row.className='subrow';
+  row.innerHTML='<span class="ic">'+d[0]+'</span><span class="nm">'+d[1]+'</span>'+
+    '<span class="track"><i style="width:'+pct+'%"></i></span>'+
+    '<span class="cnt"><b>'+fmtH(m)+'</b> · '+pct+'%</span>';
+  subBox.appendChild(row);
+});
+if(!sumAll){
+  subBox.innerHTML='<p class="muted" style="text-align:center;padding:14px 0;letter-spacing:1px;">还没有学习记录，去「学习计划」开一个番茄钟吧 🍅</p>';
+  var subCb=document.getElementById('subCv').parentNode;subCb.style.display='none';
+}
+
+/* 最近 7 天折线图 */
+var days=[];
+for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);days.push(d);}
+var dayMins=days.map(function(d){return minOf(dateStr(d));});
+if(window.townChart){
+  var d7cv=document.getElementById('d7cv');
+  townChart.line(d7cv,days.map(function(d,i){return {label:(d.getMonth()+1)+'/'+d.getDate(),value:dayMins[i]};}),{h:140,labels:true});
+}
+
+/* 14 天打卡 */
+var strip=document.getElementById('ckStrip');
+for(var j=13;j>=0;j--){
+  var d=new Date();d.setDate(d.getDate()-j);
+  var on=!!checkins[dateStr(d)];
+  var cell=document.createElement('div');
+  cell.className='ck-cell'+(on?' on':'');
+  cell.textContent=on?'✓':(d.getDate());
+  cell.title=(d.getMonth()+1)+'/'+d.getDate();
+  strip.appendChild(cell);
+}
+</script>
+</body>
+</html>

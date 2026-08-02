@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>博客精选 · 小镇生活</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  .art{display:flex;gap:12px;padding:13px 0;border-bottom:1.5px dashed var(--line-soft);}
+  .art:last-child{border-bottom:none;}
+  .acov{flex:0 0 auto;width:76px;height:76px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;
+    border:1.5px solid var(--line);box-shadow:0 3px 0 rgba(70,70,80,.08);position:relative;overflow:hidden;}
+  .acov::after{content:"";position:absolute;right:-8px;top:-8px;width:20px;height:20px;background:rgba(255,255,255,.35);transform:rotate(45deg);}
+  .art .tx{flex:1;min-width:0;}
+  .art .tt{font-size:14.5px;font-weight:800;color:var(--t1);letter-spacing:.4px;line-height:1.5;cursor:pointer;}
+  .art .tt:hover{color:var(--primary-deep);}
+  .art .meta{font-size:11px;color:var(--t3);margin-top:5px;display:flex;gap:7px;flex-wrap:wrap;letter-spacing:.5px;}
+  .art .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+  .art .tags span{font-size:10px;background:var(--primary-soft);border:1px solid rgba(111,190,158,.4);border-radius:5px;padding:1px 7px;color:var(--t2);}
+  .art .btns{flex:0 0 auto;display:flex;flex-direction:column;gap:6px;justify-content:center;}
+  .art .mini-btn{padding:6px 9px;font-size:11px;text-align:center;text-decoration:none;}
+  .tpl-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;}
+  .tpl{background:var(--card);border:1.5px solid var(--line);border-radius:11px;padding:11px 12px;cursor:pointer;transition:all .15s;font-family:inherit;text-align:left;}
+  .tpl:hover{transform:translateY(-2px);border-color:var(--primary);}
+  .tpl:active{transform:scale(.97);}
+  .tpl .nm{font-size:12.5px;font-weight:700;color:var(--t1);letter-spacing:1px;}
+  .tpl .ds{font-size:10.5px;color:var(--t3);margin-top:3px;line-height:1.6;}
+  .quote-of-day{background:var(--primary-soft);border:1.5px dashed rgba(111,190,158,.55);border-radius:12px;padding:13px 15px;margin:12px 0;}
+  .quote-of-day .qt{font-size:14px;color:var(--t1);line-height:1.9;letter-spacing:.3px;}
+  .quote-of-day .qa{font-size:11.5px;color:var(--t3);margin-top:6px;}
+  .q-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1.5px dashed var(--line-soft);}
+  .q-row:last-child{border-bottom:none;}
+  .q-row .q{flex:1;font-size:12.5px;color:var(--t2);line-height:1.8;}
+  .q-row .mini-btn{padding:6px 10px;font-size:11px;}
+  .add-q{display:flex;gap:7px;margin-top:10px;}
+  .add-q input{flex:1;font-family:inherit;font-size:12.5px;padding:8px 11px;border:1.5px solid var(--line);border-radius:9px;background:#fff;outline:none;}
+  .add-q input:focus{border-color:var(--primary);}
+  .add-q .mini-btn{padding:8px 14px;}
+  .wr-stat{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px;}
+  .ws{background:var(--primary-soft);border:1.5px solid rgba(111,190,158,.4);border-radius:11px;padding:10px 6px;text-align:center;}
+  .ws .v{font-family:var(--pixel);font-size:14px;color:var(--primary-deep);display:block;margin-bottom:4px;}
+  .ws .k{font-size:10.5px;color:var(--t3);letter-spacing:1px;}
+  .wtab-row{display:flex;gap:8px;margin-bottom:12px;}
+  .wtab{flex:1;text-align:center;padding:8px 0;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;letter-spacing:2px;
+    border:1.5px solid var(--line);background:var(--card);color:var(--t2);transition:all .15s;}
+  .wtab:active{transform:scale(.97);}
+  .wtab.on{background:var(--primary);border-color:var(--primary-deep);color:#fff;}
+  .wrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1.5px dashed var(--line-soft);}
+  .wrow:last-child{border-bottom:none;}
+  .wrow .tt{flex:1;font-size:13.5px;font-weight:700;color:var(--t1);cursor:pointer;}
+  .wrow .wc{font-size:11px;color:var(--t3);white-space:nowrap;}
+  .wrow .dt{font-size:11px;color:var(--t3);white-space:nowrap;}
+  .wrow .mini-btn{padding:6px 10px;font-size:11px;}
+  /* 弹窗（样式统一用 town.css 共享组件） */
+  .f-row{margin-bottom:12px;}
+  .f-row label{display:block;font-size:12px;color:var(--t3);letter-spacing:1px;margin-bottom:6px;}
+  .f-row input,.f-row textarea,.f-row select{width:100%;font-family:inherit;font-size:13.5px;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--t1);outline:none;}
+  .f-row input:focus,.f-row textarea:focus,.f-row select:focus{border-color:var(--primary);}
+  .f-row textarea{resize:vertical;min-height:180px;line-height:1.9;}
+  .f-row .wc-live{font-size:11px;color:var(--t3);margin-top:6px;text-align:right;}
+  .m-btns{display:flex;gap:9px;margin-top:16px;}
+  .m-btns .btn{flex:1;}
+  .empty{text-align:center;color:var(--t3);padding:16px 0;font-size:12.5px;letter-spacing:1px;}
+</style>
+</head>
+<body data-page="blog">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user"><span class="uico">🐰</span><span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span><a class="ugear" href="settings.html" title="小镇设置">⚙️</a></div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1>📰 小镇书报亭 · 博客精选</h1>
+    <p class="slogan" id="slogan"></p>
+  </header>
+
+  <!-- 今日精选文章 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">PICK</span>今日精选文章</div>
+    <div id="artList"></div>
+  </section>
+
+  <!-- 写作工具箱 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">TOOL</span>写作工具箱</div>
+    <div class="muted" style="margin-bottom:8px;letter-spacing:1px;">📐 排版模板（点击复制，粘贴进编辑器即可）</div>
+    <div class="tpl-grid" id="tplGrid"></div>
+    <div class="muted" style="margin:14px 0 6px;letter-spacing:1px;">✨ 今日金句（收藏后进入素材库）</div>
+    <div class="quote-of-day">
+      <div class="qt" id="qodText"></div>
+      <div class="qa" id="qodAuthor"></div>
+      <button class="mini-btn primary" id="qodFav" style="margin-top:9px;">⭐ 收藏今日金句</button>
+    </div>
+    <div class="muted" style="margin:12px 0 6px;letter-spacing:1px;">📚 金句素材库</div>
+    <div id="quoteList"></div>
+    <div class="add-q">
+      <input id="qInput" placeholder="记一句打动你的话…" maxlength="60">
+      <button class="mini-btn primary" id="qAdd">＋ 入库</button>
+    </div>
+  </section>
+
+  <!-- 阅读记录 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">WRITE</span>阅读记录</div>
+    <div class="wr-stat">
+      <div class="ws"><span class="v" id="wAll">0</span><span class="k">📝 写作总字数</span></div>
+      <div class="ws"><span class="v" id="wDraft">0</span><span class="k">草稿</span></div>
+      <div class="ws"><span class="v" id="wPub">0</span><span class="k">已发布</span></div>
+    </div>
+    <div class="wtab-row">
+      <div class="wtab on" id="tabDraft">✏️ 草稿</div>
+      <div class="wtab" id="tabPub">🚀 发布</div>
+      <div class="wtab" id="tabRead">📖 已读</div>
+    </div>
+    <div id="wList"></div>
+    <div style="margin-top:12px;"><button class="btn primary block" id="newArtBtn">＋ 写一篇新文章</button></div>
+  </section>
+
+  <footer class="foot">
+    读书、摘句、写作，小镇书报亭什么都有 📚<br>
+    <span class="muted">写多少都算数，先写起来再说。</span>
+  </footer>
+</main>
+
+<!-- 文章编辑弹窗 -->
+<div class="modal" id="editModal">
+  <div class="modal-box">
+    <h3 id="editTitle"><span class="mico">✏️</span>写文章</h3>
+    <div class="f-row"><label>标题</label><input type="text" id="fTitle" maxlength="30" placeholder="给文章起个标题"></div>
+    <div class="f-row"><label>状态</label><select id="fStatus"><option value="draft">草稿（仅自己可见）</option><option value="published">发布</option></select></div>
+    <div class="f-row"><label>正文</label><textarea id="fBody" placeholder="从工具箱复制一段排版模板或金句开始写吧…"></textarea>
+      <div class="wc-live">当前 <b id="wcLive">0</b> 字</div></div>
+    <div class="m-btns">
+      <button class="btn primary" id="saveBtn">保存</button>
+      <button class="btn ghost" id="cancelBtn">取消</button>
+    </div>
+  </div>
+</div>
+
+<script src="town.js"></script>
+<script>
+var ARTICLES=[
+  {em:"🧠",title:"为什么你总是想太多：反刍思维的三种解法",site:"心理学小站",tags:["心理","成长"],min:6,date:"2026-07-28"},
+  {em:"🗂",title:"普通人如何建立自己的知识体系",site:"学习方法社",tags:["学习","笔记"],min:8,date:"2026-07-26"},
+  {em:"🍅",title:"番茄工作法的 5 个常见误区",site:"效率研究所",tags:["效率","专注"],min:5,date:"2026-07-24"},
+  {em:"✍️",title:"如何写出让人愿意读完的开头",site:"写作自习室",tags:["写作"],min:7,date:"2026-07-22"},
+  {em:"🎯",title:"刻意练习的真相：不是重复，是反馈",site:"成长笔记",tags:["成长","方法"],min:9,date:"2026-07-20"},
+  {em:"🎒",title:"给大学生的时间管理清单",site:"校园周刊",tags:["校园","效率"],min:6,date:"2026-07-18"},
+  {em:"📚",title:"读不完的书，怎么办？",site:"阅读咖啡馆",tags:["阅读"],min:4,date:"2026-07-16"},
+  {em:"💬",title:"表达力：把想法说清楚的三步法",site:"沟通之道",tags:["沟通","表达"],min:6,date:"2026-07-14"},
+  {em:"🙅",title:"如何优雅地拒绝别人",site:"人际小课堂",tags:["社交"],min:5,date:"2026-07-12"},
+  {em:"🌙",title:"睡前 10 分钟复盘法",site:"习惯养成记",tags:["习惯","复盘"],min:4,date:"2026-07-10"},
+  {em:"🤖",title:"AI 时代，还值得学编程吗",site:"科技观察",tags:["科技","编程"],min:8,date:"2026-07-08"},
+  {em:"💰",title:"关于金钱的 7 个朴素真相",site:"理财小屋",tags:["理财"],min:6,date:"2026-07-06"}
+];
+var QUOTES=[
+  "慢慢来，比较快。—— 小镇座右铭",
+  "种一棵树最好的时间是十年前，其次是现在。",
+  "完成比完美重要。",
+  "你不需要很厉害才能开始，但你需要开始才能很厉害。",
+  "把每天过成自己喜欢的样子，就是了不起的成就。",
+  "读书不是为了记住，而是为了遇见更好的自己。",
+  "真正的自由，是知道自己想要什么。",
+  "凡是过往，皆为序章。",
+  "所有的大人，最初都是孩子。",
+  "心之所向，素履以往。"
+];
+var TPLATES=[
+  {nm:"📋 清单式",ds:"适合步骤/要点类文章",body:"1. 核心观点\n2. 第一个要点\n3. 第二个要点\n4. 小结：……"},
+  {nm:"📖 引用式",ds:"金句开头，引用撑场",body:"> 金句引用\n\n正文段落……\n\n再引一句，收尾……"},
+  {nm:"✂️ 三段式",ds:"开头-中间-结尾最稳结构",body:"开头：……\n\n中间：……\n\n结尾：……"},
+  {nm:"❓ 问题式",ds:"提问开头，勾住读者",body:"你有没有想过……？\n\n……\n\n所以，答案其实是……"}
+];
+var COVER_COLORS={'心理':'#E4F4EE','成长':'#E4F4EE','学习':'#DFF0E6','笔记':'#DFF0E6','效率':'#E8F2FA','专注':'#E8F2FA','写作':'#FDF1E4','方法':'#EFEBF8','校园':'#FDF1E4','阅读':'#F4EEE0','沟通':'#E8F2FA','表达':'#E8F2FA','社交':'#F7E6E0','习惯':'#E4F4EE','复盘':'#E4F4EE','科技':'#DFEFF4','编程':'#DFEFF4','理财':'#EAF2E4'};
+function artColor(a){for(var i=0;i<a.tags.length;i++){if(COVER_COLORS[a.tags[i]])return COVER_COLORS[a.tags[i]];}return '#E4F4EE';}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function dateStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function daySeed(){var d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function copyText(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(function(){townToast('已复制 📋');},function(){fallbackCopy(t);});
+  }else fallbackCopy(t);
+}
+function fallbackCopy(t){
+  var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');townToast('已复制 📋');}catch(e){townToast('复制失败，请手动复制');}
+  ta.remove();
+}
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+var SLOGANS=[
+  "今天也读点好的，写点真的 📰",
+  "书报亭开门了，挑一篇喜欢的慢慢读",
+  "读过的字会变成你的底气，写下的字会变成你的作品"
+];
+document.getElementById('slogan').textContent=SLOGANS[daySeed()%SLOGANS.length];
+
+/* ============ 今日精选文章 ============ */
+var artFavs=ls.get('blog-v1-favs')||{};
+var readLog=ls.get('blog-v1-read')||{};
+function pickArts(){
+  var today=dateStr();
+  var hist=ls.get('blog-v1-hist')||{};
+  if(Array.isArray(hist[today])){
+    var picks=hist[today].map(function(t){return ARTICLES.filter(function(a){return a.title===t;})[0];}).filter(Boolean);
+    if(picks.length)return picks;
+  }
+  var recent={};
+  for(var i=1;i<=20;i++){var d=new Date();d.setDate(d.getDate()-i);var k=dateStr(d);(hist[k]||[]).forEach(function(t){recent[t]=1;});}
+  var avail=ARTICLES.filter(function(a){return !recent[a.title];});
+  if(avail.length<3)avail=ARTICLES;
+  var rnd=mulberry32(daySeed()*7789+12345);
+  for(var j=avail.length-1;j>0;j--){var q=Math.floor(rnd()*(j+1));var t=avail[j];avail[j]=avail[q];avail[q]=t;}
+  var res=avail.slice(0,4);
+  hist[today]=res.map(function(a){return a.title;});
+  ls.set('blog-v1-hist',hist);
+  return res;
+}
+var picks=pickArts();
+function renderArts(){
+  var el=document.getElementById('artList');
+  el.innerHTML='';
+  picks.forEach(function(a){
+    var row=document.createElement('div');
+    row.className='art';
+    var read=!!readLog[a.title];
+    row.innerHTML='<div class="acov" style="background:'+artColor(a)+'">'+a.em+'</div>'+
+      '<div class="tx"><div class="tt">'+esc(a.title)+(read?' <span style="color:var(--primary-deep);font-size:10px;">✓已读</span>':'')+'</div>'+
+      '<div class="meta"><span>📅 '+a.date+'</span><span>⏱ '+a.min+' 分钟</span><span>🏷 '+a.site+'</span></div>'+
+      '<div class="tags">'+a.tags.map(function(t){return '<span>#'+esc(t)+'</span>';}).join('')+'</div></div>'+
+      '<div class="btns">'+
+      '<button class="mini-btn '+(artFavs[a.title]?'primary':'')+'" data-fav="'+esc(a.title)+'">'+(artFavs[a.title]?'★ 已藏':'☆ 收藏')+'</button>'+
+      '<button class="mini-btn" data-read="'+esc(a.title)+'">'+(read?'✓ 已读':'标记已读')+'</button>'+
+      '<a class="mini-btn" href="https://www.bing.com/search?q='+encodeURIComponent(a.title)+'" target="_blank" rel="noopener" style="color:var(--primary-deep);">去阅读 →</a></div>';
+    row.querySelector('[data-fav]').onclick=function(){
+      var t=this.dataset.fav;
+      artFavs[t]=!artFavs[t];
+      ls.set('blog-v1-favs',artFavs);
+      renderArts();
+      townToast(artFavs[t]?'已收藏文章 ⭐':'已取消收藏');
+    };
+    row.querySelector('[data-read]').onclick=function(){
+      var t=this.dataset.read;
+      if(readLog[t])delete readLog[t];
+      else readLog[t]=dateStr();
+      ls.set('blog-v1-read',readLog);
+      renderArts();
+      townToast(readLog[t]?'已记入阅读记录 📖':'已取消已读标记');
+    };
+    el.appendChild(row);
+  });
+}
+
+/* ============ 写作工具箱 ============ */
+var tplGrid=document.getElementById('tplGrid');
+TPLATES.forEach(function(t){
+  var b=document.createElement('button');
+  b.className='tpl';
+  b.innerHTML='<div class="nm">'+t.nm+'</div><div class="ds">'+t.ds+'</div>';
+  b.onclick=function(){copyText(t.body);};
+  tplGrid.appendChild(b);
+});
+var userQuotes=ls.get('blog-v1-quotes');
+if(!Array.isArray(userQuotes))userQuotes=[];
+function todayQuote(){
+  return QUOTES[daySeed()%QUOTES.length];
+}
+(function(){
+  var q=todayQuote();
+  var parts=q.split('——');
+  document.getElementById('qodText').textContent='「'+(parts[0]||q).trim()+'」';
+  document.getElementById('qodAuthor').textContent=parts[1]?('—— '+parts[1].trim()):'—— 今日金句';
+  document.getElementById('qodFav').onclick=function(){
+    if(userQuotes.indexOf(q)>=0){townToast('这句已经在素材库里啦 ⭐');return;}
+    userQuotes.push(q);
+    ls.set('blog-v1-quotes',userQuotes);
+    renderQuotes();
+    townToast('今日金句已收藏进素材库 ⭐');
+  };
+})();
+function renderQuotes(){
+  var el=document.getElementById('quoteList');
+  var all=QUOTES.concat(userQuotes.filter(function(u){return QUOTES.indexOf(u)<0;}));
+  if(!all.length){townEmpty(el,{art:'book',title:'金句素材库还空着',desc:'收藏今日金句，或手动记一句打动你的话',btn:'⭐ 收藏今日金句',onBtn:function(){var b=document.getElementById('qodFav');if(b)b.click();}});return;}
+  el.innerHTML='';
+  all.forEach(function(q){
+    var row=document.createElement('div');
+    row.className='q-row';
+    row.innerHTML='<div class="q">'+esc(q)+'</div><button class="mini-btn">复制</button>';
+    row.querySelector('.mini-btn').onclick=function(){copyText(q);};
+    el.appendChild(row);
+  });
+}
+document.getElementById('qAdd').onclick=function(){
+  var v=document.getElementById('qInput').value.trim();
+  if(!v){townToast('写一句想收藏的话 ✨');return;}
+  userQuotes.push(v);
+  ls.set('blog-v1-quotes',userQuotes);
+  document.getElementById('qInput').value='';
+  renderQuotes();
+  townToast('已加入金句素材库 📚');
+};
+
+/* ============ 阅读记录 ============ */
+var articles=ls.get('blog-v1-articles');
+if(!Array.isArray(articles))articles=[];
+function saveArts(){ls.set('blog-v1-articles',articles);}
+function words(s){return String(s||'').replace(/\s/g,'').length;}
+var wtab='draft';
+function renderWrite(){
+  var draft=articles.filter(function(a){return a.status==='draft';});
+  var pub=articles.filter(function(a){return a.status==='published';});
+  var wd=draft.reduce(function(s,a){return s+words(a.body);},0);
+  var wp=pub.reduce(function(s,a){return s+words(a.body);},0);
+  document.getElementById('wAll').textContent=wd+wp;
+  document.getElementById('wDraft').textContent=wd;
+  document.getElementById('wPub').textContent=wp;
+  document.getElementById('tabDraft').classList.toggle('on',wtab==='draft');
+  document.getElementById('tabPub').classList.toggle('on',wtab==='published');
+  document.getElementById('tabRead').classList.toggle('on',wtab==='read');
+  var el=document.getElementById('wList');
+  if(wtab==='read'){
+    var keys=Object.keys(readLog);
+    if(!keys.length){el.innerHTML=townEmptyHTML({art:'book',title:'还没有已读记录',desc:'读完文章点「标记已读」，记录会存进这里',mini:true});return;}
+    el.innerHTML='';
+    keys.forEach(function(t){
+      var row=document.createElement('div');
+      row.className='wrow';
+      row.innerHTML='<div class="tt">📖 '+esc(t)+'</div><div class="dt">'+readLog[t]+'</div><button class="mini-btn" data-unread="'+esc(t)+'">取消</button>';
+      row.querySelector('.mini-btn').onclick=function(){
+        delete readLog[this.dataset.unread];
+        ls.set('blog-v1-read',readLog);
+        renderWrite();
+      };
+      el.appendChild(row);
+    });
+    return;
+  }
+  var arr=wtab==='draft'?draft:pub;
+  if(!arr.length){el.innerHTML=townEmptyHTML({art:'note',title:wtab==='draft'?'还没有草稿':'还没有发布文章',desc:wtab==='draft'?'先写一篇，想到什么写什么 ✏️':'把草稿发布出去，让小镇看到 🚀',mini:true});return;}
+  el.innerHTML='';
+  arr.forEach(function(a){
+    var row=document.createElement('div');
+    row.className='wrow';
+    row.innerHTML='<div class="tt">'+esc(a.title)+'</div><div class="wc">'+words(a.body)+' 字</div><div class="dt">'+a.updated+'</div>'+
+      '<button class="mini-btn" data-edit="'+a.id+'">编辑</button>'+
+      '<button class="mini-btn" data-del="'+a.id+'">删除</button>';
+    row.querySelector('[data-edit]').onclick=function(){openEditor(a.id);};
+    row.querySelector('[data-del]').onclick=function(){
+      articles=articles.filter(function(x){return x.id!==a.id;});
+      saveArts();renderWrite();
+      townToast('已删除');
+    };
+    el.appendChild(row);
+  });
+}
+document.getElementById('tabDraft').onclick=function(){wtab='draft';renderWrite();};
+document.getElementById('tabPub').onclick=function(){wtab='published';renderWrite();};
+document.getElementById('tabRead').onclick=function(){wtab='read';renderWrite();};
+document.getElementById('newArtBtn').onclick=function(){openEditor(null);};
+
+var editModal=document.getElementById('editModal'),editingId=null;
+function openEditor(id){
+  editingId=id;
+  var a=id?articles.filter(function(x){return x.id===id;})[0]:null;
+  document.getElementById('editTitle').innerHTML=a?'<span class="mico">✏️</span>编辑文章':'<span class="mico">✏️</span>写一篇新文章';
+  document.getElementById('fTitle').value=a?a.title:'';
+  document.getElementById('fBody').value=a?a.body:'';
+  document.getElementById('fStatus').value=a?a.status:'draft';
+  document.getElementById('wcLive').textContent=words(a?a.body:'');
+  editModal.classList.add('show');
+  setTimeout(function(){document.getElementById('fTitle').focus();},50);
+}
+document.getElementById('fBody').addEventListener('input',function(){
+  document.getElementById('wcLive').textContent=words(this.value);
+});
+document.getElementById('cancelBtn').onclick=function(){editModal.classList.remove('show');};
+document.getElementById('saveBtn').onclick=function(){
+  var title=document.getElementById('fTitle').value.trim();
+  var body=document.getElementById('fBody').value;
+  var status=document.getElementById('fStatus').value;
+  if(!title&&!words(body)){townToast('写点标题或内容再保存 ✏️');return;}
+  var now=dateStr()+' '+new Date().toTimeString().slice(0,5);
+  if(editingId){
+    var a=articles.filter(function(x){return x.id===editingId;})[0];
+    if(a){a.title=title||a.title;a.body=body;a.status=status;a.updated=now;}
+  }else{
+    articles.unshift({id:'A'+Date.now(),title:title||'（无标题）',body:body,status:status,ts:Date.now(),updated:now});
+  }
+  saveArts();renderWrite();
+  editModal.classList.remove('show');
+  townToast('已保存 · 共 '+words(body)+' 字 📝');
+};
+
+renderArts();renderQuotes();renderWrite();
+</script>
+</body>
+</html>

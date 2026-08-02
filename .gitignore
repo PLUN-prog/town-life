@@ -1,0 +1,19 @@
+# OpenClaw 私人文件（勿提交）
+AGENTS.md
+SOUL.md
+USER.md
+IDENTITY.md
+TOOLS.md
+HEARTBEAT.md
+MEMORY.md
+memory/
+openclaw-workspace-state.json
+stop
+
+# 工作区内的其他项目（不属于小镇）
+workbench/
+workbench-lite/
+
+# 系统文件
+Thumbs.db
+.DS_Store

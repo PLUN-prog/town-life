@@ -1,0 +1,469 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>便签笔记 · 小镇生活</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  .toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .toolbar input{flex:1;min-width:140px;font-family:inherit;font-size:13px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;outline:none;}
+  .toolbar input:focus{border-color:var(--primary);}
+  .zone-row,.tag-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;}
+  .zone-row .chip,.tag-row .chip{font-size:12px;padding:5px 12px;}
+  .zone-row .chip.on{background:var(--primary);border-color:var(--primary-deep);color:#fff;}
+  .tag-row .chip{background:#fff;}
+  .tag-row .chip.on{background:var(--accent);border-color:var(--accent-deep);color:#fff;}
+  .notes-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  @media (max-width:520px){.notes-grid{grid-template-columns:1fr;}}
+  .note{position:relative;border-radius:12px;padding:13px 13px 11px;cursor:pointer;transition:all .18s;
+    border:1.5px solid var(--line);box-shadow:var(--shadow);min-height:108px;}
+  .note:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover);border-color:var(--primary);}
+  .note .n-title{font-size:13.5px;font-weight:800;color:var(--t1);letter-spacing:.5px;padding-right:44px;margin-bottom:6px;}
+  .note .n-body{font-size:12px;color:var(--t2);line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;}
+  .note .n-body.locked{color:var(--t3);}
+  .note .n-meta{font-size:10.5px;color:var(--t3);margin-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .note .n-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px;}
+  .note .n-tags span{font-size:10px;background:rgba(255,255,255,.7);border:1px solid var(--line);border-radius:5px;padding:1px 7px;color:var(--t2);letter-spacing:.5px;}
+  .note .pin{position:absolute;top:9px;right:10px;font-size:14px;}
+  .note .lock{position:absolute;top:9px;right:32px;font-size:12px;}
+  .note .del{position:absolute;bottom:8px;right:9px;font-size:13px;color:var(--t3);opacity:0;transition:opacity .15s;border:none;background:none;cursor:pointer;padding:4px;}
+  .note:hover .del{opacity:1;}
+  .note .del:hover{color:var(--rose);}
+  /* 悬浮完整预览 */
+  .nprev{position:absolute;left:50%;transform:translateX(-50%);top:calc(100% + 8px);width:300px;max-width:86vw;z-index:80;
+    background:#fff;border:1.5px solid var(--primary);border-radius:12px;box-shadow:0 12px 26px rgba(70,70,80,.2);
+    padding:12px 14px;display:none;text-align:left;}
+  .nprev.show{display:block;animation:popin .16s ease;}
+  @keyframes popin{from{opacity:0;transform:translateX(-50%) translateY(-4px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+  .nprev .pt{font-size:13px;font-weight:800;color:var(--t1);margin-bottom:6px;}
+  .nprev .pb{font-size:12.5px;color:var(--t2);line-height:1.9;white-space:pre-wrap;word-break:break-word;max-height:220px;overflow-y:auto;}
+  /* 弹窗（样式统一用 town.css 共享组件） */
+  .f-row{margin-bottom:12px;}
+  .f-row label{display:block;font-size:12px;color:var(--t3);letter-spacing:1px;margin-bottom:6px;}
+  .f-row input[type=text],.f-row input[type=password],.f-row textarea,.f-row select{width:100%;font-family:inherit;font-size:13.5px;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--t1);outline:none;}
+  .f-row input:focus,.f-row textarea:focus,.f-row select:focus{border-color:var(--primary);}
+  .f-row textarea{resize:vertical;min-height:110px;line-height:1.8;}
+  .swatches{display:flex;gap:7px;flex-wrap:wrap;}
+  .sw{width:28px;height:28px;border-radius:9px;cursor:pointer;border:2px solid transparent;transition:all .12s;}
+  .sw.on{border-color:var(--t1);transform:scale(1.12);}
+  .sw:active{transform:scale(.9);}
+  .tog-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .tog{font-family:inherit;font-size:12px;font-weight:700;letter-spacing:1px;padding:7px 13px;border-radius:9px;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--t2);transition:all .12s;}
+  .tog:active{transform:scale(.95);}
+  .tog.on{background:var(--primary);border-color:var(--primary-deep);color:#fff;}
+  .tog.rose.on{background:var(--rose);border-color:#A85F4B;color:#fff;}
+  .todo-editor{margin-top:4px;}
+  .td-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1.5px dashed var(--line-soft);}
+  .td-row .tk{flex:0 0 auto;width:20px;height:20px;border-radius:6px;border:1.5px solid var(--t2);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;}
+  .td-row .tk.on{background:var(--primary);border-color:var(--primary-deep);}
+  .td-row .tt{flex:1;font-size:13px;color:var(--t2);}
+  .td-row .tt.done{color:var(--t3);text-decoration:line-through;}
+  .td-row .syn{font-size:10px;color:var(--primary-deep);}
+  .td-row .x{border:none;background:none;color:var(--t3);cursor:pointer;font-size:12px;padding:2px 5px;}
+  .td-add{display:flex;gap:7px;margin-top:9px;}
+  .td-add input{flex:1;font-family:inherit;font-size:12.5px;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:#fff;outline:none;}
+  .td-add input:focus{border-color:var(--primary);}
+  .td-add .mini-btn{padding:8px 13px;}
+  .sync-note{font-size:11px;color:var(--t3);margin-top:8px;line-height:1.8;}
+  .m-btns{display:flex;gap:9px;margin-top:16px;}
+  .m-btns .btn{flex:1;}
+  .empty{text-align:center;color:var(--t3);padding:22px 0;font-size:13px;letter-spacing:1px;}
+</style>
+</head>
+<body data-page="notes">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user"><span class="uico">🐰</span><span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span><a class="ugear" href="settings.html" title="小镇设置">⚙️</a></div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1>📝 便签笔记</h1>
+    <p class="slogan">想到就记，分类放好，重要的事钉在最上面。</p>
+  </header>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">NOTE</span>我的便签</div>
+    <div class="toolbar">
+      <input id="search" placeholder="🔍 搜索便签内容…" maxlength="20">
+      <button class="btn primary" id="newBtn" style="padding:9px 18px;font-size:13px;">＋ 新建便签</button>
+    </div>
+    <div class="zone-row" id="zoneRow"></div>
+    <div class="tag-row" id="tagRow"></div>
+    <div class="notes-grid" id="noteGrid"></div>
+    <div id="noteEmpty" style="display:none"></div>
+    <p class="muted" style="text-align:center;margin-top:12px;letter-spacing:1px;">悬停卡片可看全文 · 置顶 ⭐ 排最前 · 加密 🔒 需密码查看</p>
+  </section>
+
+  <footer class="foot">
+    好记性不如烂笔头，便签就是你的小镇记忆 🗒<br>
+    <span class="muted">素材分区：学习笔记 / 话术收藏 / 播客摘抄 / 竞赛文档。</span>
+  </footer>
+</main>
+
+<!-- 编辑弹窗 -->
+<div class="modal" id="editModal">
+  <div class="modal-box">
+    <h3><span class="mico">✏️</span>编辑便签</h3>
+    <div class="f-row"><label>标题</label><input type="text" id="fTitle" maxlength="24" placeholder="给便签起个名字"></div>
+    <div class="f-row"><label>内容（悬停预览全文）</label><textarea id="fBody" placeholder="写点什么…"></textarea></div>
+    <div class="f-row">
+      <label>颜色分类</label>
+      <div class="swatches" id="fColors"></div>
+    </div>
+    <div class="f-row">
+      <label>素材库分区</label>
+      <select id="fZone"></select>
+    </div>
+    <div class="f-row"><label>自定义标签（用逗号分隔）</label><input type="text" id="fTags" maxlength="30" placeholder="如：重要, 复习, 灵感"></div>
+    <div class="f-row">
+      <label>选项</label>
+      <div class="tog-row">
+        <button class="tog" id="fPin">📌 置顶</button>
+        <button class="tog rose" id="fEnc">🔒 加密</button>
+      </div>
+    </div>
+    <div class="f-row">
+      <label>待办任务（可同步到首页待办）</label>
+      <div class="todo-editor" id="fTodos"></div>
+      <div class="td-add">
+        <input id="tdInput" placeholder="加一条待办…" maxlength="20">
+        <button class="mini-btn primary" id="tdAdd">＋</button>
+      </div>
+      <div class="sync-note" id="syncNote"></div>
+    </div>
+    <div class="m-btns">
+      <button class="btn primary" id="saveBtn">保存</button>
+      <button class="btn ghost" id="cancelBtn">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 密码弹窗 -->
+<div class="modal" id="pwdModal">
+  <div class="modal-box" style="max-width:360px;">
+    <h3><span class="mico">🔒</span>加密便签</h3>
+    <p class="muted" id="pwdHint" style="line-height:1.9;margin-bottom:10px;">输入密码以查看内容（密码不保存在本地，忘了就找不回来了）。</p>
+    <div class="f-row"><input type="password" id="pwdInput" placeholder="输入密码"></div>
+    <div class="m-btns">
+      <button class="btn primary" id="pwdOk">确定</button>
+      <button class="btn ghost" id="pwdCancel">取消</button>
+    </div>
+  </div>
+</div>
+
+<script src="town.js"></script>
+<script>
+var ZONES=['学习笔记','话术收藏','播客摘抄','竞赛文档','其他'];
+var COLORS=[['#E4F4EE','薄荷'],['#FDF1E4','蜜桃'],['#F7E6E0','豆沙'],['#FBF6E8','奶油'],['#EFEBF8','淡紫'],['#E8F2FA','天蓝']];
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+var notes=ls.get('notes-v1-notes');
+if(!Array.isArray(notes))notes=[];
+function saveN(){ls.set('notes-v1-notes',notes);}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtDate(ts){var d=new Date(ts),p=function(n){return String(n).padStart(2,'0');};return (d.getMonth()+1)+'/'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes());}
+
+/* 简易加密（本地 XOR + base64，密码只存哈希） */
+function ph(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h.toString(16);}
+function xor(str,key){var out='';for(var i=0;i<str.length;i++)out+=String.fromCharCode(str.charCodeAt(i)^key.charCodeAt(i%key.length));return out;}
+function enc(t,p){return btoa(unescape(encodeURIComponent(xor(t,p))));}
+function dec(t,p){try{return xor(decodeURIComponent(escape(atob(t))),p);}catch(e){return null;}}
+var pwdHash=ls.get('notes-v1-pwd');
+var sessionPwd=null;
+
+/* ============ 渲染 ============ */
+var curZone='全部',curTag='全部',kw='';
+function allTags(){
+  var map={};
+  notes.forEach(function(n){(n.tags||[]).forEach(function(t){map[t]=1;});});
+  return Object.keys(map).sort();
+}
+function renderZones(){
+  var row=document.getElementById('zoneRow');
+  row.innerHTML='';
+  ['全部'].concat(ZONES).forEach(function(z){
+    var chip=document.createElement('div');
+    chip.className='chip'+(z===curZone?' on':'');
+    chip.textContent=z;
+    chip.onclick=function(){curZone=z;renderZones();renderNotes();};
+    row.appendChild(chip);
+  });
+}
+function renderTags(){
+  var row=document.getElementById('tagRow');
+  row.innerHTML='';
+  ['全部'].concat(allTags()).forEach(function(t){
+    var chip=document.createElement('div');
+    chip.className='chip'+(t===curTag?' on':'');
+    chip.textContent='#'+t;
+    chip.onclick=function(){curTag=t;renderTags();renderNotes();};
+    row.appendChild(chip);
+  });
+}
+function visible(){
+  return notes.filter(function(n){
+    if(curZone!=='全部'&&n.zone!==curZone)return false;
+    if(curTag!=='全部'&&(n.tags||[]).indexOf(curTag)<0)return false;
+    if(kw){
+      var hay=(n.title+' '+(n.encrypted?'':(n.body||''))).toLowerCase();
+      if(hay.indexOf(kw.toLowerCase())<0)return false;
+    }
+    return true;
+  }).sort(function(a,b){
+    if(!!a.pinned!==!!b.pinned)return a.pinned?-1:1;
+    return b.updated-a.updated;
+  });
+}
+function renderNotes(){
+  var grid=document.getElementById('noteGrid');
+  var arr=visible();
+  var ne=document.getElementById('noteEmpty');
+  if(arr.length){ne.style.display='none';ne.innerHTML='';}
+  else{
+    ne.style.display='block';
+    townEmpty(ne,{art:'note',title:'还没有便签',desc:'记下第一张便签，小镇帮你收好每件小事',btn:'＋ 新建便签',onBtn:function(){document.getElementById('newBtn').click();}});
+  }
+  grid.innerHTML='';
+  arr.forEach(function(n){
+    var card=document.createElement('div');
+    card.className='note';
+    card.style.background=n.color;
+    var bodyHtml=n.encrypted
+      ?'<div class="n-body locked">🔒 已加密，点击输入密码查看</div>'
+      :'<div class="n-body">'+esc(n.body||'（空）')+'</div>';
+    card.innerHTML='<div class="n-title">'+esc(n.title||'无标题')+'</div>'+
+      bodyHtml+
+      '<div class="n-tags">'+(n.tags||[]).map(function(t){return '<span>#'+esc(t)+'</span>';}).join('')+'</div>'+
+      '<div class="n-meta">'+n.zone+' · '+fmtDate(n.updated)+'</div>'+
+      (n.pinned?'<span class="pin">⭐</span>':'')+
+      (n.encrypted?'<span class="lock">🔒</span>':'')+
+      '<button class="del">✕</button>';
+    /* 悬浮全文预览 */
+    var prev=document.createElement('div');
+    prev.className='nprev';
+    prev.innerHTML='<div class="pt">'+esc(n.title||'无标题')+'</div><div class="pb">'+(n.encrypted?'🔒 加密便签，点击输入密码查看':esc(n.body||'（空）'))+'</div>';
+    card.appendChild(prev);
+    card.addEventListener('mouseenter',function(){if(!n.encrypted)prev.classList.add('show');});
+    card.addEventListener('mouseleave',function(){prev.classList.remove('show');});
+    card.addEventListener('click',function(){openNote(n.id);});
+    card.querySelector('.del').addEventListener('click',function(e){
+      e.stopPropagation();
+      notes=notes.filter(function(x){return x.id!==n.id;});
+      saveN();renderTags();renderNotes();
+      townToast('便签已删除');
+    });
+    grid.appendChild(card);
+  });
+}
+
+/* ============ 编辑弹窗 ============ */
+var editingId=null;
+var fTodos=[];
+var colorSel=0,pinOn=false,encOn=false;
+var editModal=document.getElementById('editModal');
+var zoneSel=document.getElementById('fZone');
+ZONES.forEach(function(z){var o=document.createElement('option');o.value=z;o.textContent=z;zoneSel.appendChild(o);});
+var swBox=document.getElementById('fColors');
+COLORS.forEach(function(c,i){
+  var sw=document.createElement('div');
+  sw.className='sw';
+  sw.style.background=c[0];
+  sw.title=c[1];
+  sw.onclick=function(){
+    colorSel=i;
+    Array.prototype.forEach.call(swBox.children,function(x){x.classList.remove('on');});
+    sw.classList.add('on');
+  };
+  swBox.appendChild(sw);
+});
+function setTog(btn,on,cls){
+  btn.classList.toggle('on',on);
+  btn.textContent=(btn.id==='fPin'?'📌 置顶':'🔒 加密')+(on?' ✓':'');
+}
+document.getElementById('fPin').onclick=function(){pinOn=!pinOn;setTog(this,pinOn);};
+document.getElementById('fEnc').onclick=function(){encOn=!encOn;setTog(this,encOn);};
+
+function renderTodos(){
+  var box=document.getElementById('fTodos');
+  box.innerHTML='';
+  if(!fTodos.length){box.innerHTML='<div class="muted" style="padding:4px 0;">还没有待办，加一条试试</div>';return;}
+  fTodos.forEach(function(td,i){
+    var row=document.createElement('div');
+    row.className='td-row';
+    row.innerHTML='<span class="tk'+(td.done?' on':'')+'">'+(td.done?'✓':'')+'</span>'+
+      '<span class="tt'+(td.done?' done':'')+'">'+esc(td.t)+'</span>'+
+      (td.synced?'<span class="syn">🔗已同步</span>':'')+
+      '<button class="x">✕</button>';
+    row.querySelector('.tk').onclick=function(){
+      td.done=!td.done;
+      if(td.synced)syncToggleHome(td);
+      renderTodos();
+    };
+    row.querySelector('.x').onclick=function(){fTodos.splice(i,1);renderTodos();};
+    box.appendChild(row);
+  });
+}
+document.getElementById('tdAdd').onclick=function(){
+  var v=document.getElementById('tdInput').value.trim();
+  if(!v){townToast('写一条待办呀 ✅');return;}
+  fTodos.push({t:v,done:false,synced:false});
+  document.getElementById('tdInput').value='';
+  renderTodos();
+};
+function syncToggleHome(td){
+  var T=ls.get('home-v1-todos')||{};
+  var arr=T[todayStr()]||[];
+  arr.forEach(function(x){if(x.t===td.t)x.done=td.done;});
+  T[todayStr()]=arr;
+  ls.set('home-v1-todos',T);
+}
+function syncAllToHome(){
+  var T=ls.get('home-v1-todos')||{};
+  var arr=T[todayStr()]||[];
+  var cnt=0;
+  fTodos.forEach(function(td){
+    if(td.done)return;
+    if(!arr.some(function(x){return x.t===td.t;})){
+      arr.push({t:td.t,done:false});
+      cnt++;
+    }
+    td.synced=true;
+  });
+  T[todayStr()]=arr.slice(-20);
+  ls.set('home-v1-todos',T);
+  renderTodos();
+  townToast(cnt?('已同步 '+cnt+' 条待办到首页 ✅'):'待办都已同步过啦');
+  return cnt;
+}
+document.getElementById('newBtn').onclick=function(){openNote(null);};
+function openNote(id){
+  editingId=id;
+  var n=id?notes.filter(function(x){return x.id===id;})[0]:null;
+  if(n&&n.encrypted&&!sessionPwd){
+    askPwd(function(pwd){
+      var body=dec(n.body,pwd);
+      if(body===null){townToast('密码错误或内容损坏 🔒');return;}
+      sessionPwd=pwd;
+      openEditor(n,body);
+    });
+    return;
+  }
+  openEditor(n,n?n.body:'');
+}
+function openEditor(n,decBody){
+  editingId=n?n.id:null;
+  document.getElementById('fTitle').value=n?n.title:'';
+  document.getElementById('fBody').value=(n&&n.encrypted)?decBody:(n?n.body:'');
+  colorSel=Math.max(0,COLORS.findIndex(function(c){return c[0]===(n?n.color:null);}));
+  if(colorSel<0)colorSel=0;
+  Array.prototype.forEach.call(swBox.children,function(x,i){x.classList.toggle('on',i===colorSel);});
+  zoneSel.value=n?n.zone:'学习笔记';
+  document.getElementById('fTags').value=n?(n.tags||[]).join(', '):'';
+  pinOn=!!(n&&n.pinned);encOn=!!(n&&n.encrypted);
+  setTog(document.getElementById('fPin'),pinOn);
+  setTog(document.getElementById('fEnc'),encOn);
+  fTodos=(n&&n.todos)?n.todos.map(function(td){return {t:td.t,done:td.done,synced:!!td.synced};}):[];
+  renderTodos();
+  document.getElementById('syncNote').innerHTML='🔗 点「保存」后待办会自动并入今日便签；也可在保存前<a href="javascript:void(0)" id="syncNow" style="color:var(--primary-deep);font-weight:700;">立即同步到首页待办</a>';
+  var sn=document.getElementById('syncNow');
+  if(sn)sn.onclick=function(e){e.preventDefault();syncAllToHome();};
+  editModal.classList.add('show');
+}
+document.getElementById('cancelBtn').onclick=function(){editModal.classList.remove('show');};
+document.getElementById('saveBtn').onclick=function(){
+  var title=document.getElementById('fTitle').value.trim();
+  var body=document.getElementById('fBody').value;
+  if(!title&&!body&&!fTodos.length){townToast('写点什么再保存呀 ✏️');return;}
+  var tags=document.getElementById('fTags').value.split(/[,，]/).map(function(t){return t.trim();}).filter(Boolean).slice(0,5);
+  var zone=zoneSel.value;
+  function commit(pwd){
+    var now=Date.now();
+    if(editingId){
+      var n=notes.filter(function(x){return x.id===editingId;})[0];
+      if(!n)return;
+      n.title=title;n.tags=tags;n.zone=zone;n.color=COLORS[colorSel][0];n.pinned=pinOn;n.updated=now;
+      if(encOn&&pwd){n.body=enc(body,pwd);n.encrypted=true;}
+      else if(encOn&&n.encrypted&&sessionPwd){n.body=enc(body,sessionPwd);}
+      else{n.body=body;n.encrypted=false;}
+      n.todos=fTodos.map(function(td){return {t:td.t,done:td.done,synced:td.synced};});
+    }else{
+      var nb={id:'N'+now,title:title,body:encOn&&pwd?enc(body,pwd):body,encrypted:!!(encOn&&pwd),
+        color:COLORS[colorSel][0],zone:zone,tags:tags,pinned:pinOn,todos:fTodos.map(function(td){return {t:td.t,done:td.done,synced:td.synced};}),ts:now,updated:now};
+      notes.unshift(nb);
+    }
+    saveN();
+    syncAllToHome();
+    editModal.classList.remove('show');
+    renderTags();renderZones();renderNotes();
+    townToast('便签已保存 ✅');
+  }
+  if(encOn){
+    askPwd(function(pwd){
+      if(!pwdHash){pwdHash=ph(pwd);ls.set('notes-v1-pwd',pwdHash);sessionPwd=pwd;}
+      else if(ph(pwd)!==pwdHash){townToast('密码不对，无法加密保存 🔒');return;}
+      commit(pwd);
+    });
+  }else commit(null);
+};
+/* 密码弹窗 */
+var pwdModal=document.getElementById('pwdModal'),pwdCb=null;
+function askPwd(cb){
+  pwdCb=cb;
+  document.getElementById('pwdInput').value='';
+  document.getElementById('pwdHint').textContent=pwdHash?'输入密码以查看/加密内容（忘了就找不回来了）。':'首次加密：设置一个便签密码（忘了就找不回来了）。';
+  pwdModal.classList.add('show');
+  setTimeout(function(){document.getElementById('pwdInput').focus();},50);
+}
+document.getElementById('pwdOk').onclick=function(){
+  var p=document.getElementById('pwdInput').value;
+  if(!p){townToast('密码不能为空 🔒');return;}
+  if(pwdHash&&ph(p)!==pwdHash){townToast('密码错误 🔒');return;}
+  sessionPwd=p;
+  pwdModal.classList.remove('show');
+  if(pwdCb)pwdCb(p);
+};
+document.getElementById('pwdCancel').onclick=function(){pwdModal.classList.remove('show');};
+document.getElementById('pwdInput').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('pwdOk').click();});
+
+/* 搜索 */
+document.getElementById('search').addEventListener('input',function(){
+  kw=this.value.trim();
+  renderNotes();
+});
+
+renderZones();renderTags();renderNotes();
+</script>
+</body>
+</html>

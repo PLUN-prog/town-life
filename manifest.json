@@ -1,0 +1,16 @@
+{
+  "name": "小镇生活",
+  "short_name": "小镇",
+  "description": "把日子过成喜欢的样子：学习、记账、习惯、播客，一个小镇装下生活。",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F6F3EA",
+  "theme_color": "#6FBE9E",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

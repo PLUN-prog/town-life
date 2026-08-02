@@ -1,0 +1,656 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小镇生活 · 设置</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  /* —— 小镇名片 —— */
+  .idcard{display:flex;align-items:center;gap:16px;}
+  .idcard .big{flex:0 0 auto;width:72px;height:72px;display:flex;align-items:center;justify-content:center;font-size:42px;
+    background:var(--primary-soft);border:2px solid var(--primary);border-radius:16px;box-shadow:0 4px 0 rgba(111,190,158,.35);transition:all .2s;}
+  .idcard .big.pop{animation:bigpop .35s ease;}
+  @keyframes bigpop{0%{transform:scale(.7);}60%{transform:scale(1.12);}100%{transform:scale(1);}}
+  .idcard .inm{font-size:19px;font-weight:800;color:var(--t1);letter-spacing:1px;}
+  .idcard .isb{font-size:12px;color:var(--t3);margin-top:6px;letter-spacing:1px;line-height:1.9;}
+  .idcard .isb b{color:var(--primary-deep);}
+  /* —— 表单行 —— */
+  .frow{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .frow label{flex:0 0 72px;font-size:13px;font-weight:700;color:var(--t1);letter-spacing:1px;}
+  .frow input[type=text]{flex:1;font-family:inherit;font-size:14px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;outline:none;transition:border-color .15s;}
+  .frow input[type=text]:focus{border-color:var(--primary);}
+  .frow .btn{padding:10px 18px;font-size:13px;}
+  .frow .hint{margin-left:auto;font-size:11px;color:var(--t3);letter-spacing:1px;}
+  /* —— 头像格子 —— */
+  .av-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:8px;}
+  .av{height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;background:#fff;
+    border:1.5px solid var(--line);border-radius:10px;cursor:pointer;transition:all .13s;box-shadow:0 2px 0 var(--line-soft);}
+  .av:hover{transform:translateY(-2px);}
+  .av:active{transform:scale(.92);}
+  .av.on{border-color:var(--primary);background:var(--primary-soft);box-shadow:0 2px 0 var(--primary-deep);}
+  /* —— 画风主题卡 —— */
+  .theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  @media (max-width:560px){.theme-grid{grid-template-columns:1fr;}}
+  .tcard{position:relative;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px;cursor:pointer;transition:all .16s;}
+  .tcard:hover{transform:translateY(-3px);border-color:var(--primary);}
+  .tcard:active{transform:scale(.97);}
+  .tcard.on{border-color:var(--primary);box-shadow:var(--shadow-hover);}
+  .tmin{height:64px;border-radius:9px;overflow:hidden;position:relative;border:1.5px solid var(--line);}
+  .tmin .t-sun{position:absolute;top:9px;right:11px;width:15px;height:15px;border-radius:3px;}
+  .tmin .t-grass{position:absolute;left:0;right:0;bottom:0;height:17px;}
+  .t-spring{background:linear-gradient(180deg,#DDEEDF 0%,#E7F3ED 60%,#EFEBDD 100%);}
+  .t-spring .t-sun{background:#F6C453;}
+  .t-spring .t-grass{background:repeating-linear-gradient(90deg,rgba(111,190,158,.25) 0 8px,transparent 8px 16px);background-color:#EFEBDD;border-top:2px solid #E0DCCB;}
+  .t-autumn{background:linear-gradient(180deg,#F3E0BE 0%,#F1E5CE 60%,#EADCC0 100%);}
+  .t-autumn .t-sun{background:#E8924A;}
+  .t-autumn .t-grass{background:repeating-linear-gradient(90deg,rgba(240,168,104,.3) 0 8px,transparent 8px 16px);background-color:#EADCC0;border-top:2px solid #DCCDAE;}
+  .t-winter{background:linear-gradient(180deg,#DCEDF5 0%,#E7EFF4 60%,#E7EBEF 100%);}
+  .t-winter .t-sun{background:#F2EDDD;}
+  .t-winter .t-grass{background:repeating-linear-gradient(90deg,rgba(140,168,196,.28) 0 8px,transparent 8px 16px);background-color:#E7EBEF;border-top:2px solid #D5DDE4;}
+  .t-winter .tmin::after{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,.9) 1.4px,transparent 1.4px);background-size:22px 20px;opacity:.55;}
+  .t-nm{font-size:13px;font-weight:800;color:var(--t1);letter-spacing:1px;margin-top:9px;text-align:center;}
+  .t-ds{font-size:11px;color:var(--t3);letter-spacing:1px;margin-top:3px;text-align:center;}
+  .t-ok{position:absolute;top:7px;left:7px;width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:11px;
+    display:none;align-items:center;justify-content:center;box-shadow:0 2px 0 var(--primary-deep);}
+  .tcard.on .t-ok{display:flex;}
+  /* —— 通知行 —— */
+  .nrow{display:flex;align-items:center;gap:12px;padding:13px 4px;border-bottom:1.5px dashed var(--line-soft);}
+  .nrow:last-of-type{border-bottom:none;}
+  .n-ic{flex:0 0 auto;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:20px;
+    background:var(--primary-soft);border:1.5px solid rgba(111,190,158,.4);border-radius:12px;}
+  .n-tx{flex:1;min-width:0;}
+  .n-t{font-size:13.5px;font-weight:800;color:var(--t1);letter-spacing:1px;}
+  .n-d{font-size:11.5px;color:var(--t3);margin-top:3px;letter-spacing:.5px;}
+  .nopts{display:none;gap:10px;flex-wrap:wrap;padding:12px 4px 4px;}
+  .nopts.show{display:flex;}
+  .nopt{display:flex;align-items:center;gap:8px;background:#FBF9F2;border:1.5px solid var(--line-soft);border-radius:10px;padding:7px 11px;}
+  .nopt span{font-size:12px;color:var(--t2);letter-spacing:1px;}
+  .nopt input[type=time],.nopt select{font-family:inherit;font-size:12.5px;padding:5px 8px;border:1.5px solid var(--line);border-radius:8px;background:#fff;outline:none;color:var(--t1);}
+  .nopt input[type=time]:focus,.nopt select:focus{border-color:var(--primary);}
+  .nbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+  .nbar .note{font-size:11.5px;color:var(--t3);letter-spacing:.5px;flex:1;min-width:200px;}
+  .nbar .btn{padding:8px 14px;font-size:12.5px;}
+  /* —— 数据管理 —— */
+  .ov{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px;margin-bottom:18px;}
+  .ov .oc{background:#FBF9F2;border:1.5px solid var(--line-soft);border-radius:12px;padding:11px 12px;text-align:center;}
+  .ov .oe{font-size:19px;}
+  .ov .ov{font-family:var(--pixel);font-size:13px;color:var(--primary-deep);margin-top:6px;}
+  .ov .on{font-size:11px;color:var(--t3);letter-spacing:1px;margin-top:3px;}
+  .dm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  @media (max-width:560px){.dm-grid{grid-template-columns:1fr;}}
+  .dm{background:#FBF9F2;border:1.5px solid var(--line-soft);border-radius:12px;padding:14px;}
+  .dm .dh{font-size:13px;font-weight:800;color:var(--t1);letter-spacing:1px;margin-bottom:6px;}
+  .dm .dd{font-size:11.5px;color:var(--t3);line-height:1.9;margin-bottom:11px;letter-spacing:.5px;}
+  .dm .btn{padding:9px 0;font-size:12.5px;width:100%;}
+  .rst-row{display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap;}
+  .rst-row select{flex:1;min-width:160px;font-family:inherit;font-size:13px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;outline:none;color:var(--t1);}
+  .rst-row select:focus{border-color:var(--primary);}
+  .danger{border-color:#E3AFA2 !important;color:var(--rose) !important;}
+  .danger:hover{background:var(--rose-soft);}
+  .filehide{display:none;}
+</style>
+</head>
+<body data-page="settings">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user">
+    <span class="uico">🐰</span>
+    <span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span>
+    <a class="ugear" href="settings.html" title="小镇设置">⚙️</a>
+  </div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1>⚙️ 小镇设置</h1>
+    <p class="slogan">把小镇调成你喜欢的样子。</p>
+  </header>
+
+  <!-- 小镇名片 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">ME</span>小镇名片</div>
+    <div class="idcard">
+      <div class="big" id="bigAva">🐰</div>
+      <div>
+        <div class="inm" id="bigNick">零</div>
+        <div class="isb">小镇居民 · <b id="bigTheme">春日</b>画风 · 在住第 <b id="bigDays">—</b> 天</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 基础设置 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">BASE</span>基础设置</div>
+    <div class="frow">
+      <label>昵称</label>
+      <input type="text" id="nickInput" maxlength="10" placeholder="想被小镇怎么称呼？">
+      <button class="btn primary" id="nickSave" style="padding:10px 16px;font-size:13px;">保存</button>
+    </div>
+    <div class="frow" style="align-items:flex-start;">
+      <label style="padding-top:12px;">头像</label>
+      <div class="av-grid" id="avGrid"></div>
+    </div>
+    <div style="height:4px"></div>
+    <div class="card-title" style="margin-top:8px"><span class="pix">SKY</span>背景像素画风</div>
+    <div class="theme-grid" id="themeGrid">
+      <div class="tcard" data-theme="spring">
+        <div class="tmin t-spring"><div class="t-sun"></div><div class="t-grass"></div></div>
+        <div class="t-nm">🌸 春日</div><div class="t-ds">嫩绿天空 · 暖阳微光</div><span class="t-ok">✓</span>
+      </div>
+      <div class="tcard" data-theme="autumn">
+        <div class="tmin t-autumn"><div class="t-sun"></div><div class="t-grass"></div></div>
+        <div class="t-nm">🍂 秋日</div><div class="t-ds">杏黄天空 · 焦糖落日</div><span class="t-ok">✓</span>
+      </div>
+      <div class="tcard" data-theme="winter">
+        <div class="tmin t-winter"><div class="t-sun"></div><div class="t-grass"></div></div>
+        <div class="t-nm">❄️ 冬日</div><div class="t-ds">雾蓝天空 · 飘雪小镇</div><span class="t-ok">✓</span>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:12px;">画风切换全站生效：天空、太阳、云朵、草地会一起换季 🌱</p>
+  </section>
+
+  <!-- 通知设置 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">BELL</span>通知设置</div>
+    <div class="nbar">
+      <span class="note">💡 页面开着时才会提醒；需要授权浏览器通知，打开开关时会自动申请。</span>
+      <button class="btn ghost" id="testNotify">🔔 测试提醒</button>
+    </div>
+    <div class="nrow">
+      <span class="n-ic">💧</span>
+      <div class="n-tx"><div class="n-t">喝水提醒</div><div class="n-d">每天固定时段，按间隔提醒喝水</div></div>
+      <label class="switch"><input type="checkbox" id="swWater"><span class="tr"></span></label>
+    </div>
+    <div class="nopts" id="optWater">
+      <div class="nopt"><span>开始</span><input type="time" id="wFrom" value="09:00"></div>
+      <div class="nopt"><span>结束</span><input type="time" id="wTo" value="21:00"></div>
+      <div class="nopt"><span>间隔</span><select id="wIv"><option value="30">30 分钟</option><option value="60" selected>60 分钟</option><option value="90">90 分钟</option><option value="120">2 小时</option></select></div>
+    </div>
+    <div class="nrow">
+      <span class="n-ic">📚</span>
+      <div class="n-tx"><div class="n-t">课程提醒</div><div class="n-d">首页课程表，上课前提醒你</div></div>
+      <label class="switch"><input type="checkbox" id="swCourse"><span class="tr"></span></label>
+    </div>
+    <div class="nopts" id="optCourse">
+      <div class="nopt"><span>提前</span><select id="cLead"><option value="5">5 分钟</option><option value="10" selected>10 分钟</option><option value="15">15 分钟</option><option value="30">30 分钟</option></select></div>
+    </div>
+    <div class="nrow">
+      <span class="n-ic">📝</span>
+      <div class="n-tx"><div class="n-t">待办提醒</div><div class="n-d">每天固定时间，盘点还没做完的小事</div></div>
+      <label class="switch"><input type="checkbox" id="swTodo"><span class="tr"></span></label>
+    </div>
+    <div class="nopts" id="optTodo">
+      <div class="nopt"><span>提醒时间</span><input type="time" id="tTime" value="20:00"></div>
+    </div>
+    <div class="nrow">
+      <span class="n-ic">📖</span>
+      <div class="n-tx"><div class="n-t">学习提醒</div><div class="n-d">每天固定时间，提醒你专注学习一会儿</div></div>
+      <label class="switch"><input type="checkbox" id="swStudy"><span class="tr"></span></label>
+    </div>
+    <div class="nopts" id="optStudy">
+      <div class="nopt"><span>提醒时间</span><input type="time" id="sTime" value="19:30"></div>
+    </div>
+  </section>
+
+  <!-- 数据管理 -->
+  <section class="card rise">
+    <div class="card-title"><span class="pix">DATA</span>数据管理</div>
+    <div class="card-title" style="font-size:13px;margin-bottom:12px"><span class="pix">STAT</span>小镇数据概览</div>
+    <div class="ov" id="ovGrid"></div>
+    <div class="dm-grid">
+      <div class="dm">
+        <div class="dh">📊 导出 Excel</div>
+        <div class="dd">把学习、习惯、收支、便签等记录整理成表格，用 Excel / WPS 打开。</div>
+        <button class="btn primary" id="btnExcel">导出 Excel 报表</button>
+      </div>
+      <div class="dm">
+        <div class="dh">📄 导出文档</div>
+        <div class="dd">一份纯文本的“小镇生活报告”，汇总各模块统计与最近记录。</div>
+        <button class="btn primary" id="btnDoc">导出文字文档</button>
+      </div>
+      <div class="dm">
+        <div class="dh">📥 数据备份</div>
+        <div class="dd">把全部数据存成一个 JSON 文件，换电脑也不怕丢。</div>
+        <button class="btn primary" id="btnBackup">备份全部数据</button>
+      </div>
+      <div class="dm">
+        <div class="dh">📤 恢复备份</div>
+        <div class="dd">选择之前备份的 JSON 文件，覆盖恢复小镇数据。</div>
+        <button class="btn accent" id="btnRestore">选择备份文件</button>
+        <input type="file" id="restoreFile" class="filehide" accept=".json,application/json">
+      </div>
+    </div>
+    <div class="rst-row">
+      <select id="rstSel"></select>
+      <button class="btn ghost danger" id="btnRstMod">🗑 重置该模块</button>
+      <button class="btn done" id="btnRstAll">⚠️ 重置全部记录</button>
+    </div>
+    <p class="muted" style="margin-top:12px;">重置会删除对应模块在本地浏览器里的全部记录，且不可恢复，操作前请先备份。</p>
+  </section>
+
+  <footer class="foot">
+    小镇生活 · 十六个模块，一个家 🌱<br>
+    <span class="muted">日子是一格一格慢慢拼出来的。</span>
+  </footer>
+</main>
+
+<script src="town.js"></script>
+<script>
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function pad(n){return String(n).padStart(2,'0');}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function download(name,content,mime,noBom){
+  var blob=new Blob([noBom?content:'\uFEFF'+content],{type:(mime||'text/plain')+';charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},400);
+}
+function stamp(){var d=new Date();return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());}
+var cfg=window.townUser?window.townUser():{nick:'零',avatar:'🐰',theme:'spring'};
+
+/* ============ 小镇名片 ============ */
+var THEMES={spring:'春日',autumn:'秋日',winter:'冬日'};
+function renderMe(){
+  document.getElementById('bigAva').textContent=cfg.avatar;
+  document.getElementById('bigNick').textContent=cfg.nick;
+  document.getElementById('bigTheme').textContent=THEMES[cfg.theme]||'春日';
+  var first=ls.get('settings-v1-config')||{};
+  var start=first._since||Date.now();
+  document.getElementById('bigDays').textContent=Math.max(1,Math.floor((Date.now()-start)/86400000)+1);
+}
+/* 头像选择 */
+var AVS=['🐰','🦊','🐻','🐱','🐶','🐼','🐨','🦁','🐯','🐸','🐹','🐷','🦄','🐳','🦋','🐢','🌻','🍓','⭐','🌙'];
+(function(){
+  var g=document.getElementById('avGrid');
+  AVS.forEach(function(e){
+    var b=document.createElement('button');
+    b.className='av'+(e===cfg.avatar?' on':'');
+    b.textContent=e; b.type='button';
+    b.onclick=function(){
+      cfg.avatar=e; ls.set('settings-v1-config',cfg);
+      g.querySelectorAll('.av').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      var big=document.getElementById('bigAva');big.textContent=e;big.classList.remove('pop');void big.offsetWidth;big.classList.add('pop');
+      var u=document.querySelector('.side-user .uico');if(u)u.textContent=e;
+      townToast('头像换好啦 '+e);
+    };
+    g.appendChild(b);
+  });
+  document.getElementById('nickInput').value=cfg.nick;
+  document.getElementById('nickSave').onclick=function(){
+    var v=document.getElementById('nickInput').value.trim();
+    if(!v){townToast('昵称不能空着呀 ✏️');return;}
+    cfg.nick=v; ls.set('settings-v1-config',cfg);
+    document.getElementById('bigNick').textContent=v;
+    var u=document.querySelector('.side-user .unm');if(u)u.textContent=v;
+    townToast('昵称已更新：'+v);
+  };
+  document.getElementById('nickInput').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('nickSave').click();});
+})();
+
+/* ============ 背景画风 ============ */
+(function(){
+  var grid=document.getElementById('themeGrid');
+  function mark(){
+    grid.querySelectorAll('.tcard').forEach(function(c){
+      c.classList.toggle('on',c.dataset.theme===cfg.theme);
+    });
+  }
+  mark();
+  grid.querySelectorAll('.tcard').forEach(function(c){
+    c.onclick=function(){
+      cfg.theme=c.dataset.theme; ls.set('settings-v1-config',cfg);
+      document.body.classList.remove('theme-spring','theme-autumn','theme-winter');
+      document.body.classList.add('theme-'+cfg.theme);
+      mark();
+      document.getElementById('bigTheme').textContent=THEMES[cfg.theme];
+      townToast('小镇换成了 '+THEMES[cfg.theme]+' 画风 🎨');
+    };
+  });
+})();
+
+/* ============ 通知设置 ============ */
+(function(){
+  var notify=ls.get('settings-v1-notify')||{};
+  function nf(name,def){var o=notify[name];return (o&&typeof o==='object')?o:def;}
+  function save(){ls.set('settings-v1-notify',notify);}
+  function askPerm(){
+    try{ if('Notification'in window&&Notification.permission==='default') Notification.requestPermission(); }catch(e){}
+  }
+  var rows=[
+    {k:'water',sw:'swWater',opt:'optWater',data:nf('water',{on:false,from:'09:00',to:'21:00',interval:60}),
+      bind:function(){document.getElementById('wFrom').value=this.data.from;document.getElementById('wTo').value=this.data.to;document.getElementById('wIv').value=String(this.data.interval);},
+      save:function(){this.data.on=document.getElementById('swWater').checked;this.data.from=document.getElementById('wFrom').value;this.data.to=document.getElementById('wTo').value;this.data.interval=+document.getElementById('wIv').value;}},
+    {k:'course',sw:'swCourse',opt:'optCourse',data:nf('course',{on:false,lead:10}),
+      bind:function(){document.getElementById('cLead').value=String(this.data.lead);},
+      save:function(){this.data.on=document.getElementById('swCourse').checked;this.data.lead=+document.getElementById('cLead').value;}},
+    {k:'todo',sw:'swTodo',opt:'optTodo',data:nf('todo',{on:false,time:'20:00'}),
+      bind:function(){document.getElementById('tTime').value=this.data.time;},
+      save:function(){this.data.on=document.getElementById('swTodo').checked;this.data.time=document.getElementById('tTime').value;}},
+    {k:'study',sw:'swStudy',opt:'optStudy',data:nf('study',{on:false,time:'19:30'}),
+      bind:function(){document.getElementById('sTime').value=this.data.time;},
+      save:function(){this.data.on=document.getElementById('swStudy').checked;this.data.time=document.getElementById('sTime').value;}}
+  ];
+  rows.forEach(function(r){ notify[r.k]=r.data; });
+  rows.forEach(function(r){
+    var sw=document.getElementById(r.sw),opt=document.getElementById(r.opt);
+    sw.checked=!!r.data.on;
+    opt.classList.toggle('show',sw.checked);
+    r.bind();
+    sw.onchange=function(){
+      if(sw.checked)askPerm();
+      r.save();save();
+      opt.classList.toggle('show',sw.checked);
+      townToast(sw.checked?'已开启提醒 🔔':'已关闭提醒');
+    };
+    opt.querySelectorAll('input,select').forEach(function(el){
+      el.onchange=function(){r.save();save();townToast('提醒设置已保存');};
+    });
+  });
+  document.getElementById('testNotify').onclick=function(){
+    askPerm();
+    if('Notification'in window&&Notification.permission==='denied'){
+      townToast('通知被浏览器拒绝了，去地址栏左侧解锁 🔕');return;
+    }
+    try{ if('Notification'in window&&Notification.permission==='granted'){ new Notification('🔔 小镇提醒测试',{body:'这是来自小镇的提醒，设置生效啦'}); } }catch(e){}
+    townToast('🔔 测试提醒已发出');
+  };
+})();
+
+/* ============ 数据管理 ============ */
+var MODULES=[
+  {k:'home',n:'首页待办',keys:['home-v1-todos','home-v1-countdown','home-v1-courses','home-v1-water','home-v1-expense']},
+  {k:'study',n:'学习计划',keys:['studyplan-v1-states','study-v1-sessions','study-v1-checkins','study-v1-daily','study-v1-library']},
+  {k:'contest',n:'竞赛备考',keys:['contest-v1-mocks','contest-v1-papers','contest-v1-schedule']},
+  {k:'speech',n:'话术练习',keys:['speech-v1-items','speech-v1-cats','speech-v1-practice','speech-v1-practiced','speech-v1-favs']},
+  {k:'money',n:'收支账本',keys:['money-v1-records','money-v1-budgets']},
+  {k:'notes',n:'便签笔记',keys:['notes-v1-notes','notes-v1-pwd']},
+  {k:'blog',n:'博客精选',keys:['blog-v1-favs','blog-v1-read','blog-v1-hist','blog-v1-quotes','blog-v1-articles']},
+  {k:'podcast',n:'播客精选',keys:['podcast-v1-hist','podcast-v1-checkin','podcast-v1-favs','listen-v1-log']},
+  {k:'habit',n:'习惯打卡',keys:['habitwall-v1-habits','habitwall-v1-log']},
+  {k:'weather',n:'今日天气',keys:['townweather-v1-city','townweather-v1-cache']},
+  {k:'bgm',n:'小镇BGM',keys:['bgmplayer-v1-vol']},
+  {k:'journal',n:'睡前小记',keys:['nightjournal-v1-entries']},
+  {k:'shop',n:'小镇商店',keys:['townshop-v1-state']},
+  {k:'settings',n:'小镇设置',keys:['settings-v1-config','settings-v1-notify','settings-v1-notified']}
+];
+function arrLen(v){return Array.isArray(v)?v.length:(v&&typeof v==='object'?Object.keys(v).length:0);}
+
+/* —— 概览 —— */
+function overview(){
+  var o=[];
+  var todos=ls.get('home-v1-todos')||{},nT=0;Object.keys(todos).forEach(function(d){nT+=arrLen(todos[d]);});
+  o.push(['📝','待办',nT,'条']);
+  var sess=ls.get('study-v1-sessions')||{},min=0,days=0;Object.keys(sess).forEach(function(d){var a=sess[d]||[];if(a.length)days++;a.forEach(function(x){min+=x.min||0;});});
+  o.push(['⏱','专注',min>=60?(Math.floor(min/60)+'h'+(min%60?min%60+'m':'')):min+'m',days+' 天']);
+  var hab=ls.get('habitwall-v1-habits');
+  o.push(['✅','习惯',Array.isArray(hab)?hab.length:0,'个']);
+  var rec=ls.get('money-v1-records');
+  o.push(['💰','收支',Array.isArray(rec)?rec.length:0,'笔']);
+  var notes=ls.get('notes-v1-notes');
+  o.push(['📝','便签',Array.isArray(notes)?notes.length:0,'张']);
+  var j=ls.get('nightjournal-v1-entries');
+  o.push(['🌙','小记',j?Object.keys(j).length:0,'天']);
+  var p=ls.get('speech-v1-practice')||{};
+  o.push(['💬','话术',p.total||0,'次']);
+  var ll=ls.get('listen-v1-log')||{},nL=0;Object.keys(ll).forEach(function(d){nL+=arrLen(ll[d]);});
+  o.push(['🎧','播客',nL,'期']);
+  var shop=ls.get('townshop-v1-state')||{};
+  var coins=(typeof shop.coins==='number')?shop.coins:(shop.gold||shop.money||0);
+  o.push(['🏪','金币',coins==null?'—':coins,'枚']);
+  return o;
+}
+function renderOv(){
+  var g=document.getElementById('ovGrid');g.innerHTML='';
+  overview().forEach(function(x){
+    var d=document.createElement('div');d.className='oc';
+    d.innerHTML='<div class="oe">'+x[0]+'</div><div class="ov">'+x[2]+'</div><div class="on">'+x[1]+' · '+x[3]+'</div>';
+    g.appendChild(d);
+  });
+}
+
+/* —— 提取各模块表格行 —— */
+function rowsOf(k){
+  var rows=[];
+  function push(h,data,fn){var o=ls.get(h)||{};if(o&&typeof o==='object')Object.keys(o).forEach(function(d){fn(d,o[d],rows);});}
+  switch(k){
+    case 'home':
+      push('home-v1-todos',0,function(d,a){a.forEach(function(t){rows.push([d,esc(t.t),t.done?'✓':'']);});});
+      push('home-v1-water',0,function(d,ml){rows.push([d,ml+' ml']);});
+      push('home-v1-courses',0,function(d,a){a.forEach(function(c){rows.push([d,c.time,esc(c.name),c.done?'✓':'']);});});
+      push('home-v1-expense',0,function(d,o){if(!o)return;if(o.items&&o.items.length)o.items.forEach(function(it){rows.push([d,esc(it.l),'¥'+Number(it.a).toFixed(1)]);});else rows.push([d,'(合计)','¥'+Number(o.total).toFixed(1)]);});
+      var cds=ls.get('home-v1-countdown');if(Array.isArray(cds))cds.forEach(function(c){rows.push(['重要日子',esc(c.n),c.d]);});
+      return rows;
+    case 'study':
+      push('study-v1-sessions',0,function(d,a){a.forEach(function(x){rows.push([d,esc(x.dir||'通用'),(x.min||0)+' 分钟']);});});
+      push('study-v1-checkins',0,function(d){rows.push([d,'✓ 打卡']);});
+      push('study-v1-daily',0,function(d,o){rows.push([d,o&&o.done?'完成':'未完成']);});
+      return rows;
+    case 'contest':
+      ['contest-v1-mocks','contest-v1-schedule'].forEach(function(h){var a=ls.get(h);if(Array.isArray(a))a.forEach(function(x){rows.push([h.indexOf('mocks')>=0?'模拟训练':'赛程安排',esc(x.n),x.d||'']);});});
+      var ps=ls.get('contest-v1-papers');if(Array.isArray(ps))ps.forEach(function(x){rows.push(['真题',esc(x.n),(x.year||'—'),x.done?'✓':'']);});
+      return rows;
+    case 'speech':
+      var it=ls.get('speech-v1-items');if(Array.isArray(it))it.forEach(function(x){rows.push([esc(x.cat),esc(x.text),x.built?'内置':'自加']);});
+      var pr=ls.get('speech-v1-practice')||{};
+      rows.push(['练习统计','累计 '+((pr.total||0))+' 次 · XP '+((pr.xp||0))+' · 连续 '+Object.keys(pr.checkins||{}).length+' 天']);
+      return rows;
+    case 'money':
+      var rec=ls.get('money-v1-records');if(Array.isArray(rec))rec.forEach(function(r){var d=new Date(r.ts);rows.push([d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),r.type==='in'?'收入':'支出',esc(r.cat),'¥'+Number(r.amt).toFixed(1),esc(r.note||'')]);});
+      var bd=ls.get('money-v1-budgets');if(bd&&typeof bd==='object')Object.keys(bd).forEach(function(c){rows.push(['预算',esc(c),'¥'+Number(bd[c]).toFixed(1)]);});
+      return rows;
+    case 'notes':
+      var ns=ls.get('notes-v1-notes');if(Array.isArray(ns))ns.forEach(function(n){rows.push([esc(n.title||'(无标题)'),esc(n.zone||'其他'),n.encrypted?'🔒 已加密':esc((n.body||'').slice(0,60)),n.pinned?'📌':'',new Date(n.ts).toLocaleDateString()]);});
+      return rows;
+    case 'habit':
+      var hs=ls.get('habitwall-v1-habits');if(Array.isArray(hs))hs.forEach(function(h){rows.push([esc(h.icon),esc(h.name)]);});
+      push('habitwall-v1-log',0,function(d,ids){rows.push([d,(ids||[]).length+' 项完成']);});
+      return rows;
+    case 'journal':
+      push('nightjournal-v1-entries',0,function(d,e){if(!e)return;var extra=[];Object.keys(e).forEach(function(kk){if(['mood','stars'].indexOf(kk)<0&&typeof e[kk]==='string'&&e[kk])extra.push(e[kk]);});rows.push([d,(e.mood||'—'),(e.stars?'⭐'.repeat(Math.min(5,+e.stars||0)):''),esc(extra.join(' / ').slice(0,80))]);});
+      return rows;
+    case 'podcast':
+      push('listen-v1-log',0,function(d,a){a.forEach(function(x){rows.push([d,esc(x.name||''),(x.min||0)+' 分钟',esc(x.scene||'')]);});});
+      push('podcast-v1-checkin',0,function(d,a){rows.push([d,'打卡 '+Object.keys(a||{}).length+' 期']);});
+      return rows;
+    case 'blog':
+      var rd=ls.get('blog-v1-read');if(rd&&typeof rd==='object')rows.push(['已读文章',Object.keys(rd).length+' 篇']);
+      var q=ls.get('blog-v1-quotes');if(Array.isArray(q))q.forEach(function(s){rows.push(['金句素材',esc(s)]);});
+      return rows;
+    default:return rows;
+  }
+}
+function tableHtml(title,headers,rows){
+  if(!rows||!rows.length)return '';
+  var h='<h4>'+esc(title)+'（'+rows.length+' 条）</h4><table border="1" cellspacing="0" cellpadding="4">';
+  h+='<tr>'+headers.map(function(x){return '<th bgcolor="#E4F4EE">'+esc(x)+'</th>';}).join('')+'</tr>';
+  rows.forEach(function(r){h+='<tr>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';});
+  return h+'</table><br>';
+}
+function homeTables(){
+  var out=[],tr=[],wr=[],cr=[],er=[];
+  var todos=ls.get('home-v1-todos')||{};
+  Object.keys(todos).forEach(function(d){ (todos[d]||[]).forEach(function(t){tr.push([d,esc(t.t),t.done?'✓':'']);}); });
+  out.push(tableHtml('首页 · 待办',['日期','事项','完成'],tr));
+  var wat=ls.get('home-v1-water')||{};
+  Object.keys(wat).forEach(function(d){wr.push([d,wat[d]+' ml']);});
+  out.push(tableHtml('首页 · 喝水',['日期','毫升'],wr));
+  var cou=ls.get('home-v1-courses')||{};
+  Object.keys(cou).forEach(function(d){ (cou[d]||[]).forEach(function(c){cr.push([d,c.time,esc(c.name),c.done?'✓':'']);}); });
+  out.push(tableHtml('首页 · 课程',['日期','时间','课程','完成'],cr));
+  var exp=ls.get('home-v1-expense')||{};
+  Object.keys(exp).forEach(function(d){var o=exp[d]||{};if(o.items&&o.items.length)o.items.forEach(function(it){er.push([d,esc(it.l),'¥'+Number(it.a).toFixed(1)]);});});
+  out.push(tableHtml('首页 · 支出',['日期','备注','金额'],er));
+  var cds=ls.get('home-v1-countdown');
+  if(Array.isArray(cds)&&cds.length)out.push(tableHtml('重要日子倒计时',['名称','日期'],cds.map(function(c){return [esc(c.n),c.d];})));
+  return out.join('');
+}
+function studyTables(){
+  var out=[],sr=[],ck=[],dl=[];
+  var sess=ls.get('study-v1-sessions')||{};
+  Object.keys(sess).forEach(function(d){ (sess[d]||[]).forEach(function(x){sr.push([d,esc(x.dir||'通用'),(x.min||0)+' 分钟']);}); });
+  out.push(tableHtml('学习 · 专注记录',['日期','方向','时长'],sr));
+  var ch=ls.get('study-v1-checkins')||{};
+  Object.keys(ch).forEach(function(d){ck.push([d,'✓ 打卡']);});
+  out.push(tableHtml('学习 · 打卡',['日期','状态'],ck));
+  var da=ls.get('study-v1-daily')||{};
+  Object.keys(da).forEach(function(d){dl.push([d,da[d]&&da[d].done?'完成':'未完成']);});
+  out.push(tableHtml('学习 · 每日任务',['日期','状态'],dl));
+  return out.join('');
+}
+function podcastTables(){
+  var out=[],lr=[],ckr=[];
+  var ll=ls.get('listen-v1-log')||{};
+  Object.keys(ll).forEach(function(d){ (ll[d]||[]).forEach(function(x){lr.push([d,esc(x.name||''),(x.min||0)+' 分钟',esc(x.scene||'')]);}); });
+  out.push(tableHtml('播客 · 收听记录',['日期','节目','时长','场景'],lr));
+  var ch=ls.get('podcast-v1-checkin')||{};
+  Object.keys(ch).forEach(function(d){ckr.push([d,'打卡 '+(Object.keys(ch[d]||{}).length)+' 期']);});
+  out.push(tableHtml('播客 · 打卡',['日期','状态'],ckr));
+  return out.join('');
+}
+function exportExcel(){
+  var d=new Date();
+  var html='<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"><title>小镇生活数据</title></head><body>';
+  html+='<h2>🏡 小镇生活 · 数据导出</h2><p>导出时间：'+d.toLocaleString()+'　居民：'+esc(cfg.nick)+'　画风：'+(THEMES[cfg.theme]||'春日')+'</p>';
+  html+=homeTables();
+  html+=studyTables();
+  html+=tableHtml('竞赛备考',['类型','名称','年份/日期','完成'],rowsOf('contest'));
+  html+=tableHtml('话术练习 · 素材',['分类','内容','来源'],rowsOf('speech'));
+  html+=tableHtml('收支账本',['日期','类型','分类','金额','备注'],rowsOf('money'));
+  html+=tableHtml('便签笔记',['标题','分区','内容/状态','置顶','更新时间'],rowsOf('notes'));
+  html+=tableHtml('习惯打卡',['图标','习惯'],rowsOf('habit'));
+  html+=tableHtml('睡前小记',['日期','心情','星星','内容'],rowsOf('journal'));
+  html+=podcastTables();
+  html+=tableHtml('博客精选',['项目','内容'],rowsOf('blog'));
+  html+='<p>—— 小镇生活 · slow & gentle ——</p></body></html>';
+  download('小镇生活数据_'+stamp()+'.xls',html,'application/vnd.ms-excel');
+  townToast('已导出 Excel 报表 📊');
+}
+function exportDoc(){
+  var d=new Date(),L=[];
+  L.push('================ 小镇生活 · 数据文档 ================');
+  L.push('导出时间：'+d.toLocaleString());
+  L.push('居民：'+cfg.nick+'　画风：'+(THEMES[cfg.theme]||'春日'));
+  L.push('');
+  L.push('【数据概览】');
+  overview().forEach(function(x){L.push('  '+x[0]+' '+x[1]+'：'+x[2]+' '+x[3]);});
+  L.push('');
+  var j=ls.get('nightjournal-v1-entries')||{};
+  var jd=Object.keys(j).sort().slice(-7);
+  if(jd.length){L.push('【最近睡前小记（近 7 天）】');jd.forEach(function(k){var e=j[k]||{};L.push('  '+k+'　心情 '+(e.mood||'—')+'　'+(e.stars?'⭐'.repeat(Math.min(5,+e.stars||0)):''));});L.push('');}
+  var rec=ls.get('money-v1-records');
+  if(Array.isArray(rec)&&rec.length){
+    var out=rec.filter(function(r){return r.type==='out';}),ins=rec.filter(function(r){return r.type==='in';});
+    var s=function(a){return Math.round(a.reduce(function(x,r){return x+(r.amt||0);},0)*100)/100;};
+    L.push('【收支汇总】支出 '+out.length+' 笔 共 ¥'+s(out).toFixed(1)+'　收入 '+ins.length+' 笔 共 ¥'+s(ins).toFixed(1));
+    var big=out.slice().sort(function(a,b){return (b.amt||0)-(a.amt||0);})[0];
+    if(big)L.push('  最大一笔支出：¥'+Number(big.amt).toFixed(1)+'（'+(big.cat||'')+' · '+(big.note||'')+'）');
+    L.push('');
+  }
+  var todos=ls.get('home-v1-todos')||{};
+  var tks=Object.keys(todos).sort().slice(-7);
+  if(tks.length){L.push('【最近待办】');tks.forEach(function(k){var a=todos[k]||[];L.push('  '+k+'：'+(a.length?a.length+' 件（'+(a.filter(function(t){return t.done;}).length)+' 件完成）':'无'));});L.push('');}
+  L.push('【提醒设置】');
+  var nt=ls.get('settings-v1-notify')||{};
+  function line(nm,o,ds){L.push('  '+nm+'：'+(o&&o.on?'开启（'+ds(o)+'）':'关闭'));}
+  line('喝水提醒',nt.water,function(o){return o.from+'~'+o.to+'，每 '+o.interval+' 分钟';});
+  line('课程提醒',nt.course,function(o){return '上课前 '+o.lead+' 分钟';});
+  line('待办提醒',nt.todo,function(o){return '每天 '+o.time;});
+  line('学习提醒',nt.study,function(o){return '每天 '+o.time;});
+  L.push('');
+  L.push('（数据保存在本机浏览器 localStorage，可用“数据备份”导出 JSON）');
+  L.push('==============================================');
+  download('小镇生活文档_'+stamp()+'.txt',L.join('\r\n'),'text/plain');
+  townToast('已导出文字文档 📄');
+}
+function exportBackup(){
+  var data={};
+  MODULES.forEach(function(m){m.keys.forEach(function(k){var v=ls.get(k);if(v!==null&&v!==undefined)data[k]=v;});});
+  var obj={app:'town-life',version:1,exportedAt:new Date().toISOString(),resident:cfg.nick,data:data};
+  download('小镇生活备份_'+stamp()+'.json',JSON.stringify(obj,null,1),'application/json',true);
+  townToast('已备份 '+Object.keys(data).length+' 项数据 📥');
+}
+function doRestore(file){
+  var fr=new FileReader();
+  fr.onload=function(){
+    try{
+      var obj=JSON.parse(fr.result);
+      if(!obj||!obj.data||typeof obj.data!=='object')throw new Error('格式不对');
+      var ks=Object.keys(obj.data);
+      if(!confirm('将用备份覆盖小镇现有数据，共 '+ks.length+' 项。确定恢复？')){
+        townToast('已取消恢复');return;
+      }
+      ks.forEach(function(k){localStorage.setItem(k,JSON.stringify(obj.data[k]));});
+      townToast('恢复成功，正在刷新…');
+      setTimeout(function(){location.reload();},900);
+    }catch(e){
+      townToast('备份文件读不出来 😢 请选择导出的 JSON 文件');
+    }
+  };
+  fr.readAsText(file);
+}
+(function(){
+  var sel=document.getElementById('rstSel');
+  MODULES.forEach(function(m){
+    var op=document.createElement('option');op.value=m.k;op.textContent=m.n;
+    sel.appendChild(op);
+  });
+  document.getElementById('btnRstMod').onclick=function(){
+    var m=MODULES.filter(function(x){return x.k===sel.value;})[0];
+    if(!confirm('确定重置「'+m.n+'」？该模块的全部记录会被删除，不可恢复。')){
+      townToast('已取消');return;
+    }
+    m.keys.forEach(function(k){localStorage.removeItem(k);});
+    renderOv();townToast('「'+m.n+'」已重置 🗑');
+  };
+  document.getElementById('btnRstAll').onclick=function(){
+    if(!confirm('⚠️ 将清空小镇的全部记录（含便签、账本、学习记录等），不可恢复！'))return;
+    if(!confirm('再确认一次：真的要重置全部记录吗？建议先备份。'))return;
+    MODULES.forEach(function(m){m.keys.forEach(function(k){localStorage.removeItem(k);});});
+    renderOv();
+    townToast('小镇记录已全部清空');
+  };
+  document.getElementById('btnExcel').onclick=exportExcel;
+  document.getElementById('btnDoc').onclick=exportDoc;
+  document.getElementById('btnBackup').onclick=exportBackup;
+  document.getElementById('btnRestore').onclick=function(){document.getElementById('restoreFile').click();};
+  document.getElementById('restoreFile').onchange=function(){if(this.files&&this.files[0])doRestore(this.files[0]);this.value='';};
+})();
+
+renderMe();
+renderOv();
+</script>
+</body>
+</html>

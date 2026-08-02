@@ -1,0 +1,236 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>习惯打卡 · 小镇生活</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  .habit{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1.5px dashed var(--line-soft);}
+  .habit:last-child{border-bottom:none;}
+  .habit .hic{flex:0 0 auto;width:42px;height:42px;border-radius:11px;background:var(--primary-soft);
+    border:1.5px solid rgba(111,190,158,.4);display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .habit .info{flex:1;min-width:0;}
+  .habit .nm{font-size:14.5px;font-weight:700;color:var(--t1);letter-spacing:.5px;}
+  .habit .st{font-size:11.5px;color:var(--t3);margin-top:3px;letter-spacing:1px;}
+  .habit .st b{color:var(--accent-deep);}
+  .habit .del{flex:0 0 auto;border:none;background:none;color:var(--t3);font-size:15px;cursor:pointer;padding:6px;border-radius:8px;}
+  .habit .del:hover{color:var(--rose);background:var(--rose-soft);}
+  .habit .ck{flex:0 0 auto;width:34px;height:34px;border-radius:10px;border:2px solid var(--line);background:#fff;
+    cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s;box-shadow:0 2px 0 var(--line-soft);}
+  .habit .ck:active{transform:scale(.92);}
+  .habit .ck.on{background:var(--primary);border-color:var(--primary-deep);color:#fff;box-shadow:0 2px 0 var(--primary-deep);}
+  .ov-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .ov-head .num{font-family:var(--pixel);font-size:14px;color:var(--primary-deep);}
+  .ov-msg{margin-top:11px;text-align:center;font-size:13px;color:var(--t3);min-height:20px;}
+  .week{width:100%;border-collapse:collapse;font-size:12px;}
+  .week th{color:var(--t3);font-weight:400;padding:4px 2px;letter-spacing:1px;}
+  .week th.cur{color:var(--primary-deep);font-weight:700;}
+  .week td{text-align:center;padding:5px 2px;color:var(--t3);}
+  .week td .d{display:inline-flex;width:26px;height:26px;border-radius:8px;align-items:center;justify-content:center;border:1.5px solid var(--line);background:#fff;font-size:12px;}
+  .week td .d.on{background:var(--primary);border-color:var(--primary-deep);color:#fff;}
+  .week tr.hd{border-bottom:1.5px solid var(--line-soft);}
+  .add-row{display:flex;gap:8px;margin-top:14px;}
+  .add-row input{flex:1;font-family:inherit;font-size:13.5px;padding:10px 12px;border:1.5px solid var(--line);
+    border-radius:10px;background:#fff;color:var(--t1);outline:none;transition:border-color .15s;}
+  .add-row input:focus{border-color:var(--primary);}
+  .add-row .btn{padding:10px 16px;}
+  .emoji-pick{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .emoji-pick span{width:32px;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#fff;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .12s;}
+  .emoji-pick span:active{transform:scale(.9);}
+  .emoji-pick span.on{border-color:var(--primary);background:var(--primary-soft);}
+</style>
+</head>
+<body data-page="habit">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user"><span class="uico">🐰</span><span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span><a class="ugear" href="settings.html" title="小镇设置">⚙️</a></div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1>✅ 习惯打卡墙</h1>
+    <p class="slogan">小习惯攒起来，就是了不起的大日子。</p>
+  </header>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">TODAY</span>今日打卡</div>
+    <div class="ov-head">
+      <span class="muted">今日完成</span>
+      <span class="num" id="ovNum">0/0</span>
+    </div>
+    <div class="bar"><div class="fill" id="ovFill"></div></div>
+    <div class="ov-msg" id="ovMsg"></div>
+    <div id="habitList"></div>
+    <div class="stamp" id="stamp">✦ 今日全勤 ✦</div>
+    <div class="add-row">
+      <input id="newName" placeholder="新增一个小习惯，比如：喝酸奶 🥛" maxlength="18">
+      <button class="btn primary" id="addBtn">添加</button>
+    </div>
+    <div class="emoji-pick" id="emojiPick"></div>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">WEEK</span>最近 7 天</div>
+    <table class="week" id="weekTable"></table>
+  </section>
+
+  <footer class="foot">
+    习惯像小镇里的花，浇一天不算什么，天天浇就会开 🌷<br>
+    <span class="muted">断了一天也没关系，明天继续就好。</span>
+  </footer>
+</main>
+
+<script src="town.js"></script>
+<script>
+var EMOJIS=['💧','🌙','🏃','📖','🔤','🧘','🍎','🧹','🎨','✍️','🧩','🌿','🥛','🛌','🧺','🚶'];
+var DEFAULTS=[['💧','喝水 8 杯'],['🌙','早睡 23 点前'],['🏃','运动 20 分钟'],['📖','阅读 30 分钟'],['🔤','背单词 30 个'],['🧘','冥想 5 分钟'],['🍎','吃水果'],['🧹','整理书桌']];
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+var habits=ls.get('habitwall-v1-habits');
+if(!Array.isArray(habits)||!habits.length){
+  habits=DEFAULTS.map(function(d,i){return {id:'h'+i,icon:d[0],name:d[1]};});
+  ls.set('habitwall-v1-habits',habits);
+}
+var log=ls.get('habitwall-v1-log')||{};
+function dateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function todayStr(){return dateStr(new Date());}
+function isDone(id,ds){var a=log[ds];return Array.isArray(a)&&a.indexOf(id)>=0;}
+function toggle(id){
+  var t=todayStr(),a=log[t]||[],i=a.indexOf(id);
+  if(i>=0)a.splice(i,1);else a.push(id);
+  log[t]=a;ls.set('habitwall-v1-log',log);
+  render();
+  var all=habits.every(function(h){return isDone(h.id,t);});
+  if(all&&habits.length)twinkle();
+}
+function streak(id){
+  var n=0,d=new Date();
+  if(!isDone(id,dateStr(d)))d.setDate(d.getDate()-1);
+  while(isDone(id,dateStr(d))){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+function best(id){
+  var dates=Object.keys(log).filter(function(k){return isDone(id,k);}).sort();
+  var mx=0,cur=0,prev=null;
+  dates.forEach(function(k){
+    var p=k.split('-'),dd=new Date(+p[0],+p[1]-1,+p[2]);
+    if(prev){var dif=Math.round((dd-prev)/86400000);cur=dif===1?cur+1:1;}
+    else cur=1;
+    if(cur>mx)mx=cur;
+    prev=dd;
+  });
+  return mx;
+}
+
+var pickEl=document.getElementById('emojiPick'),selEmoji='💧';
+EMOJIS.forEach(function(e){
+  var s=document.createElement('span');
+  s.textContent=e;
+  if(e===selEmoji)s.classList.add('on');
+  s.onclick=function(){
+    selEmoji=e;
+    Array.prototype.forEach.call(pickEl.children,function(c){c.classList.remove('on');});
+    s.classList.add('on');
+  };
+  pickEl.appendChild(s);
+});
+document.getElementById('addBtn').onclick=function(){
+  var inp=document.getElementById('newName'),v=inp.value.trim();
+  if(!v){townToast('先给习惯起个名字呀 🌱');return;}
+  habits.push({id:'h'+Date.now(),icon:selEmoji,name:v});
+  ls.set('habitwall-v1-habits',habits);
+  inp.value='';
+  render();
+  townToast('新习惯上墙啦，慢慢来 ✨');
+};
+
+function render(){
+  var t=todayStr();
+  var done=habits.filter(function(h){return isDone(h.id,t);}).length;
+  document.getElementById('ovNum').textContent=done+'/'+habits.length;
+  document.getElementById('ovFill').style.width=(habits.length?Math.round(done/habits.length*100):0)+'%';
+  var msg=done===0?'从第一个小格子开始吧～':done===habits.length?'今天的格子都点亮啦，全勤达成 🎉':done<habits.length/2?'已经在路上了，不急 🌱':'过半啦，再坚持一下 💪';
+  document.getElementById('ovMsg').textContent=msg;
+  document.getElementById('stamp').classList.toggle('show',done===habits.length&&habits.length>0);
+
+  var list=document.getElementById('habitList');
+  list.innerHTML='';
+  habits.forEach(function(h){
+    var on=isDone(h.id,t);
+    var row=document.createElement('div');
+    row.className='habit';
+    row.innerHTML='<div class="hic">'+h.icon+'</div>'+
+      '<div class="info"><div class="nm">'+h.name+'</div><div class="st">连续 <b>'+streak(h.id)+'</b> 天 · 最佳 <b>'+best(h.id)+'</b> 天</div></div>'+
+      '<button class="del" title="删除">✕</button>'+
+      '<div class="ck'+(on?' on':'')+'" data-id="'+h.id+'">'+(on?'✓':'')+'</div>';
+    list.appendChild(row);
+  });
+  list.querySelectorAll('.ck').forEach(function(ck){
+    ck.onclick=function(){toggle(ck.dataset.id);};
+  });
+  list.querySelectorAll('.del').forEach(function(del){
+    del.onclick=function(){
+      var id=del.parentElement.querySelector('.ck').dataset.id;
+      habits=habits.filter(function(h){return h.id!==id;});
+      ls.set('habitwall-v1-habits',habits);
+      render();
+      townToast('已删除，习惯会被小镇慢慢记起 🍃');
+    };
+  });
+
+  /* 周视图 */
+  var tb=document.getElementById('weekTable');
+  var days=[];
+  for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);days.push(d);}
+  var W=['日','一','二','三','四','五','六'];
+  var html='<tr class="hd"><td></td>';
+  days.forEach(function(d){
+    var cur=d.getDate()===new Date().getDate();
+    html+='<th'+(cur?' class="cur"':'')+'>'+(d.getMonth()+1)+'/'+d.getDate()+'<br>周'+W[d.getDay()]+'</th>';
+  });
+  html+='</tr>';
+  habits.forEach(function(h){
+    html+='<tr><td style="text-align:left;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64px;">'+h.icon+'</td>';
+    days.forEach(function(d){
+      var on=isDone(h.id,dateStr(d));
+      html+='<td><span class="d'+(on?' on':'')+'">'+(on?'✓':'·')+'</span></td>';
+    });
+    html+='</tr>';
+  });
+  tb.innerHTML=html;
+}
+render();
+</script>
+</body>
+</html>

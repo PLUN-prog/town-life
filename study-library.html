@@ -1,0 +1,225 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学习资料 · 小镇生活</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  .lib-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .lib-row .chip{font-size:12.5px;}
+  .lib-row .chip.on{background:var(--primary);border-color:var(--primary-deep);color:#fff;box-shadow:0 2px 0 var(--primary-deep);}
+  .lib-row .chip.memo.on{background:var(--accent);border-color:var(--accent-deep);color:#fff;box-shadow:0 2px 0 var(--accent-deep);}
+  .item{background:var(--bg);border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:9px;position:relative;}
+  .item .ih{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--t1);letter-spacing:.5px;}
+  .item .ih .tag{font-size:10.5px;color:var(--primary-deep);background:var(--primary-soft);border-radius:6px;padding:2px 7px;letter-spacing:1px;font-weight:400;}
+  .item .ib{font-size:12.5px;color:var(--t2);line-height:1.8;margin-top:6px;white-space:pre-wrap;word-break:break-word;}
+  .item .im{font-size:10.5px;color:var(--t3);margin-top:6px;}
+  .item .del{position:absolute;top:9px;right:9px;border:none;background:none;color:var(--t3);cursor:pointer;font-size:13px;padding:4px 6px;border-radius:6px;}
+  .item .del:hover{color:var(--rose);background:var(--rose-soft);}
+  .add-box{background:var(--card);border:1.5px dashed var(--primary);border-radius:12px;padding:12px;margin-top:4px;}
+  .add-box input,.add-box textarea{width:100%;font-family:inherit;font-size:13px;padding:9px 11px;border:1.5px solid var(--line);
+    border-radius:9px;background:#fff;color:var(--t1);outline:none;margin-bottom:8px;transition:border-color .15s;}
+  .add-box input:focus,.add-box textarea:focus{border-color:var(--primary);}
+  .add-box textarea{resize:vertical;min-height:64px;line-height:1.7;}
+  .add-box .btns{display:flex;gap:8px;}
+  .add-box .btns .btn{flex:1;padding:10px 0;font-size:13px;}
+  .empty{text-align:center;color:var(--t3);padding:16px 0;font-size:13px;letter-spacing:1px;}
+  .memo-tip{font-size:11.5px;color:var(--t3);letter-spacing:1px;margin-bottom:10px;line-height:1.8;}
+</style>
+</head>
+<body data-page="library">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user"><span class="uico">🐰</span><span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span><a class="ugear" href="settings.html" title="小镇设置">⚙️</a></div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1>📚 学习资料库</h1>
+    <p class="slogan">笔记、课件、刷题记录，都收在小镇的图书馆里。</p>
+  </header>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">CAT</span>选择分类</div>
+    <div class="lib-row" id="catRow"></div>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix" id="typePix">📝</span><span id="typeName">笔记</span></div>
+    <div class="lib-row" id="typeRow"></div>
+    <div class="memo-tip" id="memoTip"></div>
+    <div id="itemList"></div>
+    <div class="add-box">
+      <input id="addTitle" placeholder="标题，如：数列求和的五种方法" maxlength="24">
+      <textarea id="addBody" placeholder="内容写在这里，可以随手记、贴思路…"></textarea>
+      <div class="btns">
+        <button class="btn primary" id="addBtn">保存</button>
+        <button class="btn ghost" id="cancelEdit" style="display:none">取消修改</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    图书馆不怕乱，怕的是不记 📖<br>
+    <span class="muted">备忘录与笔记互通：在任意分类记的笔记，都能在「备忘录」里找到。</span>
+  </footer>
+</main>
+
+<script src="town.js"></script>
+<script>
+var CATS=['语文','数学','英语','专业课','竞赛','通用'];
+var TYPES=[['notes','📝','笔记'],['slides','📄','课件'],['practice','✍️','刷题记录'],['memo','🗒','备忘录']];
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+var items=ls.get('study-v1-library');
+if(!Array.isArray(items))items=[];
+var cat='全部',type='notes',editingId=null;
+
+function save(){ls.set('study-v1-library',items);}
+
+/* 分类 chips */
+var catRow=document.getElementById('catRow');
+['全部'].concat(CATS).forEach(function(c){
+  var chip=document.createElement('div');
+  chip.className='chip'+(c===cat?' on':'');
+  chip.textContent=c;
+  chip.onclick=function(){
+    cat=c;
+    Array.prototype.forEach.call(catRow.children,function(x){x.classList.remove('on');});
+    chip.classList.add('on');
+    render();
+  };
+  catRow.appendChild(chip);
+});
+
+/* 类型 tabs */
+var typeRow=document.getElementById('typeRow');
+TYPES.forEach(function(t){
+  var chip=document.createElement('div');
+  chip.className='chip'+(t[1]==='🗒'?' memo':'')+(t[0]===type?' on':'');
+  chip.textContent=t[1]+' '+t[2];
+  chip.onclick=function(){
+    type=t[0];
+    Array.prototype.forEach.call(typeRow.children,function(x){x.classList.remove('on');});
+    chip.classList.add('on');
+    editingId=null;resetForm();
+    render();
+  };
+  typeRow.appendChild(chip);
+});
+
+/* 过滤 */
+function visible(){
+  return items.filter(function(it){
+    var okType=type==='memo'?(it.type==='notes'):(it.type===type);
+    var okCat=cat==='全部'||it.cat===cat;
+    return okType&&okCat;
+  }).sort(function(a,b){return b.ts-a.ts;});
+}
+function render(){
+  var t=TYPES.filter(function(x){return x[0]===type;})[0];
+  document.getElementById('typePix').textContent=t[1];
+  document.getElementById('typeName').textContent=t[2];
+  document.getElementById('memoTip').textContent=
+    type==='memo'?'🗒 备忘录与笔记互通：这里汇总了所有分类里记下的笔记，随手记的都在。':
+    (type==='notes'?'📝 在这里记的笔记，会自动出现在「备忘录」里（互通）。':'');
+  var list=document.getElementById('itemList');
+  var arr=visible();
+  if(!arr.length){
+    if(type==='memo'){
+      townEmpty(list,{art:'book',title:'备忘录还空着',desc:'去任意分类记一篇笔记，都会汇总到这里',mini:true});
+    }else{
+      townEmpty(list,{art:'note',title:'这里还空着',desc:'写第一条吧，想到什么记什么 ✏️',mini:true});
+    }
+    return;
+  }
+  list.innerHTML='';
+  arr.forEach(function(it){
+    var box=document.createElement('div');
+    box.className='item';
+    box.innerHTML='<div class="ih">'+it.title+' <span class="tag">'+it.cat+'</span></div>'+
+      (it.body?'<div class="ib">'+escapeHtml(it.body)+'</div>':'')+
+      '<div class="im">'+fmtDate(it.ts)+'</div>'+
+      '<button class="del">✕</button>';
+    box.querySelector('.ih').style.cursor='pointer';
+    box.querySelector('.ih').onclick=function(){startEdit(it);};
+    box.querySelector('.del').onclick=function(){
+      items=items.filter(function(x){return x.id!==it.id;});
+      save();render();
+      townToast('已删除');
+    };
+    list.appendChild(box);
+  });
+}
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtDate(ts){
+  var d=new Date(ts),p=function(n){return String(n).padStart(2,'0');};
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+}
+function resetForm(){
+  document.getElementById('addTitle').value='';
+  document.getElementById('addBody').value='';
+  document.getElementById('cancelEdit').style.display='none';
+  document.getElementById('addBtn').textContent='保存';
+  editingId=null;
+}
+function startEdit(it){
+  editingId=it.id;
+  document.getElementById('addTitle').value=it.title;
+  document.getElementById('addBody').value=it.body||'';
+  document.getElementById('cancelEdit').style.display='';
+  document.getElementById('addBtn').textContent='更新';
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+document.getElementById('cancelEdit').onclick=function(){resetForm();};
+document.getElementById('addBtn').onclick=function(){
+  var title=document.getElementById('addTitle').value.trim();
+  var body=document.getElementById('addBody').value.trim();
+  if(!title&&!body){townToast('写点什么再保存呀 ✏️');return;}
+  var targetCat=cat==='全部'?'通用':cat;
+  var targetType=type==='memo'?'notes':type;
+  if(editingId){
+    var it=items.filter(function(x){return x.id===editingId;})[0];
+    if(it){it.title=title||it.title;it.body=body;it.ts=Date.now();}
+    save();resetForm();render();
+    townToast('已更新 ✨');
+    return;
+  }
+  items.push({id:'L'+Date.now(),cat:targetCat,type:targetType,title:title||'(无标题)',body:body,ts:Date.now()});
+  save();resetForm();render();
+  townToast(type==='memo'?'已记入备忘录，也同步到笔记啦 🗒':'已保存到 '+targetCat+' · '+TYPES.filter(function(t){return t[0]===targetType;})[0][2]);
+};
+render();
+</script>
+</body>
+</html>

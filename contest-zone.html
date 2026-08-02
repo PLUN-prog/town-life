@@ -1,0 +1,271 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>竞赛备考 · 小镇生活</title>
+<link rel="stylesheet" href="town.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6FBE9E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  .cd-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:6px;}
+  @media (max-width:520px){.cd-grid{grid-template-columns:1fr;}}
+  .cd-card{background:var(--card);border:1.5px solid var(--line);border-radius:12px;box-shadow:var(--shadow);
+    padding:14px;text-align:center;transition:all .2s;}
+  .cd-card:hover{transform:translateY(-3px);border-color:var(--primary);box-shadow:var(--shadow-hover);}
+  .cd-card.hot{border-color:var(--rose);background:var(--rose-soft);}
+  .cd-card.hot .days{color:var(--rose);}
+  .cd-card .em{font-size:26px;display:block;margin-bottom:6px;}
+  .cd-card .nm{font-size:14px;font-weight:800;color:var(--t1);letter-spacing:1px;margin-bottom:4px;}
+  .cd-card .days{font-family:var(--pixel);font-size:17px;color:var(--primary-deep);display:block;margin:6px 0 2px;}
+  .cd-card .dt{font-size:11px;color:var(--t3);}
+  .add-row{display:flex;gap:8px;margin-top:12px;}
+  .add-row input{font-family:inherit;font-size:13px;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:#fff;outline:none;transition:border-color .15s;}
+  .add-row input:focus{border-color:var(--primary);}
+  .add-row .nm{flex:1.4;}
+  .add-row .dt{flex:1;}
+  .add-row .btn{padding:9px 14px;}
+  .row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1.5px dashed var(--line-soft);}
+  .row:last-child{border-bottom:none;}
+  .row .nm{flex:1;font-size:13.5px;font-weight:700;color:var(--t1);letter-spacing:.5px;}
+  .row .info{font-size:11.5px;color:var(--t3);white-space:nowrap;}
+  .row .st{font-family:var(--pixel);font-size:10.5px;color:var(--primary-deep);white-space:nowrap;}
+  .row .st.hot{color:var(--rose);}
+  .row .st.over{color:var(--t3);}
+  .row .tk{flex:0 0 auto;width:21px;height:21px;border-radius:7px;border:1.5px solid var(--t2);background:#fff;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .12s;}
+  .row .tk:active{transform:scale(.9);}
+  .row .tk.on{background:var(--primary);border-color:var(--primary-deep);}
+  .row .x{border:none;background:none;color:var(--t3);cursor:pointer;font-size:13px;padding:4px 6px;border-radius:6px;}
+  .row .x:hover{color:var(--rose);background:var(--rose-soft);}
+  .link-note{text-align:center;font-size:12px;color:var(--t3);letter-spacing:1px;margin-top:12px;}
+  .link-note a{color:var(--primary-deep);font-weight:700;text-decoration:none;border-bottom:1.5px dashed var(--primary);}
+</style>
+</head>
+<body data-page="contest">
+
+<nav class="side">
+  <div class="side-logo"><span class="lg">🏡</span><span class="nm">小镇生活</span><span class="sub">slow & gentle</span></div>
+  <div class="side-user"><span class="uico">🐰</span><span class="ux"><span class="unm">零</span><br><span class="usb">小镇居民</span></span><a class="ugear" href="settings.html" title="小镇设置">⚙️</a></div>
+  <a href="index.html" data-page="index"><i>🏠</i>小镇首页</a>
+  <a href="study-plan.html" data-page="study"><i>📋</i>学习计划</a>
+  <a href="study-stats.html" data-page="stats"><i>📊</i>学习统计</a>
+  <a href="study-library.html" data-page="library"><i>📚</i>学习资料</a>
+  <a href="contest-zone.html" data-page="contest"><i>🏆</i>竞赛备考</a>
+  <a href="speech-practice.html" data-page="speech"><i>💬</i>话术练习</a>
+  <a href="money-tracker.html" data-page="money"><i>📒</i>收支账本</a>
+  <a href="notes.html" data-page="notes"><i>📝</i>便签笔记</a>
+  <a href="blog.html" data-page="blog"><i>📰</i>博客精选</a>
+  <a href="podcast-picks.html" data-page="podcast"><i>🎧</i>播客精选</a>
+  <a href="habit-wall.html" data-page="habit"><i>✅</i>习惯打卡</a>
+  <a href="town-weather.html" data-page="weather"><i>🌤</i>今日天气</a>
+  <a href="bgm-player.html" data-page="bgm"><i>🎵</i>小镇BGM</a>
+  <a href="night-journal.html" data-page="journal"><i>🌙</i>睡前小记</a>
+  <a href="town-shop.html" data-page="shop"><i>🏪</i>小镇商店</a>
+  <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
+</nav>
+
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
+
+<main class="wrap">
+  <header class="header">
+    <div class="date-badge"></div>
+    <h1>🏆 竞赛备考专区</h1>
+    <p class="slogan">赛程、真题、模拟倒计时，都帮你记在小镇日历上。</p>
+  </header>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">MOCK</span>模拟训练倒计时</div>
+    <div class="cd-grid" id="mockGrid"></div>
+    <div id="mockEmpty" style="display:none"></div>
+    <div class="add-row">
+      <input class="nm" id="mockName" placeholder="模拟训练名，如：一模 / 真题套卷" maxlength="14">
+      <input class="dt" type="date" id="mockDate">
+      <button class="btn primary" id="mockAdd" style="padding:9px 14px;font-size:13px;">添加</button>
+    </div>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">RACE</span>赛程安排</div>
+    <div id="raceList"></div>
+    <div id="raceEmpty" style="display:none"></div>
+    <div class="add-row">
+      <input class="nm" id="raceName" placeholder="比赛名称，如：大学生数学竞赛" maxlength="16">
+      <input class="dt" type="date" id="raceDate">
+      <button class="btn primary" id="raceAdd" style="padding:9px 14px;font-size:13px;">添加</button>
+    </div>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">PAPER</span>真题清单</div>
+    <div id="paperList"></div>
+    <div id="paperEmpty" style="display:none"></div>
+    <div class="add-row">
+      <input class="nm" id="paperName" placeholder="真题名称，如：2024 全国卷" maxlength="16">
+      <input class="dt" id="paperYear" placeholder="年份" maxlength="4" style="flex:0 0 74px;">
+      <button class="btn primary" id="paperAdd" style="padding:9px 14px;font-size:13px;">添加</button>
+    </div>
+  </section>
+
+  <section class="card rise">
+    <div class="card-title"><span class="pix">GO</span>开始模拟训练</div>
+    <p class="muted" style="line-height:2;letter-spacing:.5px;text-align:center;">去「学习计划」开一个番茄钟，选好科目，25 分钟专注就是一场模拟小练 🍅</p>
+    <div style="display:flex;gap:10px;">
+      <a class="btn primary" href="study-plan.html" style="flex:1;">去番茄钟训练 →</a>
+      <a class="btn ghost" href="study-library.html" style="flex:1;">去真题/笔记资料 →</a>
+    </div>
+  </section>
+
+  <footer class="foot">
+    竞赛是场长跑，小镇陪你慢慢准备 🏃<br>
+    <span class="muted">倒计时不是催你，是提醒你还有时间。</span>
+  </footer>
+</main>
+
+<script src="town.js"></script>
+<script>
+var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function dateStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function daysLeft(ds){
+  var p=ds.split('-'),target=new Date(+p[0],+p[1]-1,+p[2]);
+  var now=new Date();now.setHours(0,0,0,0);
+  return Math.round((target-now)/86400000);
+}
+function dayLabel(dl){
+  if(dl<0)return {t:'已过 '+(-dl)+' 天',cls:'over'};
+  if(dl===0)return {t:'就是今天 🎉',cls:'hot'};
+  if(dl<=3)return {t:'还有 '+dl+' 天',cls:'hot'};
+  return {t:'还有 '+dl+' 天',cls:''};
+}
+
+/* 模拟倒计时 */
+var mocks=ls.get('contest-v1-mocks');
+if(!Array.isArray(mocks))mocks=[];
+function renderMocks(){
+  var grid=document.getElementById('mockGrid');
+  var me=document.getElementById('mockEmpty');
+  if(mocks.length){me.style.display='none';me.innerHTML='';}
+  else{
+    me.style.display='block';
+    townEmpty(me,{art:'trophy',title:'还没有模拟安排',desc:'加一场模拟训练，给自己一个冲刺的小目标',btn:'＋ 添加模拟',mini:true,onBtn:function(){document.getElementById('mockName').focus();}});
+  }
+  mocks.sort(function(a,b){return daysLeft(a.d)-daysLeft(b.d);});
+  ls.set('contest-v1-mocks',mocks);
+  grid.innerHTML='';
+  mocks.forEach(function(m,i){
+    var dl=daysLeft(m.d),lb=dayLabel(dl);
+    var card=document.createElement('div');
+    card.className='cd-card'+(dl>=0&&dl<=3?' hot':'');
+    card.innerHTML='<span class="em">🎯</span><span class="nm">'+m.n+'</span>'+
+      '<span class="days">'+lb.t+'</span><span class="dt">'+m.d+'</span>'+
+      '<button class="x" data-i="'+i+'" style="margin-top:6px;border:none;background:none;color:var(--t3);cursor:pointer;">✕ 移除</button>';
+    card.querySelector('.x').onclick=function(){
+      mocks.splice(+card.querySelector('.x').dataset.i,1);
+      renderMocks();
+    };
+    grid.appendChild(card);
+  });
+}
+document.getElementById('mockAdd').onclick=function(){
+  var n=document.getElementById('mockName').value.trim();
+  var d=document.getElementById('mockDate').value;
+  if(!n){townToast('给模拟训练起个名字 🎯');return;}
+  if(!d){townToast('选一个日期呀 📅');return;}
+  mocks.push({n:n,d:d});
+  document.getElementById('mockName').value='';
+  renderMocks();
+  townToast('已添加模拟安排 📌');
+};
+
+/* 赛程 */
+var races=ls.get('contest-v1-schedule');
+if(!Array.isArray(races))races=[];
+function renderRaces(){
+  var el=document.getElementById('raceList');
+  var re=document.getElementById('raceEmpty');
+  if(races.length){re.style.display='none';re.innerHTML='';}
+  else{
+    re.style.display='block';
+    townEmpty(re,{art:'cal',title:'还没有赛程',desc:'记下第一场比赛，别错过报名时间',btn:'＋ 添加赛程',mini:true,onBtn:function(){document.getElementById('raceName').focus();}});
+  }
+  races.sort(function(a,b){return daysLeft(a.d)-daysLeft(b.d);});
+  ls.set('contest-v1-schedule',races);
+  el.innerHTML='';
+  races.forEach(function(r,i){
+    var dl=daysLeft(r.d),lb=dayLabel(dl);
+    var row=document.createElement('div');
+    row.className='row';
+    row.innerHTML='<span class="nm">🏁 '+r.n+'</span><span class="info">'+r.d+'</span><span class="st '+lb.cls+'">'+lb.t+'</span><button class="x">✕</button>';
+    row.querySelector('.x').onclick=function(){
+      races.splice(i,1);
+      renderRaces();
+    };
+    el.appendChild(row);
+  });
+}
+document.getElementById('raceAdd').onclick=function(){
+  var n=document.getElementById('raceName').value.trim();
+  var d=document.getElementById('raceDate').value;
+  if(!n){townToast('记一下比赛名字 🚩');return;}
+  if(!d){townToast('选个比赛日期呀 📅');return;}
+  races.push({n:n,d:d});
+  document.getElementById('raceName').value='';
+  renderRaces();
+  townToast('赛程已记下 🏁');
+};
+
+/* 真题 */
+var papers=ls.get('contest-v1-papers');
+if(!Array.isArray(papers))papers=[];
+function renderPapers(){
+  var el=document.getElementById('paperList');
+  var pe=document.getElementById('paperEmpty');
+  if(papers.length){pe.style.display='none';pe.innerHTML='';}
+  else{
+    pe.style.display='block';
+    townEmpty(pe,{art:'book',title:'还没有真题记录',desc:'刷完一套勾一套，积累手感',btn:'＋ 添加真题',mini:true,onBtn:function(){document.getElementById('paperName').focus();}});
+  }
+  ls.set('contest-v1-papers',papers);
+  el.innerHTML='';
+  papers.forEach(function(p,i){
+    var row=document.createElement('div');
+    row.className='row';
+    row.innerHTML='<span class="tk'+(p.done?' on':'')+'">'+(p.done?'✓':'')+'</span>'+
+      '<span class="nm'+(p.done?'" style="color:var(--t3);text-decoration:line-through;':'')+'">📄 '+p.n+'</span>'+
+      '<span class="info">'+p.year+'</span>'+
+      '<button class="x">✕</button>';
+    row.querySelector('.tk').onclick=function(){
+      p.done=!p.done;
+      renderPapers();
+      townToast(p.done?'刷完一套，好棒！📄✨':'标记为未完成，回头再战');
+    };
+    row.querySelector('.x').onclick=function(){
+      papers.splice(i,1);
+      renderPapers();
+    };
+    el.appendChild(row);
+  });
+}
+document.getElementById('paperAdd').onclick=function(){
+  var n=document.getElementById('paperName').value.trim();
+  var y=document.getElementById('paperYear').value.trim();
+  if(!n){townToast('记一下真题名字 📄');return;}
+  papers.push({n:n,year:y||'—',done:false});
+  document.getElementById('paperName').value='';
+  document.getElementById('paperYear').value='';
+  renderPapers();
+  townToast('真题已入清单，刷完记得勾掉');
+};
+
+renderMocks();renderRaces();renderPapers();
+</script>
+</body>
+</html>
