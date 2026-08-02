@@ -35,10 +35,27 @@
 
   /* ============ 小镇设置：主题 / 昵称头像 ============ */
   var cfg=ls.get('settings-v1-config')||{};
-  cfg.nick=cfg.nick||'零'; cfg.avatar=cfg.avatar||'🐰'; cfg.theme=cfg.theme||'spring';
+  cfg.nick=cfg.nick||'零'; cfg.avatar=cfg.avatar||'🐰'; cfg.theme=cfg.theme||'spring'; cfg.mode=cfg.mode||'day';
   window.townUser=function(){ return cfg; };
   /* 背景像素画风：春日 / 秋日 / 冬日 */
   document.body.classList.add('theme-'+cfg.theme);
+  /* 夜间 / 白天模式（全站统一） */
+  if(cfg.mode==='night')document.body.classList.add('night');
+  /* 模式切换浮动按钮（右下角，手机电脑通用） */
+  (function(){
+    var b=document.createElement('button');
+    b.className='mode-fab';
+    b.title='切换白天 / 黑夜';
+    b.textContent=document.body.classList.contains('night')?'☀️':'🌙';
+    b.onclick=function(){
+      var isNight=document.body.classList.toggle('night');
+      cfg.mode=isNight?'night':'day';
+      ls.set('settings-v1-config',cfg);
+      b.textContent=isNight?'☀️':'🌙';
+      if(window.townToast)townToast(isNight?'已切换到黑夜模式 🌙':'已切换到白天模式 ☀️');
+    };
+    document.body.appendChild(b);
+  })();
   /* 侧边栏底部用户卡 */
   var u=document.querySelector('.side-user');
   if(u){

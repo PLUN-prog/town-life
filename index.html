@@ -12,61 +12,48 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
-  /* ============ 晚安氛围：夜空主题（仅首页） ============ */
-  :root{
-    --bg:#141E2E; --card:rgba(255,255,255,.05); --line:rgba(255,255,255,.14); --line-soft:rgba(255,255,255,.09);
-    --t1:#EDF1F6; --t2:#B9C2CE; --t3:#7E8A9C;
-    --primary-soft:rgba(111,190,158,.16);
-    --shadow:0 4px 18px rgba(0,0,0,.25); --shadow-hover:0 10px 26px rgba(111,190,158,.28);
-  }
-  body{background:linear-gradient(180deg,#101827 0%,#17233A 55%,#1D2B40 100%);}
-  body.theme-autumn{background:linear-gradient(180deg,#1A1626 0%,#241D2E 55%,#2B2336 100%);}
-  body.theme-winter{background:linear-gradient(180deg,#0F1A26 0%,#16232F 55%,#1C2A38 100%);}
-  .side{background:rgba(20,30,46,.82);border-right-color:rgba(255,255,255,.1);backdrop-filter:blur(6px);}
-  .side a:hover{background:rgba(111,190,158,.14);}
-  .side a.on{background:linear-gradient(90deg,rgba(111,190,158,.2),rgba(255,255,255,0));}
-  .side-user{border-top-color:rgba(255,255,255,.1);}
-  .card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);box-shadow:0 4px 24px rgba(0,0,0,.28);}
-  .card:hover{border-color:rgba(111,190,158,.55);}
-  /* 夜空装饰：月亮 + 星星 */
+  /* 首页专用：白天/黑夜都适配（模式由全站切换按钮控制） */
+  /* 夜空装饰：仅夜间模式显示 */
   .night-sky{position:fixed;inset:0;z-index:-3;pointer-events:none;}
   .moon{position:fixed;top:26px;right:36px;z-index:-2;width:64px;height:64px;image-rendering:pixelated;
     filter:drop-shadow(0 0 22px rgba(246,221,150,.35));animation:moonfloat 7s ease-in-out infinite;}
   .moon rect{fill:#F2E4B3;}
   @keyframes moonfloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+  body:not(.night) .moon,body:not(.night) #nightSky{display:none;}
   .star{position:fixed;width:3px;height:3px;background:#EAF3FF;border-radius:50%;z-index:-2;opacity:.85;
     animation:tw 3.2s ease-in-out infinite;}
   @keyframes tw{0%,100%{opacity:.2;}50%{opacity:.95;}}
-  /* 时钟 */
-  .clk{font-family:var(--pixel);font-size:42px;color:#F5F8FC;text-align:center;letter-spacing:4px;margin:8px 0 4px;
-    text-shadow:0 0 22px rgba(246,196,83,.28),0 0 60px rgba(111,190,158,.18);}
+  /* 时钟：白天深色，夜间柔光 */
+  .clk{font-family:var(--pixel);font-size:42px;color:var(--t1);text-align:center;letter-spacing:4px;margin:8px 0 4px;}
+  body.night .clk{color:#F5F8FC;text-shadow:0 0 22px rgba(246,196,83,.28),0 0 60px rgba(111,190,158,.18);}
   .clk-sub{text-align:center;font-size:12px;color:var(--t3);letter-spacing:3px;}
-  /* 倒计时（适配暗色） */
-  .cd-add input{background:rgba(255,255,255,.06);border-color:var(--line);color:var(--t1);}
-  .cd-add input::placeholder{color:var(--t3);}
-  .cd-add input[type=date]{color-scheme:dark;}
+  /* 倒计时 */
   .cd{border-bottom-color:var(--line-soft);}
-  .cd .days{color:var(--primary);}
-  .cd .days.hot{color:#E19A84;}
-  .cd .days.today{color:var(--accent);}
+  body.night .cd .days{color:var(--primary);}
+  body.night .cd .days.hot{color:#E19A84;}
+  body.night .cd .days.today{color:var(--accent);}
   /* 学习进度 */
   .study-hero{text-align:center;padding:6px 0 2px;}
-  .study-hero .big{font-family:var(--pixel);font-size:34px;color:var(--primary);text-shadow:0 0 18px rgba(111,190,158,.4);}
+  .study-hero .big{font-family:var(--pixel);font-size:34px;color:var(--primary-deep);}
+  body.night .study-hero .big{color:var(--primary);text-shadow:0 0 18px rgba(111,190,158,.4);}
   .study-hero .big small{font-family:var(--font);font-size:13px;color:var(--t3);letter-spacing:2px;}
   .study-hero .line{margin-top:10px;font-size:13px;color:var(--t2);letter-spacing:1px;line-height:2;}
-  .study-hero .line b{color:var(--primary);}
+  .study-hero .line b{color:var(--primary-deep);}
+  body.night .study-hero .line b{color:var(--primary);}
   .study-meta{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px;}
-  .study-meta .pill{font-size:11.5px;color:var(--t2);background:rgba(111,190,158,.12);
+  .study-meta .pill{font-size:11.5px;color:var(--t2);background:var(--primary-soft);
     border:1.5px solid rgba(111,190,158,.35);border-radius:999px;padding:4px 13px;letter-spacing:1px;}
-  .study-meta .pill b{color:var(--primary);}
+  .study-meta .pill b{color:var(--primary-deep);}
+  body.night .study-meta .pill b{color:var(--primary);}
   .study-cta{margin-top:14px;text-align:center;}
   /* 全部工具抽屉 */
   .tools{text-align:center;margin-top:22px;}
   .tools-btn{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-size:13.5px;font-weight:800;
-    letter-spacing:3px;color:var(--t2);background:rgba(255,255,255,.05);border:1.5px solid var(--line);
-    border-radius:999px;padding:11px 26px;cursor:pointer;transition:all .2s;box-shadow:0 3px 0 rgba(0,0,0,.25);}
-  .tools-btn:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-2px);}
+    letter-spacing:3px;color:var(--t2);background:#fff;border:1.5px solid var(--line);
+    border-radius:999px;padding:11px 26px;cursor:pointer;transition:all .2s;box-shadow:0 3px 0 var(--line-soft);}
+  .tools-btn:hover{border-color:var(--primary);color:var(--primary-deep);transform:translateY(-2px);}
   .tools-btn:active{transform:scale(.95);}
+  body.night .tools-btn{background:rgba(255,255,255,.05);box-shadow:0 3px 0 rgba(0,0,0,.25);}
   .tools-btn .tri{transition:transform .25s;font-size:10px;}
   .tools-btn.open .tri{transform:rotate(180deg);}
   .tools-panel{display:none;margin-top:16px;text-align:left;}
@@ -75,15 +62,16 @@
   .tools-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
   @media (max-width:640px){.tools-grid{grid-template-columns:repeat(3,1fr);}}
   .tool{display:flex;flex-direction:column;align-items:center;gap:7px;text-decoration:none;padding:13px 6px 11px;
-    background:rgba(255,255,255,.05);border:1.5px solid var(--line);border-radius:12px;transition:all .15s;}
-  .tool:hover{transform:translateY(-3px);border-color:var(--primary);background:rgba(111,190,158,.1);}
+    background:#fff;border:1.5px solid var(--line);border-radius:12px;transition:all .15s;}
+  .tool:hover{transform:translateY(-3px);border-color:var(--primary);background:var(--primary-soft);}
   .tool:active{transform:scale(.94);}
+  body.night .tool{background:rgba(255,255,255,.05);}
+  body.night .tool:hover{background:rgba(111,190,158,.1);}
   .tool .ic{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:19px;
-    background:rgba(255,255,255,.08);border:1.5px solid var(--line);border-radius:10px;}
+    background:var(--primary-soft);border:1.5px solid var(--line);border-radius:10px;}
   .tool .nm{font-size:12px;font-weight:700;color:var(--t2);letter-spacing:1px;}
-  /* 页脚 */
-  .foot{color:var(--t3);}
-  .foot b{color:var(--primary);}
+  .foot b{color:var(--primary-deep);}
+  body.night .foot b{color:var(--primary);}
 </style>
 </head>
 <body data-page="index">
@@ -109,6 +97,11 @@
   <a href="settings.html" data-page="settings"><i>⚙️</i>小镇设置</a>
 </nav>
 
+<div class="sky"></div>
+<svg class="sun" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="2"/><rect x="6" y="3" width="2" height="2"/><rect x="0" y="3" width="2" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="6" height="4"/><rect x="2" y="6" width="4" height="1"/><rect x="2" y="2" width="2" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/></svg>
+<svg class="cloud" style="top:52px;left:6%;width:64px;height:30px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<svg class="cloud" style="top:104px;left:72%;width:50px;height:24px" viewBox="0 0 16 8" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="3"/><rect x="4" y="2" width="8" height="2"/><rect x="6" y="0" width="4" height="2"/></svg>
+<div class="grass"></div>
 <div class="night-sky" id="nightSky"></div>
 <svg class="moon" viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="3" y="2" width="8" height="2"/><rect x="1" y="4" width="10" height="2"/><rect x="2" y="6" width="12" height="4"/><rect x="1" y="10" width="10" height="2"/><rect x="3" y="12" width="8" height="2"/><rect x="6" y="6" width="2" height="2" fill="#E8D79A"/><rect x="10" y="8" width="1" height="1" fill="#E8D79A"/></svg>
 
@@ -186,16 +179,25 @@ function fmtM(m){return m>=60?(Math.floor(m/60)+'h'+(m%60?m%60+'m':'')):m+'m';}
   }
 })();
 
-/* ============ ② 问候：晚安文案 ============ */
+/* ============ ② 问候：按模式切换文案 ============ */
 (function(){
   var h=new Date().getHours();
   var nick=(ls.get('settings-v1-config')||{}).nick||'零';
+  var night=document.body.classList.contains('night');
   var greet,line;
-  if(h>=5&&h<11){greet='早上好';line='小镇刚醒，慢慢来。';}
-  else if(h>=11&&h<17){greet='午安';line='午后的小镇，适合歇口气。';}
-  else if(h>=17&&h<23){greet='晚上好';line='天黑了，小镇给你留了盏灯。';}
-  else{greet='夜深了';line='夜深了，把今天轻轻放下吧。';}
-  document.getElementById('welcome').textContent='🌙 '+greet+'，'+nick;
+  if(night){
+    if(h>=5&&h<11){greet='早上好';line='小镇刚醒，慢慢来。';}
+    else if(h>=11&&h<17){greet='午安';line='午后的小镇，适合歇口气。';}
+    else if(h>=17&&h<23){greet='晚上好';line='天黑了，小镇给你留了盏灯。';}
+    else{greet='夜深了';line='夜深了，把今天轻轻放下吧。';}
+    document.getElementById('welcome').textContent='🌙 '+greet+'，'+nick;
+  }else{
+    if(h>=5&&h<11){greet='早上好';line='慢慢来，比较快。今天也把日子过成喜欢的样子。';}
+    else if(h>=11&&h<17){greet='午安';line='午后歇口气，下午继续加油。';}
+    else if(h>=17&&h<23){greet='晚上好';line='今天辛苦啦，晚上好好放松。';}
+    else{greet='夜深了';line='夜深了，早点休息，明天见。';}
+    document.getElementById('welcome').textContent='🏡 '+greet+'，'+nick;
+  }
   document.getElementById('slogan').textContent=line;
 })();
 
