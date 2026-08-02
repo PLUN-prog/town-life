@@ -430,6 +430,12 @@
 
   /* ============ PWA：注册 Service Worker（需 HTTPS 部署后生效） ============ */
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js').catch(function(){});
+    navigator.serviceWorker.register('sw.js').then(function(reg){
+      /* 每次打开都检查 SW 更新，新版本就绪后自动刷新页面 */
+      reg.update().catch(function(){});
+      if(navigator.serviceWorker.controller){
+        navigator.serviceWorker.addEventListener('controllerchange',function(){location.reload();});
+      }
+    }).catch(function(){});
   }
 })();
