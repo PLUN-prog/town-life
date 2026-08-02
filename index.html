@@ -59,8 +59,7 @@
   .tools-panel{display:none;margin-top:16px;text-align:left;}
   .tools-panel.open{display:block;animation:toolsin .25s ease;}
   @keyframes toolsin{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-  .tools-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-  @media (max-width:640px){.tools-grid{grid-template-columns:repeat(3,1fr);}}
+  .tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px;}
   .tool{display:flex;flex-direction:column;align-items:center;gap:7px;text-decoration:none;padding:13px 6px 11px;
     background:#fff;border:1.5px solid var(--line);border-radius:12px;transition:all .15s;}
   .tool:hover{transform:translateY(-3px);border-color:var(--primary);background:var(--primary-soft);}
