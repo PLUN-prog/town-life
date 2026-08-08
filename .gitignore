@@ -17,3 +17,9 @@ workbench-lite/
 # 系统文件
 Thumbs.db
 .DS_Store
+
+# 桌面版打包工程（含 node_modules 与安装包产物）
+town-desktop/
+
+# 安卓打包工程（含密钥与构建产物）
+town-apk/

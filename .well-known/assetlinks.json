@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.town.life",
+    "sha256_cert_fingerprints": ["12:3E:EF:C3:D2:B7:9E:E4:6F:78:D8:95:6C:09:DE:EF:33:B0:68:AD:BE:28:C1:B9:55:0A:E1:2E:A9:83:66:03"]
+  }
+}]
